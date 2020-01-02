@@ -17,6 +17,11 @@ static void handle_character(struct context* ctx, char character)
 	++ctx->text;
 }
 
+static bool is_finalizer(char character)
+{
+	return character == '.' || character == ';' || character == ',';
+}
+
 struct view advance(struct context* ctx)
 {
 	char previous = 0;
@@ -51,7 +56,7 @@ struct view advance(struct context* ctx)
 			// once we find a delimiter, there's nothing more in this token
 			break;
 		}
-		if (!first && (character == '.' || character == ';')) {
+		if (!first && is_finalizer(character)) {
 			// these characters also specify the end of a token,
 			// unless we find them as the first character (since we want to
 			// include them when they appear as first)
@@ -65,8 +70,8 @@ struct view advance(struct context* ctx)
 
 		handle_character(ctx, character);
 
-		if (first && character == ';') {
-			// when we have a semicolon, only include that character
+		if (first && (character == ';' || character == ',')) {
+			// when we have these characters, only include that one
 			break;
 		}
 		first = false;

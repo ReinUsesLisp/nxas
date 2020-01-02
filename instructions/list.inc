@@ -1,1 +1,2 @@
 INSTR("NOP", nop)
+INSTR("MOV32I", mov32i)
