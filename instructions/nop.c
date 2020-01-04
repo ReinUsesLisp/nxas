@@ -12,15 +12,15 @@ DEFINE_INSTRUCTION(nop)
 	add_bits(instr, 0x50B0000000000000ULL);
 	instr->delay = 1;
 
-	struct view token = advance(ctx);
+	struct token token = tokenize(ctx);
 	if (equal(&token, ".TRIG")) {
 		add_bits(instr, 1ULL << 13);
 		instr->delay = 6;
 
-		token = advance(ctx);
+		token = tokenize(ctx);
 
-		// we don't know exactly what condition codes and/or predcates are
-		// read when TRIG is used, assume all of them are read
+		// we don't know exactly what condition codes and/or predcates are read when TRIG is used,
+		// assume all of them are read
 		for (size_t i = 0; i <= MAX_USER_PREDICATE; ++i) {
 			read_predicate(instr, i);
 		}
@@ -29,20 +29,20 @@ DEFINE_INSTRUCTION(nop)
 		}
 	}
 
-	uint64_t test = 15;
+	uint64_t test_index = 15;
 	if (equal(&token, "CC")) {
-		token = advance(ctx);
-		if (!find_in_table(tests, ".", token, &test)) {
-			fatal_error(ctx, &token, "unexpected test for NOP");
+		token = tokenize(ctx);
+		if (!find_in_table(&token, tests, ".", &test_index)) {
+			fatal_error(&token, "unexpected test for NOP");
 		}
-		token = advance(ctx);
+		token = tokenize(ctx);
 	}
-	add_bits(instr, test << 8);
+	add_bits(instr, test_index << 8);
 
-	if (!equal(&token, ";")) {
-		add_bits(instr, parse_integer(ctx, token, 0, UINT16_MAX) << 20);
-		token = advance(ctx);
+	if (token.type == TOKEN_TYPE_IMMEDIATE) {
+		add_bits(instr, get_integer(&token, 0, UINT16_MAX) << 20);
+		token = tokenize(ctx);
 	}
 
-	check_eol(ctx, token);
+	check(&token, TOKEN_TYPE_OPERATOR_SEMICOLON);
 }

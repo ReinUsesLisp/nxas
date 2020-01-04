@@ -2,9 +2,8 @@
 #define ERROR_H_INCLUDED
 
 struct context;
-struct view;
+struct token;
 
-_Noreturn void fatal_error(
-	const struct context* ctx, const struct view* view, const char* fmt, ...);
+_Noreturn void fatal_error(const struct token* token, const char* fmt, ...);
 
 #endif // ERROR_H_INCLUDED

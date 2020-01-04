@@ -1,11 +1,9 @@
-#include <stdbool.h>
 #include <stddef.h>
 #include <string.h>
 
-#include "context.h"
 #include "parse.h"
 #include "instruction.h"
-#include "source.h"
+#include "token.h"
 #include "error.h"
 
 #define INSTR(name, func)                                                    \
@@ -13,33 +11,48 @@
 #include "instructions/list.inc"
 #undef INSTR
 
-bool parse_instruction(struct context* ctx, struct instruction* instr)
+static void assemble_predicate(
+	const struct token* token, struct instruction* instr, size_t shift, int is_negable)
+{
+	check(token, TOKEN_TYPE_PREDICATE);
+
+	if (!is_negable && token->data.predicate.negated) {
+		fatal_error(token, "predicate can't be negated");
+	}
+	uint64_t bits = token->data.predicate.index;
+	bits |= (token->data.predicate.negated ? 1 : 0) << 3;
+	bits <<= shift;
+	add_bits(instr, bits);
+}
+
+int parse_instruction(struct context* ctx, struct instruction* instr)
 {
 	memset(instr, 0, sizeof *instr);
 
-	struct view pred_or_mnemonic = advance(ctx);
-	if (is_empty(&pred_or_mnemonic)) {
-		return false;
+	struct token token = tokenize(ctx);
+	if (token.type == TOKEN_TYPE_NONE) {
+		return 0;
 	}
 
-	if (pred_or_mnemonic.text[0] == '@') {
-		parse_predicate(ctx, instr, pred_or_mnemonic, 16, true, true);
-		pred_or_mnemonic = advance(ctx);
+	if (token.type == TOKEN_TYPE_OPERATOR_AT) {
+		token = tokenize(ctx);
+		assemble_predicate(&token, instr, 16, 1);
+
+		token = tokenize(ctx);
 	} else {
 		// write always execute by default
 		add_bits(instr, 7ULL << 16);
 	}
 
-	const struct view mnemonic = pred_or_mnemonic;
+	check(&token, TOKEN_TYPE_IDENTIFIER);
 	
 #define INSTR(name, func)                                                    \
-	if (equal(&mnemonic, name)) {                                            \
+	if (equal(&token, name)) {                                               \
 		parse_##func(ctx, instr);                                            \
-		return true;                                                         \
+		return 1;                                                            \
 	}
 #include "instructions/list.inc"
 #undef INSTR
 
-	fatal_error(
-		ctx, NULL, "unknown mnemonic %.*s", mnemonic.length, mnemonic.text);
+	fatal_error(&token, "unknown mnemonic %.*s", token.data.string.size, token.data.string.text);
 }

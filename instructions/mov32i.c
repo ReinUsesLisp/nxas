@@ -6,17 +6,22 @@ DEFINE_INSTRUCTION(mov32i)
 	instr->delay = 6;
 
 	dest_gpr0(ctx, instr);
-	check_comma(ctx, advance(ctx));
 
-	add_bits(instr, parse_integer(ctx, advance(ctx), 0, UINT32_MAX) << 20);
+	struct token token = tokenize(ctx);
+	check(&token, TOKEN_TYPE_OPERATOR_COMMA);
 
-	struct view token = advance(ctx);
-	int64_t mask_value = 0xf;
-	if (equal(&token, ",")) {
-		mask_value = parse_integer(ctx, advance(ctx), 0, 0xf);
-		token = advance(ctx);
+	token = tokenize(ctx);
+	add_bits(instr, get_integer(&token, 0, UINT32_MAX) << 20);
+
+	token = tokenize(ctx);
+	uint64_t mask = 0xf;
+	if (token.type == TOKEN_TYPE_OPERATOR_COMMA) {
+		token = tokenize(ctx);
+		mask = get_integer(&token, 0, 0xf);
+
+		token = tokenize(ctx);
 	}
-	add_bits(instr, (uint64_t)mask_value << 12);
+	add_bits(instr, mask << 12);
 
-	check_eol(ctx, token);
+	check(&token, TOKEN_TYPE_OPERATOR_SEMICOLON);
 }

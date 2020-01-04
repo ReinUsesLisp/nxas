@@ -1,20 +1,22 @@
 #include <stdio.h>
 #include <stdint.h>
 
-#include "context.h"
-#include "parse.h"
 #include "error.h"
+#include "parse.h"
+#include "token.h"
 #include "instruction.h"
 
 int main(int argc, char** argv)
 {
 	if (argc < 2) {
-		fatal_error(NULL, NULL, "no input");
+		fatal_error(NULL, "no input");
 	}
 
 	struct context ctx = {
 		.filename = "test.asm",
 		.text = argv[1],
+		.line = 0,
+		.column = 0,
 	};
 
 	struct instruction instr;
