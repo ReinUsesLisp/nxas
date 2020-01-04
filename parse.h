@@ -4,6 +4,6 @@
 struct context;
 struct instruction;
 
-int parse_instruction(struct context* ctx, struct instruction* instr);
+int parse_instruction(struct context *ctx, struct instruction *instr);
 
 #endif // PARSE_H_INCLUDED

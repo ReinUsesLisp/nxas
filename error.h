@@ -4,6 +4,6 @@
 struct context;
 struct token;
 
-_Noreturn void fatal_error(const struct token* token, const char* fmt, ...);
+_Noreturn void fatal_error(const struct token *token, const char *fmt, ...);
 
 #endif // ERROR_H_INCLUDED
