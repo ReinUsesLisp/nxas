@@ -119,7 +119,7 @@ void try_reuse(struct context *ctx, struct token *token, struct instruction *ins
         add_reuse(instr, REUSE_FLAG_GPR20);
         break;
     case 39:
-        add_reuse(instr, REUSE_FLAG_GPR8);
+        add_reuse(instr, REUSE_FLAG_GPR39);
         break;
     default:
         fatal_error(token, "register cannot be reused");
