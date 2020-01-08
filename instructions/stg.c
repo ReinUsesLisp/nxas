@@ -17,14 +17,14 @@ DEFINE_INSTRUCTION(stg)
     }
 
     uint64_t cache = 0;
-    if (token.type == TOKEN_TYPE_IDENTIFIER && find_in_table(&token, cache_table, ".", &cache)) {
+    if (find_in_table(&token, cache_table, ".", &cache)) {
         cache += 1;
         token = tokenize(ctx);
     }
     add_bits(instr, cache << 46);
 
     uint64_t size = 4;
-    if (token.type == TOKEN_TYPE_IDENTIFIER && find_in_table(&token, size_table, ".", &size)) {
+    if (find_in_table(&token, size_table, ".", &size)) {
         token = tokenize(ctx);
     }
     add_bits(instr, size << 48);

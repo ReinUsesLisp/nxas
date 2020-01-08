@@ -35,4 +35,8 @@ void assemble_signed_20bit_immediate(struct context *ctx, struct token *token,
 
 void assemble_constant_buffer(struct context *ctx, struct token *token, struct instruction *instr);
 
+void assemble_gpr20_cbuf_imm(struct context *ctx, struct token *token, struct instruction *instr,
+                             uint64_t register_opcode, uint64_t cbuf_opcode,
+                             uint64_t immediate_opcode);
+
 #endif // INSTRUCTIONS_HELPER_H_INCLUDED

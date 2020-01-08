@@ -73,7 +73,9 @@ uint64_t get_integer(const struct token *token, int64_t min, int64_t max)
 int find_in_table(const struct token *token, const char *const *table, const char *prefix,
                   uint64_t *value)
 {
-    check(token, TOKEN_TYPE_IDENTIFIER);
+    if (token->type != TOKEN_TYPE_IDENTIFIER) {
+        return 0;
+    }
 
     const char *text = token->data.string.text;
     size_t length = token->data.string.size;
@@ -92,7 +94,7 @@ int find_in_table(const struct token *token, const char *const *table, const cha
 
     for (size_t i = 0; table[i]; ++i) {
         const size_t item_length = strlen(table[i]);
-        if (item_length != length) {
+        if (item_length == 0 || item_length != length) {
             continue;
         }
         if (memcmp(text, table[i], item_length) != 0) {
@@ -184,4 +186,27 @@ void assemble_constant_buffer(struct context *ctx, struct token *token, struct i
     check_next(ctx, token, TOKEN_TYPE_OPERATOR_BRACKET_RIGHT);
 
     *token = tokenize(ctx);
+}
+
+void assemble_gpr20_cbuf_imm(struct context *ctx, struct token *token, struct instruction *instr,
+                             uint64_t register_opcode, uint64_t cbuf_opcode,
+                             uint64_t immediate_opcode)
+{
+    *token = tokenize(ctx);
+    switch (token->type) {
+    case TOKEN_TYPE_REGISTER:
+        add_bits(instr, register_opcode);
+        assemble_source_gpr(ctx, token, instr, 20);
+        break;
+    case TOKEN_TYPE_IDENTIFIER:
+        add_bits(instr, cbuf_opcode);
+        assemble_constant_buffer(ctx, token, instr);
+        break;
+    case TOKEN_TYPE_IMMEDIATE:
+        add_bits(instr, immediate_opcode);
+        assemble_signed_20bit_immediate(ctx, token, instr);
+        break;
+    default:
+        fatal_error(token, "expected immediate, constant buffer or register");
+    }
 }
