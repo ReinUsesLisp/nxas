@@ -85,9 +85,10 @@ int main(int argc, char **argv)
     }
 
     // prepare our context
+    char* input_text = read_file(input_file);
     struct context ctx = {
         .filename = input_file,
-        .text = read_file(input_file),
+        .text = input_text,
     };
 
     // to determine the number of instructions to allocate we count the number
@@ -110,6 +111,8 @@ int main(int argc, char **argv)
         ;
     assert(index == max_decode_instructions);
     const size_t num_instructions = index - 1;
+
+    free(input_text);
 
     size_t output_index = 0;
     for (index = 0; index < num_instructions; ++index) {
