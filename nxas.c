@@ -85,7 +85,7 @@ int main(int argc, char **argv)
     }
 
     // prepare our context
-    char* input_text = read_file(input_file);
+    char *input_text = read_file(input_file);
     struct context ctx = {
         .filename = input_file,
         .text = input_text,

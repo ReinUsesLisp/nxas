@@ -29,7 +29,7 @@ DEFINE_INSTRUCTION(stg)
     }
     add_bits(instr, size << 48);
 
-    check(&token, TOKEN_TYPE_OPERATOR_BRACKET_LEFT);
+    CHECK(confirm_type(&token, TOKEN_TYPE_OPERATOR_BRACKET_LEFT));
 
     token = tokenize(ctx);
     uint8_t regster = ZERO_REGISTER;
@@ -46,16 +46,18 @@ DEFINE_INSTRUCTION(stg)
         const int64_t min = is_zero_reg ? 0 : -(1 << 23);
         const int64_t max = MAX_BITS(is_zero_reg ? 24 : 23);
 
-        add_bits(instr, (get_integer(&token, min, max) & MAX_BITS(24)) << 20);
+        uint64_t value;
+        CHECK(convert_integer(&token, min, max, &value));
+        add_bits(instr, (value & MAX_BITS(24)) << 20);
         token = tokenize(ctx);
     }
-    check(&token, TOKEN_TYPE_OPERATOR_BRACKET_RIGHT);
+    CHECK(confirm_type(&token, TOKEN_TYPE_OPERATOR_BRACKET_RIGHT));
 
     token = tokenize(ctx);
-    check(&token, TOKEN_TYPE_OPERATOR_COMMA);
+    CHECK(confirm_type(&token, TOKEN_TYPE_OPERATOR_COMMA));
 
     token = tokenize(ctx);
-    assemble_source_gpr(ctx, &token, instr, 0);
+    CHECK(assemble_source_gpr(ctx, &token, instr, 0));
 
-    check(&token, TOKEN_TYPE_OPERATOR_SEMICOLON);
+    return confirm_type(&token, TOKEN_TYPE_OPERATOR_SEMICOLON);
 }

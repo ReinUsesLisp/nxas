@@ -21,16 +21,18 @@ DEFINE_INSTRUCTION(nop)
     if (equal(&token, "CC")) {
         token = tokenize(ctx);
         if (!find_in_table(&token, tests, ".", &test_index)) {
-            fatal_error(&token, "unexpected test for NOP");
+            return fail(&token, "unexpected test for NOP");
         }
         token = tokenize(ctx);
     }
     add_bits(instr, test_index << 8);
 
     if (token.type == TOKEN_TYPE_IMMEDIATE) {
-        add_bits(instr, get_integer(&token, 0, UINT16_MAX) << 20);
+        uint64_t value;
+        CHECK(convert_integer(&token, 0, UINT16_MAX, &value));
+        add_bits(instr, value << 20);
         token = tokenize(ctx);
     }
 
-    check(&token, TOKEN_TYPE_OPERATOR_SEMICOLON);
+    return confirm_type(&token, TOKEN_TYPE_OPERATOR_SEMICOLON);
 }

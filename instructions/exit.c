@@ -20,11 +20,11 @@ DEFINE_INSTRUCTION(exiti)
     if (equal(&token, "CC")) {
         token = tokenize(ctx);
         if (!find_in_table(&token, tests, ".", &test_index)) {
-            fatal_error(&token, "unexpected test for NOP");
+            return fail(&token, "unexpected test for NOP");
         }
         token = tokenize(ctx);
     }
     add_bits(instr, test_index);
 
-    check(&token, TOKEN_TYPE_OPERATOR_SEMICOLON);
+    return confirm_type(&token, TOKEN_TYPE_OPERATOR_SEMICOLON);
 }

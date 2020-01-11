@@ -36,14 +36,14 @@ DEFINE_INSTRUCTION(shr)
         add_bits(instr, 1ULL << 47);
         token = tokenize(ctx);
     }
-    check(&token, TOKEN_TYPE_OPERATOR_COMMA);
+    CHECK(confirm_type(&token, TOKEN_TYPE_OPERATOR_COMMA));
 
     token = tokenize(ctx);
     assemble_dest_gpr(ctx, &token, instr, 8);
-    check(&token, TOKEN_TYPE_OPERATOR_COMMA);
+    CHECK(confirm_type(&token, TOKEN_TYPE_OPERATOR_COMMA));
 
-    assemble_gpr20_cbuf_imm(ctx, &token, instr, 0x5C28000000000000ULL, 0x4C28000000000000ULL,
-                            0x3828000000000000ULL);
+    CHECK(assemble_gpr20_cbuf_imm(ctx, &token, instr, 0x5C28000000000000ULL, 0x4C28000000000000ULL,
+                            0x3828000000000000ULL));
 
-    check(&token, TOKEN_TYPE_OPERATOR_SEMICOLON);
+    return confirm_type(&token, TOKEN_TYPE_OPERATOR_SEMICOLON);
 }

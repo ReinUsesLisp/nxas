@@ -6,20 +6,22 @@ DEFINE_INSTRUCTION(mov32i)
 
     struct token token = tokenize(ctx);
     assemble_dest_gpr(ctx, &token, instr, 0);
-    check(&token, TOKEN_TYPE_OPERATOR_COMMA);
+    CHECK(confirm_type(&token, TOKEN_TYPE_OPERATOR_COMMA));
 
     token = tokenize(ctx);
-    add_bits(instr, get_integer(&token, 0, UINT32_MAX) << 20);
+    uint64_t value;
+    CHECK(convert_integer(&token, 0, UINT32_MAX, &value));
+    add_bits(instr, value << 20);
 
     token = tokenize(ctx);
     uint64_t mask = 0xf;
     if (token.type == TOKEN_TYPE_OPERATOR_COMMA) {
         token = tokenize(ctx);
-        mask = get_integer(&token, 0, 0xf);
+        CHECK(convert_integer(&token, 0, 0xf, &mask));
 
         token = tokenize(ctx);
     }
     add_bits(instr, mask << 12);
 
-    check(&token, TOKEN_TYPE_OPERATOR_SEMICOLON);
+    return confirm_type(&token, TOKEN_TYPE_OPERATOR_SEMICOLON);
 }
