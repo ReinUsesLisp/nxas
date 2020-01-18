@@ -11,12 +11,12 @@
 
 struct token;
 
-typedef char *error;
+using error = char *;
 
 error fail(const struct token *token, const char *fmt, ...);
 
-_Noreturn void fatal_error(const struct token *token, const char *fmt, ...);
+[[noreturn]] void fatal_error(const struct token *token, const char *fmt, ...);
 
-_Noreturn void report_error(char *message);
+[[noreturn]] void report_error(char *message);
 
 #endif // ERROR_H_INCLUDED

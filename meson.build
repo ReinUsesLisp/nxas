@@ -1,4 +1,4 @@
-project('nxas', 'c')
+project('nxas', 'cpp')
 
-src = ['nxas.c', 'parse.c', 'error.c', 'token.c', 'helper.c', 'operand.c']
+src = ['nxas.cpp', 'parse.cpp', 'error.cpp', 'token.cpp', 'helper.cpp', 'operand.cpp']
 executable('nxas', sources : src)

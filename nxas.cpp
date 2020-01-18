@@ -10,6 +10,9 @@
 
 static char *read_file(const char *filename)
 {
+    char *text;
+    long size;
+
     FILE *infp = fopen(filename, "rb");
     if (!infp) {
         fatal_error(NULL, "%s: failed to open", filename);
@@ -17,13 +20,17 @@ static char *read_file(const char *filename)
     if (fseek(infp, 0, SEEK_END)) {
         goto failure;
     }
-    const long size = ftell(infp);
+    size = ftell(infp);
     if (size == -1L) {
         goto failure;
     }
     rewind(infp);
 
-    char *text = malloc((size_t)size);
+    text = (char *)malloc((size_t)size);
+    if (!text) {
+        goto failure;
+    }
+
     if (fread(text, 1, (size_t)size, infp) != (size_t)size) {
         free(text);
         goto failure;
@@ -100,8 +107,9 @@ int main(int argc, char **argv)
     const size_t max_decode_instructions = num_semicolons + 1;
     const size_t max_output_instructions = num_semicolons * 4 / 3 + 3;
 
-    uint64_t *output = malloc(max_output_instructions * sizeof(uint64_t));
-    struct instruction *instrs = calloc(max_decode_instructions, sizeof(struct instruction));
+    uint64_t *output = (uint64_t *)malloc(max_output_instructions * sizeof(uint64_t));
+    struct instruction *instrs =
+        (struct instruction *)calloc(max_decode_instructions, sizeof(struct instruction));
     if (!output || !instrs) {
         fatal_error(NULL, "out of memory");
     }
