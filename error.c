@@ -52,7 +52,7 @@ void fatal_error(const struct token *token, const char *fmt, ...)
     exit(EXIT_FAILURE);
 }
 
-void report_error(char* message)
+void report_error(char *message)
 {
     fputs(message, stderr);
     fputc('\n', stderr);

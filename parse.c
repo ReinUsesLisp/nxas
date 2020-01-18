@@ -6,12 +6,10 @@
 #include "error.h"
 #include "helper.h"
 #include "instruction.h"
+#include "operand.h"
 #include "parse.h"
+#include "table.h"
 #include "token.h"
-
-#define INSTR(name, func) error parse_##func(struct context *ctx, struct instruction *instr);
-#include "instructions/list.inc"
-#undef INSTR
 
 static error assemble_predicate(const struct token *token, struct instruction *instr, size_t shift,
                                 int is_negable)
@@ -28,6 +26,21 @@ static error assemble_predicate(const struct token *token, struct instruction *i
     return NULL;
 }
 
+static error parse_insn(struct context *ctx, struct instruction *instr, const struct insn *insn)
+{
+    add_bits(instr, insn->opcode);
+
+    struct token token = tokenize(ctx);
+    if ((insn->flags & NO_PRED) && (instr->value & (7ULL << 16))) {
+        return fail(&token, "%s does not support predicated execution", insn->mnemonic);
+    }
+
+    for (size_t i = 0; insn->operands[i]; ++i) {
+        CHECK(insn->operands[i](ctx, &token, instr));
+    }
+    return confirm_type(&token, TOKEN_TYPE_OPERATOR_SEMICOLON);
+}
+
 int parse_instruction(struct context *ctx, struct instruction *instr)
 {
     memset(instr, 0, sizeof *instr);
@@ -39,7 +52,7 @@ int parse_instruction(struct context *ctx, struct instruction *instr)
 
     if (token.type == TOKEN_TYPE_OPERATOR_AT) {
         token = tokenize(ctx);
-        char* message = assemble_predicate(&token, instr, 16, 1);
+        char *message = assemble_predicate(&token, instr, 16, 1);
         if (message) {
             report_error(message);
         }
@@ -55,21 +68,28 @@ int parse_instruction(struct context *ctx, struct instruction *instr)
     }
 
     const struct context saved_context = *ctx;
+    const struct instruction saved_instr = *instr;
     error message = NULL;
 
-#define INSTR(name, func)                                                                          \
-    if (equal(&token, name)) {                                                                     \
-        if (message) {                                                                             \
-            free(message);                                                                         \
-        }                                                                                          \
-        message = parse_##func(ctx, instr);                                                        \
-        if (!message) {                                                                            \
-            return 1;                                                                              \
-        }                                                                                          \
-        *ctx = saved_context;                                                                      \
+    const size_t num_insns = sizeof(table) / sizeof(table[0]);
+    for (size_t i = 0; i < num_insns; ++i) {
+        const struct insn *insn = &table[i];
+        if (!equal(&token, insn->mnemonic)) {
+            continue;
+        }
+        if (message) {
+            free(message);
+        }
+
+        message = parse_insn(ctx, instr, insn);
+        if (!message) {
+            // successfully decoded insn
+            return 1;
+        }
+        // failure, restore context
+        *ctx = saved_context;
+        *instr = saved_instr;
     }
-#include "instructions/list.inc"
-#undef INSTR
 
     if (message) {
         report_error(message);

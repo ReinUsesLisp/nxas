@@ -179,7 +179,7 @@ error assemble_constant_buffer(struct context *ctx, struct token *token, struct 
     CHECK(convert_integer(token, INT16_MIN, INT16_MAX, &value));
     const int offset = (int16_t)value;
     if (offset % 4) {
-        fail(&first_token, "immediate constant buffer access has to be aligned to 4 bytes");
+        return fail(&first_token, "immediate constant buffer access has to be aligned to 4 bytes");
     }
     add_bits(instr, (uint64_t)((uint16_t)offset >> 2) << 20);
 

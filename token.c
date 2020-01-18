@@ -13,11 +13,17 @@
 static void next(struct context *ctx)
 {
     const char character = ctx->text++[0];
-    if (character == '\n') {
+    switch (character) {
+    default:
+        ++ctx->column;
+        break;
+    case '\t':
+        ctx->column += 4;
+        break;
+    case '\n':
         ++ctx->line;
         ctx->column = 0;
-    } else {
-        ++ctx->column;
+        break;
     }
 }
 

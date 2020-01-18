@@ -1,6 +1,0 @@
-INSTR("NOP", nop)
-INSTR("MOV", mov)
-INSTR("MOV32I", mov32i)
-INSTR("STG", stg)
-INSTR("EXIT", exiti)
-INSTR("SHR", shr)
