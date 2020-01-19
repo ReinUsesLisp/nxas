@@ -27,10 +27,8 @@ DECLARE_OPERAND(nop_trig);
 DECLARE_OPERAND(nop_tests);
 DECLARE_OPERAND(nop_mask);
 
-DECLARE_OPERAND(stg_e);
-DECLARE_OPERAND(stg_cache);
-DECLARE_OPERAND(stg_size);
-DECLARE_OPERAND(stg_address);
+DECLARE_OPERAND(xmad_signs);
+DECLARE_OPERAND(xmad_psl36);
 
 DECLARE_OPERAND(shr_format);
 DECLARE_OPERAND(shr_mode);
@@ -39,3 +37,8 @@ DECLARE_OPERAND(shr_brev);
 
 DECLARE_OPERAND(exit_keeprefcount);
 DECLARE_OPERAND(exit_tests);
+
+DECLARE_OPERAND(stg_e);
+DECLARE_OPERAND(stg_cache);
+DECLARE_OPERAND(stg_size);
+DECLARE_OPERAND(stg_address);

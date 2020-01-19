@@ -97,6 +97,30 @@ DEFINE_OPERAND(nop_tests)
 
 DEFINE_UINT(nop_mask, UINT16_MAX, 20)
 
+DEFINE_OPERAND(xmad_signs)
+{
+    const bool is_s16 = equal(token, ".S16");
+    if (!is_s16 && !equal(token, ".U16")) {
+        return {};
+    }
+    token = ctx.tokenize();
+
+    if (is_s16) {
+        op.add_bits(1ULL << 48);
+    }
+
+    if (equal(token, ".S16")) {
+        op.add_bits(1ULL << 49);
+    } else if (!equal(token, ".U16")) {
+        return fail(token, "expected S16 or U16");
+    }
+
+    token = ctx.tokenize();
+    return {};
+}
+
+DEFINE_FLAG(xmad_psl36, ".PSL", 36)
+
 DEFINE_DOT_TABLE(shr_format, 1, 48, "U32", "S32")
 DEFINE_DOT_TABLE(shr_mode, 0, 39, "C", "W")
 DEFINE_DOT_TABLE(shr_xmode, 0, 43, "", "INVALIDSHRXMODE1", "X", "XHI")
