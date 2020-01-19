@@ -1,32 +1,27 @@
-#ifndef TOKENIZER_H_INCLUDED
-#define TOKENIZER_H_INCLUDED
+#pragma once
 
-#include <stddef.h>
-#include <stdint.h>
+#include <string_view>
+
+#include <cstddef>
+#include <cstdint>
 
 #include "error.h"
 
-enum
+enum class token_type
 {
-    TOKEN_TYPE_NONE,
-    TOKEN_TYPE_IDENTIFIER,
-    TOKEN_TYPE_REGISTER,
-    TOKEN_TYPE_PREDICATE,
-    TOKEN_TYPE_IMMEDIATE,
-    TOKEN_TYPE_OPERATOR_PLUS,
-    TOKEN_TYPE_OPERATOR_MINUS,
-    TOKEN_TYPE_OPERATOR_VBAR,
-    TOKEN_TYPE_OPERATOR_BRACKET_LEFT,
-    TOKEN_TYPE_OPERATOR_BRACKET_RIGHT,
-    TOKEN_TYPE_OPERATOR_AT,
-    TOKEN_TYPE_OPERATOR_SEMICOLON,
-    TOKEN_TYPE_OPERATOR_COMMA,
-};
-
-struct token_string
-{
-    const char *text;
-    size_t size;
+    none,
+    identifier,
+    regster,
+    predicate,
+    immediate,
+    plus,
+    minus,
+    vbar,
+    bracket_left,
+    bracket_right,
+    at,
+    semicolon,
+    comma,
 };
 
 struct token_predicate
@@ -37,35 +32,37 @@ struct token_predicate
 
 union token_data
 {
-    struct token_predicate predicate;
-    struct token_string string;
-    int64_t immediate;
-    uint8_t regster;
+    token_predicate predicate;
+    std::string_view string{};
+    std::int64_t immediate;
+    std::uint8_t regster;
 };
 
 struct token
 {
-    const char *filename;
+    const char* filename;
     union token_data data;
-    int type;
+    token_type type;
     int line;
     int column;
 };
 
-struct context
+class context
 {
-    const char *filename;
-    const char *text;
-    int line;
-    int column;
+  public:
+    context(const char* filename_, const char* text_) : filename{filename_}, text{text_} {}
+
+    token tokenize();
+
+  private:
+    void next();
+
+    const char* filename;
+    const char* text;
+    int line = 0;
+    int column = 0;
 };
 
-struct token tokenize(struct context *ctx);
+const char* name(token_type type);
 
-const char *token_type_name(int type);
-
-const char *token_extra_info(const struct token *token);
-
-int token_extra_info_size(const struct token *token);
-
-#endif // TOKENIZER_H_INCLUDED
+std::string_view info(const token& token);

@@ -1,22 +1,31 @@
-#ifndef ERROR_H_INCLUDED
-#define ERROR_H_INCLUDED
+#pragma once
+
+#include <memory>
 
 #define CHECK(result)                                                                              \
     do {                                                                                           \
-        char *tmpres_##__LINE__ = (result);                                                        \
-        if (tmpres_##__LINE__) {                                                                   \
+        if (error tmpres_##__LINE__ = (result)) {                                                  \
             return tmpres_##__LINE__;                                                              \
         }                                                                                          \
     } while (0)
 
 struct token;
 
-using error = char *;
+class error
+{
+    friend error fail(const token& token, const char* fmt, ...);
 
-error fail(const struct token *token, const char *fmt, ...);
+  public:
+    operator bool() const { return static_cast<bool>(message); }
 
-[[noreturn]] void fatal_error(const struct token *token, const char *fmt, ...);
+    [[noreturn]] void raise();
 
-[[noreturn]] void report_error(char *message);
+  private:
+    std::unique_ptr<char[]> message;
+};
 
-#endif // ERROR_H_INCLUDED
+error fail(const token& token, const char* fmt, ...);
+
+[[noreturn]] void fatal_error(const token& token, const char* fmt, ...);
+
+[[noreturn]] void fatal_error(const char* fmt, ...);

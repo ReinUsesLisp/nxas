@@ -7,203 +7,182 @@
 #include "helper.h"
 #include "token.h"
 
-static error assemble_gpr(struct context *ctx, struct token *token, struct instruction *instr,
-                          int address)
+static error assemble_gpr(context& ctx, token& token, opcode& op, int address)
 {
-    CHECK(confirm_type(token, TOKEN_TYPE_REGISTER));
+    CHECK(confirm_type(token, token_type::regster));
 
-    add_bits(instr, (uint64_t)token->data.regster << address);
+    op.add_bits(static_cast<std::uint64_t>(token.data.regster) << address);
 
-    *token = tokenize(ctx);
-    return try_reuse(ctx, token, instr, address);
+    token = ctx.tokenize();
+    return try_reuse(ctx, token, op, address);
 }
 
-static error confirm_type_next(struct context *ctx, struct token *token, int type)
+static error confirm_type_next(context& ctx, token& token, token_type type)
 {
-    *token = tokenize(ctx);
+    token = ctx.tokenize();
     return confirm_type(token, type);
 }
 
-error confirm_type(const struct token *token, int type)
+error confirm_type(const token& token, token_type type)
 {
-    if (token->type == type) {
-        return NULL;
+    if (token.type == type) {
+        return {};
     }
-    if (token->type == TOKEN_TYPE_NONE) {
-        return fail(token, "expected \33[1m%s\33[0m", token_type_name(type));
+    if (token.type == token_type::none) {
+        return fail(token, "expected \33[1m%s\33[0m", name(type));
     }
-    return fail(token, "expected \33[1m%s\33[0m and got \33[1m%s %.*s\33[0m", token_type_name(type),
-                token_type_name(token->type), token_extra_info_size(token),
-                token_extra_info(token));
+    const std::string_view tkninfo = info(token);
+    return fail(token, "expected \33[1m%s\33[0m and got \33[1m%s %.*s\33[0m", name(type),
+                name(token.type), static_cast<int>(std::size(tkninfo)), std::data(tkninfo));
 }
 
-int equal(const struct token *token, const char *string)
+int equal(const token& token, const char* string)
 {
-    if (token->type != TOKEN_TYPE_IDENTIFIER) {
+    if (token.type != token_type::identifier) {
         return 0;
     }
 
-    const size_t length = token->data.string.size;
-    if (length != strlen(string)) {
-        return 0;
-    }
-    return memcmp(token->data.string.text, string, length) == 0;
+    return token.data.string.compare(string) == 0;
 }
 
-error convert_integer(const struct token *token, int64_t min, int64_t max, uint64_t *result)
+error convert_integer(const token& token, std::int64_t min, std::int64_t max, std::uint64_t* result)
 {
-    CHECK(confirm_type(token, TOKEN_TYPE_IMMEDIATE));
+    CHECK(confirm_type(token, token_type::immediate));
 
-    int64_t value = token->data.immediate;
+    std::int64_t value = token.data.immediate;
     if (value < min || value > max) {
         return fail(token,
                     "integer \33[1m%d\33[0m is out of range, expected to be "
                     "from %" PRId64 " to %" PRId64 " inclusively",
                     value, min, max);
     }
-    *result = (uint64_t)value;
-    return NULL;
+    *result = static_cast<std::uint64_t>(value);
+    return {};
 }
 
-int find_in_table(const struct token *token, const char *const *table, const char *prefix,
-                  uint64_t *value)
+std::optional<std::uint64_t> find_in_table(const token& token, const char* const* table,
+                                           std::string_view prefix)
 {
-    if (token->type != TOKEN_TYPE_IDENTIFIER) {
-        return 0;
+    if (token.type != token_type::identifier) {
+        return {};
     }
 
-    const char *text = token->data.string.text;
-    size_t length = token->data.string.size;
+    std::string_view text = token.data.string;
 
-    if (prefix) {
-        const size_t prefix_length = strlen(prefix);
-        if (length < prefix_length) {
-            return 0;
+    if (!prefix.empty()) {
+        if (prefix.compare(text.substr(0, std::size(prefix))) != 0) {
+            return {};
         }
-        if (memcmp(text, prefix, prefix_length) != 0) {
-            return 0;
-        }
-        text += prefix_length;
-        length -= prefix_length;
+        text = text.substr(std::size(prefix));
     }
 
-    for (size_t i = 0; table[i]; ++i) {
-        const size_t item_length = strlen(table[i]);
-        if (item_length == 0 || item_length != length) {
+    for (std::size_t i = 0; table[i]; ++i) {
+        if (text.compare(table[i]) != 0) {
             continue;
         }
-        if (memcmp(text, table[i], item_length) != 0) {
-            continue;
-        }
-        *value = (uint64_t)i;
-        return true;
+        return static_cast<std::uint64_t>(i);
     }
-    return false;
+    return {};
 }
 
-error try_reuse(struct context *ctx, struct token *token, struct instruction *instr, int address)
+error try_reuse(context& ctx, token& token, opcode& op, int address)
 {
     if (!equal(token, ".reuse")) {
-        return NULL;
+        return {};
     }
     switch (address) {
     case 8:
-        add_reuse(instr, REUSE_FLAG_GPR8);
-        return NULL;
+        op.add_reuse(reuse_flag::gpr8);
+        return {};
     case 20:
-        add_reuse(instr, REUSE_FLAG_GPR20);
-        return NULL;
+        op.add_reuse(reuse_flag::gpr20);
+        return {};
     case 39:
-        add_reuse(instr, REUSE_FLAG_GPR39);
-        return NULL;
+        op.add_reuse(reuse_flag::gpr39);
+        return {};
     default:
         return fail(token, "register cannot be reused");
     }
-
-    *token = tokenize(ctx);
 }
 
-error assemble_dest_gpr(struct context *ctx, struct token *token, struct instruction *instr,
-                        int address)
+error assemble_dest_gpr(context& ctx, token& token, opcode& op, int address)
 {
-    return assemble_gpr(ctx, token, instr, address);
+    return assemble_gpr(ctx, token, op, address);
 }
 
-error assemble_source_gpr(struct context *ctx, struct token *token, struct instruction *instr,
-                          int address)
+error assemble_source_gpr(context& ctx, token& token, opcode& op, int address)
 {
-    return assemble_gpr(ctx, token, instr, address);
+    return assemble_gpr(ctx, token, op, address);
 }
 
-error assemble_signed_20bit_immediate(struct context *ctx, struct token *token,
-                                      struct instruction *instr)
+error assemble_signed_20bit_immediate(context& ctx, token& token, opcode& op)
 {
-    int64_t value;
-    CHECK(convert_integer(token, -(1 << 19), MAX_BITS(19), (uint64_t *)&value));
+    std::int64_t value;
+    CHECK(
+        convert_integer(token, -(1 << 19), MAX_BITS(19), reinterpret_cast<std::uint64_t*>(&value)));
 
-    uint64_t raw, negative;
+    std::uint64_t raw, negative;
     if (value < 0) {
         raw = (value - (1 << 19)) & MAX_BITS(19);
         negative = 1;
     } else {
-        raw = (uint64_t)value;
+        raw = static_cast<std::uint64_t>(value);
         negative = 0;
     }
 
-    add_bits(instr, raw << 20);
-    add_bits(instr, negative << 56);
+    op.add_bits(raw << 20);
+    op.add_bits(negative << 56);
 
-    *token = tokenize(ctx);
-    return NULL;
+    token = ctx.tokenize();
+    return {};
 }
 
-error assemble_constant_buffer(struct context *ctx, struct token *token, struct instruction *instr)
+error assemble_constant_buffer(context& ctx, token& token, opcode& op)
 {
-    const struct token first_token = *token;
+    const struct token first_token = token;
 
     if (!equal(token, "c")) {
         return fail(token, "expected constant buffer");
     }
 
-    CHECK(confirm_type_next(ctx, token, TOKEN_TYPE_OPERATOR_BRACKET_LEFT));
+    CHECK(confirm_type_next(ctx, token, token_type::bracket_left));
 
-    *token = tokenize(ctx);
-    uint64_t value;
+    token = ctx.tokenize();
+    std::uint64_t value;
     CHECK(convert_integer(token, 0, MAX_BITS(5), &value));
-    add_bits(instr, (uint64_t)value << 34);
+    op.add_bits(static_cast<std::uint64_t>(value) << 34);
 
-    CHECK(confirm_type_next(ctx, token, TOKEN_TYPE_OPERATOR_BRACKET_RIGHT));
-    CHECK(confirm_type_next(ctx, token, TOKEN_TYPE_OPERATOR_BRACKET_LEFT));
+    CHECK(confirm_type_next(ctx, token, token_type::bracket_right));
+    CHECK(confirm_type_next(ctx, token, token_type::bracket_left));
 
-    *token = tokenize(ctx);
+    token = ctx.tokenize();
     CHECK(convert_integer(token, INT16_MIN, INT16_MAX, &value));
-    const int offset = (int16_t)value;
+    const int offset = static_cast<std::int16_t>(value);
     if (offset % 4) {
-        return fail(&first_token, "immediate constant buffer access has to be aligned to 4 bytes");
+        return fail(first_token, "immediate constant buffer access has to be aligned to 4 bytes");
     }
-    add_bits(instr, (uint64_t)((uint16_t)offset >> 2) << 20);
+    op.add_bits(static_cast<std::uint64_t>(static_cast<std::uint16_t>(offset) >> 2) << 20);
 
-    CHECK(confirm_type_next(ctx, token, TOKEN_TYPE_OPERATOR_BRACKET_RIGHT));
+    CHECK(confirm_type_next(ctx, token, token_type::bracket_right));
 
-    *token = tokenize(ctx);
-    return NULL;
+    token = ctx.tokenize();
+    return {};
 }
 
-error assemble_gpr20_cbuf_imm(struct context *ctx, struct token *token, struct instruction *instr,
-                              uint64_t register_opcode, uint64_t cbuf_opcode,
-                              uint64_t immediate_opcode)
+error assemble_gpr20_cbuf_imm(context& ctx, token& token, opcode& op, std::uint64_t register_opcode,
+                              std::uint64_t cbuf_opcode, std::uint64_t immediate_opcode)
 {
-    *token = tokenize(ctx);
-    switch (token->type) {
-    case TOKEN_TYPE_REGISTER:
-        add_bits(instr, register_opcode);
-        return assemble_source_gpr(ctx, token, instr, 20);
-    case TOKEN_TYPE_IDENTIFIER:
-        add_bits(instr, cbuf_opcode);
-        return assemble_constant_buffer(ctx, token, instr);
-    case TOKEN_TYPE_IMMEDIATE:
-        add_bits(instr, immediate_opcode);
-        return assemble_signed_20bit_immediate(ctx, token, instr);
+    token = ctx.tokenize();
+    switch (token.type) {
+    case token_type::regster:
+        op.add_bits(register_opcode);
+        return assemble_source_gpr(ctx, token, op, 20);
+    case token_type::identifier:
+        op.add_bits(cbuf_opcode);
+        return assemble_constant_buffer(ctx, token, op);
+    case token_type::immediate:
+        op.add_bits(immediate_opcode);
+        return assemble_signed_20bit_immediate(ctx, token, op);
     default:
         return fail(token, "expected immediate, constant buffer or register");
     }

@@ -1,9 +1,6 @@
-#ifndef PARSE_H_INCLUDED
-#define PARSE_H_INCLUDED
+#pragma once
 
-struct context;
-struct instruction;
+class context;
+struct opcode;
 
-int parse_instruction(struct context *ctx, struct instruction *instr);
-
-#endif // PARSE_H_INCLUDED
+bool parse_instruction(context& ctx, opcode& op);

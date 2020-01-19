@@ -1,222 +1,225 @@
-#include <assert.h>
-#include <ctype.h>
-#include <stddef.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <algorithm>
+#include <cassert>
+#include <cctype>
+#include <cstddef>
+#include <cstdint>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <string_view>
 
 #include "error.h"
-#include "instruction.h"
+#include "opcode.h"
 #include "token.h"
 
-static void next(struct context *ctx)
+[[gnu::always_inline]] static bool is_contained(std::string_view string, int character)
 {
-    const char character = ctx->text++[0];
-    switch (character) {
-    default:
-        ++ctx->column;
-        break;
-    case '\t':
-        ctx->column += 4;
-        break;
-    case '\n':
-        ++ctx->line;
-        ctx->column = 0;
-        break;
-    }
+    return std::find(std::begin(string), std::end(string), (char)character) != std::end(string);
 }
 
-static int is_operator(int character) { return strchr("+-|[]@,;", character) != NULL; }
-
-static int is_separator(int character)
+[[gnu::always_inline]] static bool is_operator(int character)
 {
-    return isspace(character) || is_operator(character) || character == '.' || !character;
+    return is_contained("+-|[]@,;", character);
 }
 
-static int get_operator_type(int character)
+[[gnu::always_inline]] static bool is_separator(int character)
+{
+    return is_contained(" \t\r\n.", character) || is_operator(character) || !character;
+}
+
+static token_type get_operator_type(int character)
 {
     switch (character) {
     default:
         assert(0);
     case '+':
-        return TOKEN_TYPE_OPERATOR_PLUS;
+        return token_type::plus;
     case '-':
-        return TOKEN_TYPE_OPERATOR_MINUS;
+        return token_type::minus;
     case '|':
-        return TOKEN_TYPE_OPERATOR_VBAR;
+        return token_type::vbar;
     case '[':
-        return TOKEN_TYPE_OPERATOR_BRACKET_LEFT;
+        return token_type::bracket_left;
     case ']':
-        return TOKEN_TYPE_OPERATOR_BRACKET_RIGHT;
+        return token_type::bracket_right;
     case '@':
-        return TOKEN_TYPE_OPERATOR_AT;
+        return token_type::at;
     case ';':
-        return TOKEN_TYPE_OPERATOR_SEMICOLON;
+        return token_type::semicolon;
     case ',':
-        return TOKEN_TYPE_OPERATOR_COMMA;
+        return token_type::comma;
     }
 }
 
-struct token tokenize(struct context *ctx)
+token context::tokenize()
 {
-    while (isspace(*ctx->text) || *ctx->text == '\t') {
-        next(ctx);
+    while (std::isspace(*text) || *text == '\t') {
+        next();
     }
 
-    struct token token;
-    token.filename = ctx->filename;
-    token.line = ctx->line;
-    token.column = ctx->column;
+    token token;
+    token.filename = filename;
+    token.line = line;
+    token.column = column;
 
-    if (!*ctx->text) {
-        token.type = TOKEN_TYPE_NONE;
+    if (!*text) {
+        token.type = token_type::none;
         return token;
     }
 
-    const char *contents = ctx->text;
+    const char* contents = text;
 
-    if (strchr("!Pp", *ctx->text)) {
-        token.type = TOKEN_TYPE_PREDICATE;
+    if (is_contained("!Pp", *text)) {
+        token.type = token_type::predicate;
 
-        if ((token.data.predicate.negated = *ctx->text == '!')) {
-            next(ctx);
-            if (!strchr("Pp", *ctx->text)) {
-                fatal_error(&token, "fatal: invalid usage of '!'\n");
+        if ((token.data.predicate.negated = *text == '!')) {
+            next();
+            if (!is_contained("Pp", *text)) {
+                fatal_error(token, "fatal: invalid usage of '!'\n");
             }
         }
-        next(ctx);
+        next();
 
-        if (strchr("Tt", *ctx->text)) {
+        if (is_contained("Tt", *text)) {
             token.data.predicate.index = 7;
-        } else if (*ctx->text < '0' || *ctx->text > '6') {
-            fatal_error(&token, "out of range predicate");
+        } else if (*text < '0' || *text > '6') {
+            fatal_error(token, "out of range predicate");
         } else {
-            token.data.predicate.index = *ctx->text - '0';
+            token.data.predicate.index = *text - '0';
         }
-        next(ctx);
+        next();
         return token;
     }
-    if (is_operator(*ctx->text) && (!strchr("+-", *ctx->text) || !isdigit(ctx->text[1]))) {
-        token.type = get_operator_type(*ctx->text);
-        next(ctx);
+    if (is_operator(*text) && (!is_contained("+-", *text) || !std::isdigit(text[1]))) {
+        token.type = get_operator_type(*text);
+        next();
         return token;
     }
-    if (isdigit(*ctx->text) || strchr("+-", *ctx->text)) {
-        token.type = TOKEN_TYPE_IMMEDIATE;
-        while (isdigit(*ctx->text) || strchr("+-AaBbCcDdEeFfXx", *ctx->text)) {
-            next(ctx);
+    if (std::isdigit(*text) || is_contained("+-", *text)) {
+        token.type = token_type::immediate;
+        while (std::isdigit(*text) || is_contained("+-AaBbCcDdEeFfXx", *text)) {
+            next();
         }
 
-        if (!is_separator(*ctx->text)) {
+        if (!is_separator(*text)) {
             fprintf(stderr, "no separator after immediate\n");
             exit(EXIT_FAILURE);
         }
 
-        char *conversion_end = NULL;
-        token.data.immediate = (int64_t)strtoll(contents, &conversion_end, 0);
-        if (conversion_end != ctx->text) {
-            fatal_error(&token, "failed to convert integer constant \33[1;31m%.*s\33[0m",
-                        (int)(ctx->text - contents), contents);
+        char* conversion_end = NULL;
+        token.data.immediate =
+            static_cast<std::int64_t>(std::strtoll(contents, &conversion_end, 0));
+        if (conversion_end != text) {
+            fatal_error(token, "failed to convert integer constant \33[1;31m%.*s\33[0m",
+                        (int)(text - contents), contents);
         }
         return token;
     }
-    if (*ctx->text == 'R') {
-        token.type = TOKEN_TYPE_REGISTER;
+    if (*text == 'R') {
+        token.type = token_type::regster;
 
-        next(ctx);
-        if (*ctx->text == 'Z') {
-            next(ctx);
+        next();
+        if (*text == 'Z') {
+            next();
 
-            if (!is_separator(*ctx->text)) {
-                fatal_error(&token, "no separator after register");
+            if (!is_separator(*text)) {
+                fatal_error(token, "no separator after register");
             }
 
             token.data.regster = ZERO_REGISTER;
             return token;
         }
 
-        while (isdigit(*ctx->text)) {
-            next(ctx);
+        while (std::isdigit(*text)) {
+            next();
         }
 
-        if (!is_separator(*ctx->text)) {
-            fatal_error(&token, "no separator after register");
+        if (!is_separator(*text)) {
+            fatal_error(token, "no separator after register");
         }
 
-        char *conversion_end = NULL;
-        const long long value = (int64_t)strtoll(contents + 1, &conversion_end, 10);
-        if (conversion_end != ctx->text) {
-            fatal_error(&token, "invalid register index \33[1;31m%.*s\33[0m",
-                        (int)(ctx->text - contents), contents);
+        char* conversion_end = NULL;
+        const long long value =
+            static_cast<std::int64_t>(std::strtoll(contents + 1, &conversion_end, 10));
+        if (conversion_end != text) {
+            fatal_error(token, "invalid register index \33[1;31m%.*s\33[0m", (int)(text - contents),
+                        contents);
         }
         if (value < 0 || value >= NUM_USER_REGISTERS) {
-            fatal_error(&token,
+            fatal_error(token,
                         "register index \33[1;31m%.*s\33[0m is out of range, expected to be "
                         "from 0 to 254 inclusively",
-                        (int)(ctx->text - contents), contents);
+                        (int)(text - contents), contents);
         }
 
-        token.data.regster = (uint8_t)value;
+        token.data.regster = static_cast<uint8_t>(value);
         return token;
     }
 
-    token.type = TOKEN_TYPE_IDENTIFIER;
-    token.data.string.text = contents;
-
     do {
-        next(ctx);
-    } while (!is_separator(*ctx->text));
-    token.data.string.size = (size_t)(ctx->text - contents);
+        next();
+    } while (!is_separator(*text));
+
+    token.type = token_type::identifier;
+    token.data.string = std::string_view(contents, static_cast<std::size_t>(text - contents));
     return token;
 }
 
-const char *token_type_name(int type)
+void context::next()
+{
+    const char character = text++[0];
+    switch (character) {
+    default:
+        ++column;
+        break;
+    case '\t':
+        column += 4;
+        break;
+    case '\n':
+        ++line;
+        column = 0;
+        break;
+    }
+}
+
+const char* name(token_type type)
 {
     switch (type) {
     default:
         return "unknown";
-    case TOKEN_TYPE_NONE:
+    case token_type::none:
         return "nothing";
-    case TOKEN_TYPE_IDENTIFIER:
+    case token_type::identifier:
         return "identifier";
-    case TOKEN_TYPE_REGISTER:
+    case token_type::regster:
         return "register";
-    case TOKEN_TYPE_PREDICATE:
+    case token_type::predicate:
         return "predicate";
-    case TOKEN_TYPE_IMMEDIATE:
+    case token_type::immediate:
         return "immediate";
-    case TOKEN_TYPE_OPERATOR_PLUS:
+    case token_type::plus:
         return "plus";
-    case TOKEN_TYPE_OPERATOR_MINUS:
+    case token_type::minus:
         return "minus";
-    case TOKEN_TYPE_OPERATOR_VBAR:
+    case token_type::vbar:
         return "vertical bar";
-    case TOKEN_TYPE_OPERATOR_BRACKET_LEFT:
+    case token_type::bracket_left:
         return "squared bracket left";
-    case TOKEN_TYPE_OPERATOR_BRACKET_RIGHT:
+    case token_type::bracket_right:
         return "squared bracket right";
-    case TOKEN_TYPE_OPERATOR_AT:
+    case token_type::at:
         return "at";
-    case TOKEN_TYPE_OPERATOR_SEMICOLON:
+    case token_type::semicolon:
         return "semicolon";
-    case TOKEN_TYPE_OPERATOR_COMMA:
+    case token_type::comma:
         return "comma";
     }
 }
 
-const char *token_extra_info(const struct token *token)
+std::string_view info(const token& token)
 {
-    if (token->type != TOKEN_TYPE_IDENTIFIER) {
-        return "";
+    if (token.type != token_type::identifier) {
+        return {};
     }
-    return token->data.string.text;
-}
-
-int token_extra_info_size(const struct token *token)
-{
-    if (token->type != TOKEN_TYPE_IDENTIFIER) {
-        return 0;
-    }
-    return (int)token->data.string.size;
+    return token.data.string;
 }

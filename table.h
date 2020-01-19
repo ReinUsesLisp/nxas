@@ -15,10 +15,10 @@ struct insn
     uint64_t opcode;
     char mnemonic[12];
     unsigned flags;
-    operand *operands;
+    operand* operands;
 };
 
-static const struct insn table[] = {
+constexpr insn table[] = {
     INSN(0x50B0000000000000ULL, 0, "NOP", nop_trig, nop_tests),
     INSN(0x50B0000000000000ULL, 0, "NOP", nop_trig, nop_mask),
     INSN(0x50B0000000000000ULL, 0, "NOP", nop_trig, nop_tests, comma, nop_mask),

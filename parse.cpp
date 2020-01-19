@@ -5,96 +5,90 @@
 
 #include "error.h"
 #include "helper.h"
-#include "instruction.h"
+#include "opcode.h"
 #include "operand.h"
 #include "parse.h"
 #include "table.h"
 #include "token.h"
 
-static error assemble_predicate(const struct token *token, struct instruction *instr, size_t shift,
-                                int is_negable)
+static error assemble_predicate(const token& token, opcode& op, std::size_t shift, int is_negable)
 {
-    CHECK(confirm_type(token, TOKEN_TYPE_PREDICATE));
+    CHECK(confirm_type(token, token_type::predicate));
 
-    if (!is_negable && token->data.predicate.negated) {
+    if (!is_negable && token.data.predicate.negated) {
         return fail(token, "predicate can't be negated");
     }
-    uint64_t bits = token->data.predicate.index;
-    bits |= (token->data.predicate.negated ? 1 : 0) << 3;
+    std::uint64_t bits = token.data.predicate.index;
+    bits |= (token.data.predicate.negated ? 1 : 0) << 3;
     bits <<= shift;
-    add_bits(instr, bits);
-    return NULL;
+    op.add_bits(bits);
+    return {};
 }
 
-static error parse_insn(struct context *ctx, struct instruction *instr, const struct insn *insn)
+static error parse_insn(context& ctx, opcode& op, const insn& insn)
 {
-    add_bits(instr, insn->opcode);
+    op.add_bits(insn.opcode);
 
-    struct token token = tokenize(ctx);
-    if ((insn->flags & NO_PRED) && (instr->value & (7ULL << 16))) {
-        return fail(&token, "%s does not support predicated execution", insn->mnemonic);
+    token token = ctx.tokenize();
+    if ((insn.flags & NO_PRED) && (op.value & (7ULL << 16))) {
+        return fail(token, "%s does not support predicated execution", insn.mnemonic);
     }
 
-    for (size_t i = 0; insn->operands[i]; ++i) {
-        CHECK(insn->operands[i](ctx, &token, instr));
+    for (std::size_t i = 0; insn.operands[i]; ++i) {
+        CHECK(insn.operands[i](ctx, token, op));
     }
-    return confirm_type(&token, TOKEN_TYPE_OPERATOR_SEMICOLON);
+    return confirm_type(token, token_type::semicolon);
 }
 
-int parse_instruction(struct context *ctx, struct instruction *instr)
+bool parse_instruction(context& ctx, opcode& op)
 {
-    memset(instr, 0, sizeof *instr);
-
-    struct token token = tokenize(ctx);
-    if (token.type == TOKEN_TYPE_NONE) {
-        return 0;
+    token token = ctx.tokenize();
+    if (token.type == token_type::none) {
+        return false;
     }
 
-    if (token.type == TOKEN_TYPE_OPERATOR_AT) {
-        token = tokenize(ctx);
-        char *message = assemble_predicate(&token, instr, 16, 1);
+    if (token.type == token_type::at) {
+        token = ctx.tokenize();
+        error message = assemble_predicate(token, op, 16, 1);
         if (message) {
-            report_error(message);
+            message.raise();
         }
 
-        token = tokenize(ctx);
+        token = ctx.tokenize();
     } else {
         // write always execute by default
-        add_bits(instr, 7ULL << 16);
+        op.add_bits(7ULL << 16);
     }
 
-    if (token.type != TOKEN_TYPE_IDENTIFIER) {
-        fatal_error(&token, "expected mnemonic");
+    if (token.type != token_type::identifier) {
+        fatal_error(token, "expected mnemonic");
     }
 
-    const struct context saved_context = *ctx;
-    const struct instruction saved_instr = *instr;
-    error message = NULL;
+    const context saved_context = ctx;
+    const opcode saved_op = op;
+    error message;
 
-    const size_t num_insns = sizeof(table) / sizeof(table[0]);
-    for (size_t i = 0; i < num_insns; ++i) {
-        const struct insn *insn = &table[i];
-        if (!equal(&token, insn->mnemonic)) {
+    const std::size_t num_insns = sizeof(table) / sizeof(table[0]);
+    for (std::size_t i = 0; i < num_insns; ++i) {
+        const insn& insn = table[i];
+        if (!equal(token, insn.mnemonic)) {
             continue;
         }
-        if (message) {
-            free(message);
-        }
 
-        message = parse_insn(ctx, instr, insn);
+        message = parse_insn(ctx, op, insn);
         if (!message) {
-            // successfully decoded insn
-            return 1;
+            // successfully decoded instruction
+            return true;
         }
         // failure, restore context
-        *ctx = saved_context;
-        *instr = saved_instr;
+        ctx = saved_context;
+        op = saved_op;
     }
 
     if (message) {
-        report_error(message);
+        message.raise();
     } else {
-        fatal_error(&token, "unknown mnemonic %.*s", token.data.string.size,
-                    token.data.string.text);
+        fatal_error(token, "unknown mnemonic %.*s", std::size(token.data.string),
+                    std::data(token.data.string));
     }
 }

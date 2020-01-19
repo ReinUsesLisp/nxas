@@ -1,41 +1,38 @@
-#ifndef INSTRUCTIONS_HELPER_H_INCLUDED
-#define INSTRUCTIONS_HELPER_H_INCLUDED
+#pragma once
 
 #include <stddef.h>
 #include <stdint.h>
 
+#include <optional>
+#include <string_view>
+
 #include "error.h"
-#include "instruction.h"
+#include "opcode.h"
 #include "token.h"
 
-#define DEFINE_INSTRUCTION(name) error parse_##name(struct context *ctx, struct instruction *instr)
+#define DEFINE_INSTRUCTION(name) error parse_##name(context& ctx, opcode& op)
 
 #define MAX_BITS(size) ((1ULL << (size)) - 1)
 
-error confirm_type(const struct token *token, int type);
+error confirm_type(const token& token, token_type type);
 
-int equal(const struct token *token, const char *string);
+int equal(const token& token, const char* string);
 
-error convert_integer(const struct token *token, int64_t min, int64_t max, uint64_t *result);
+error convert_integer(const token& token, std::int64_t min, std::int64_t max,
+                      std::uint64_t* result);
 
-int find_in_table(const struct token *token, const char *const *table, const char *prefix,
-                  uint64_t *value);
+std::optional<std::uint64_t> find_in_table(const token& token, const char* const* table,
+                                           std::string_view prefix);
 
-error try_reuse(struct context *ctx, struct token *token, struct instruction *instr, int address);
+error try_reuse(context& ctx, token& token, opcode& op, int address);
 
-error assemble_dest_gpr(struct context *ctx, struct token *token, struct instruction *instr,
-                        int address);
+error assemble_dest_gpr(context& ctx, token& token, opcode& op, int address);
 
-error assemble_source_gpr(struct context *ctx, struct token *token, struct instruction *instr,
-                          int address);
+error assemble_source_gpr(context& ctx, token& token, opcode& op, int address);
 
-error assemble_signed_20bit_immediate(struct context *ctx, struct token *token,
-                                      struct instruction *instr);
+error assemble_signed_20bit_immediate(context& ctx, token& token, opcode& op);
 
-error assemble_constant_buffer(struct context *ctx, struct token *token, struct instruction *instr);
+error assemble_constant_buffer(context& ctx, token& token, opcode& op);
 
-error assemble_gpr20_cbuf_imm(struct context *ctx, struct token *token, struct instruction *instr,
-                              uint64_t register_opcode, uint64_t cbuf_opcode,
-                              uint64_t immediate_opcode);
-
-#endif // INSTRUCTIONS_HELPER_H_INCLUDED
+error assemble_gpr20_cbuf_imm(context& ctx, token& token, opcode& op, std::uint64_t register_opcode,
+                              std::uint64_t cbuf_opcode, std::uint64_t immediate_opcode);

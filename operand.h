@@ -1,15 +1,13 @@
-#ifndef OPERAND_H_INCLUDED
-#define OPERAND_H_INCLUDED
+#pragma once
 
 #include "error.h"
-#include "instruction.h"
+#include "opcode.h"
 #include "token.h"
 
-#define DECLARE_OPERAND(name)                                                                      \
-    error name(struct context *ctx, struct token *token, struct instruction *instr)
+#define DECLARE_OPERAND(name) error name(context& ctx, token& token, opcode& op)
 #define DEFINE_OPERAND(name) DECLARE_OPERAND(name)
 
-typedef error (*operand)(struct context *, struct token *, struct instruction *);
+typedef error (*operand)(context&, token&, opcode&);
 
 DECLARE_OPERAND(comma);
 
@@ -41,5 +39,3 @@ DECLARE_OPERAND(shr_brev);
 
 DECLARE_OPERAND(exit_keeprefcount);
 DECLARE_OPERAND(exit_tests);
-
-#endif // OPERAND_H_INCLUDED

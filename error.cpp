@@ -1,61 +1,69 @@
-#include <assert.h>
-#include <stdarg.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include <cassert>
+#include <cstdarg>
+#include <cstdio>
+#include <cstdlib>
 
 #include "error.h"
 #include "token.h"
 
-error fail(const struct token *token, const char *fmt, ...)
+void error::raise()
+{
+    std::fputs(message.get(), stderr);
+    std::fputc('\n', stderr);
+    std::exit(EXIT_FAILURE);
+}
+
+error fail(const token& token, const char* fmt, ...)
 {
     static const char errfmt[] = "\33[1m%s:\33[1m%d:%d: \33[1;31merror:\33[0m ";
 
-    assert(token);
+    const int line = token.line + 1;
+    const int column = token.column + 1;
 
-    const int line = token->line + 1;
-    const int column = token->column + 1;
-
-    const int first_length = snprintf(NULL, 0, errfmt, token->filename, line, column);
-    va_list ap;
+    const int first_length = std::snprintf(NULL, 0, errfmt, token.filename, line, column);
+    std::va_list ap;
     va_start(ap, fmt);
-    const int second_length = vsnprintf(NULL, 0, fmt, ap);
+    const int second_length = std::vsnprintf(NULL, 0, fmt, ap);
     va_end(ap);
 
     const int length = first_length + second_length + 1;
-    char *text = (char *)malloc(length);
-    if (!text) {
-        fatal_error(NULL, "out of memory");
-    }
+    error error;
+    error.message = std::make_unique<char[]>(length);
 
-    snprintf(text, length, errfmt, token->filename, line, column);
+    std::snprintf(error.message.get(), length, errfmt, token.filename, line, column);
     va_start(ap, fmt);
-    vsnprintf(text + first_length, length - first_length, fmt, ap);
+    std::vsnprintf(error.message.get() + first_length, length - first_length, fmt, ap);
     va_end(ap);
 
-    return text;
+    return error;
 }
 
-void fatal_error(const struct token *token, const char *fmt, ...)
-{
-    if (token) {
-        fprintf(stderr, "\33[1m%s:\33[1m%d:%d: ", token->filename, token->line + 1,
-                token->column + 1);
-    }
-    fprintf(stderr, "\33[1;31merror:\33[0m ");
+// TODO: deduplicate this code
 
-    va_list ap;
+void fatal_error(const token& token, const char* fmt, ...)
+{
+    std::fprintf(stderr, "\33[1m%s:\33[1m%d:%d: ", token.filename, token.line + 1,
+                 token.column + 1);
+    std::fprintf(stderr, "\33[1;31merror:\33[0m ");
+
+    std::va_list ap;
     va_start(ap, fmt);
-    vfprintf(stderr, fmt, ap);
+    std::vfprintf(stderr, fmt, ap);
     va_end(ap);
-    fputc('\n', stderr);
+    std::fputc('\n', stderr);
 
-    exit(EXIT_FAILURE);
+    std::exit(EXIT_FAILURE);
 }
 
-void report_error(char *message)
+void fatal_error(const char* fmt, ...)
 {
-    fputs(message, stderr);
-    fputc('\n', stderr);
-    free(message);
-    exit(EXIT_FAILURE);
+    std::fprintf(stderr, "\33[1;31merror:\33[0m ");
+
+    std::va_list ap;
+    va_start(ap, fmt);
+    std::vfprintf(stderr, fmt, ap);
+    va_end(ap);
+    std::fputc('\n', stderr);
+
+    std::exit(EXIT_FAILURE);
 }
