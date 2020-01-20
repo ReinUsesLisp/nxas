@@ -65,18 +65,16 @@ DEFINE_OPERAND(comma)
 }
 
 DEFINE_OPERAND(dgpr0) { return assemble_dest_gpr(ctx, token, op, 0); }
-
 DEFINE_OPERAND(sgpr0) { return assemble_source_gpr(ctx, token, op, 0); }
-
 DEFINE_OPERAND(sgpr8) { return assemble_source_gpr(ctx, token, op, 8); }
-
 DEFINE_OPERAND(sgpr20) { return assemble_source_gpr(ctx, token, op, 20); }
+DEFINE_OPERAND(sgpr39) { return assemble_source_gpr(ctx, token, op, 39); }
 
 DEFINE_OPERAND(cbuf) { return assemble_constant_buffer(ctx, token, op); }
-
 DEFINE_OPERAND(imm) { return assemble_signed_20bit_immediate(ctx, token, op); }
 
 DEFINE_UINT(imm32, UINT32_MAX, 20)
+DEFINE_UINT(imm16, UINT16_MAX, 20)
 
 DEFINE_FLAG(cc, ".CC", 47)
 
@@ -103,6 +101,7 @@ DEFINE_OPERAND(xmad_signs)
     if (!is_s16 && !equal(token, ".U16")) {
         return {};
     }
+
     token = ctx.tokenize();
 
     if (is_s16) {
@@ -120,6 +119,16 @@ DEFINE_OPERAND(xmad_signs)
 }
 
 DEFINE_FLAG(xmad_psl36, ".PSL", 36)
+DEFINE_FLAG(xmad_psl55, ".PSL", 55)
+DEFINE_DOT_TABLE(xmad_mode50, 0, 50, "", "CLO", "CHI", "CSFU", "CBCC")
+DEFINE_DOT_TABLE(xmad_mode50_c, 0, 50, "", "CLO", "CHI", "CSFU");
+DEFINE_FLAG(xmad_mrg37, ".MRG", 37)
+DEFINE_FLAG(xmad_mrg56, ".MRG", 56)
+DEFINE_FLAG(xmad_x38, ".X", 38)
+DEFINE_FLAG(xmad_x54, ".X", 54)
+DEFINE_DOT_TABLE(xmad_h1_53, 0, 53, "H0", "H1")
+DEFINE_DOT_TABLE(xmad_h1_52, 0, 52, "H0", "H1")
+DEFINE_DOT_TABLE(xmad_h1_35, 0, 35, "H0", "H1")
 
 DEFINE_DOT_TABLE(shr_format, 1, 48, "U32", "S32")
 DEFINE_DOT_TABLE(shr_mode, 0, 39, "C", "W")

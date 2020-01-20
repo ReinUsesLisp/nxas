@@ -93,16 +93,19 @@ error try_reuse(context& ctx, token& token, opcode& op, int address)
     switch (address) {
     case 8:
         op.add_reuse(reuse_flag::gpr8);
-        return {};
+        break;
     case 20:
         op.add_reuse(reuse_flag::gpr20);
-        return {};
+        break;
     case 39:
         op.add_reuse(reuse_flag::gpr39);
-        return {};
+        break;
     default:
         return fail(token, "register cannot be reused");
     }
+
+    token = ctx.tokenize();
+    return {};
 }
 
 error assemble_dest_gpr(context& ctx, token& token, opcode& op, int address)
