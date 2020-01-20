@@ -1,7 +1,7 @@
 #pragma once
 
 #include <climits>
-#include <c>
+#include <cstdint>
 
 #include "error.h"
 #include "helper.h"
@@ -127,6 +127,43 @@ DEFINE_DOT_TABLE(half, 0, address, "H0", "H1");
 template <int address>
 DEFINE_FLAG(brev, ".BREV", address);
 
+template <int address>
+DEFINE_FLAG(ftz, ".FTZ", address);
+
+template <int address>
+DEFINE_FLAG(sat, ".SAT", address);
+
+template <int address>
+DEFINE_DOT_TABLE(float_format, 2, address, "", "F16", "F32", "F64");
+
+template <int address>
+DEFINE_OPERAND(neg)
+{
+    if (token.type == token_type::minus) {
+        op.add_bits(1ULL << address);
+        token = ctx.tokenize();
+    }
+    return {};
+}
+
+template <int address, operand inner>
+DEFINE_OPERAND(abs)
+{
+    const bool is_absolute = token.type == token_type::vbar;
+    if (is_absolute) {
+        op.add_bits(1ULL << address);
+        token = ctx.tokenize();
+    }
+
+    CHECK(inner(ctx, token, op));
+
+    if (is_absolute) {
+        CHECK(confirm_type(token, token_type::vbar));
+        token = ctx.tokenize();
+    }
+    return {};
+}
+
 namespace nop
 {
     DEFINE_FLAG(trig, ".TRIG", 13);
@@ -250,6 +287,28 @@ namespace stg
 
         CHECK(confirm_type(token, token_type::bracket_right));
         token = ctx.tokenize();
+        return {};
+    }
+}
+
+namespace f2f
+{
+    DEFINE_OPERAND(rounding)
+    {
+        static const char* equal[] = {"",      "",     "",      "PASS", "ROUND",
+                                      "FLOOR", "CEIL", "TRUNC", nullptr};
+        static const char* not_equal[] = {"RN", "RM", "RP", "RZ", nullptr};
+
+        const int dst_format = (op.value >> 8) & 0b11;
+        const int src_format = (op.value >> 10) & 0b11;
+        const char* const* const table = dst_format == src_format ? equal : not_equal;
+        const int default_value = dst_format == src_format ? 3 : 0;
+
+        const std::optional result = find_in_table(token, table, ".");
+        if (result) {
+            token = ctx.tokenize();
+        }
+        op.add_bits(result.value_or(default_value) << 39);
         return {};
     }
 }
