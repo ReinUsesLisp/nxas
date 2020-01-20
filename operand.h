@@ -1,56 +1,255 @@
 #pragma once
 
+#include <climits>
+#include <c>
+
 #include "error.h"
+#include "helper.h"
 #include "opcode.h"
 #include "token.h"
 
-#define DECLARE_OPERAND(name) error name(context& ctx, token& token, opcode& op)
-#define DEFINE_OPERAND(name) DECLARE_OPERAND(name)
+#define DEFINE_OPERAND(name) inline error name(context& ctx, token& token, opcode& op)
+
+#define DEFINE_FLAG(name, string, address)                                                         \
+    DEFINE_OPERAND(name)                                                                           \
+    {                                                                                              \
+        return assemble_flag(ctx, op, token, string, address);                                     \
+    }
+
+#define DEFINE_UINT(name, max_size, address)                                                       \
+    DEFINE_OPERAND(name)                                                                           \
+    {                                                                                              \
+        return assemble_uint(ctx, op, token, max_size, address);                                   \
+    }
+
+#define DEFINE_DOT_TABLE(name, default_value, address, ...)                                        \
+    DEFINE_OPERAND(name)                                                                           \
+    {                                                                                              \
+        static const char* table[] = {__VA_ARGS__, nullptr};                                       \
+        const std::optional result = find_in_table(token, table, ".");                             \
+        if (result) {                                                                              \
+            token = ctx.tokenize();                                                                \
+        }                                                                                          \
+        op.add_bits(result.value_or(default_value) << address);                                    \
+        return {};                                                                                 \
+    }
 
 typedef error (*operand)(context&, token&, opcode&);
 
-DECLARE_OPERAND(comma);
+inline error assemble_cc_tests(context& ctx, opcode& op, token& token, const char* const tests[],
+                               int address)
+{
+    std::optional<std::uint64_t> test_index;
+    if (equal(token, "CC")) {
+        token = ctx.tokenize();
+        CHECK(confirm_type(token, token_type::identifier));
 
-DECLARE_OPERAND(dgpr0);
-DECLARE_OPERAND(sgpr0);
-DECLARE_OPERAND(sgpr8);
-DECLARE_OPERAND(sgpr20);
-DECLARE_OPERAND(sgpr39);
-DECLARE_OPERAND(cbuf);
-DECLARE_OPERAND(imm);
-DECLARE_OPERAND(imm32);
-DECLARE_OPERAND(imm16);
-DECLARE_OPERAND(cc);
+        test_index = find_in_table(token, tests, ".");
+        if (!test_index) {
+            return fail(token, "unexpected test %.*s", std::size(token.data.string),
+                        std::data(token.data.string));
+        }
+        token = ctx.tokenize();
+    }
+    op.add_bits(test_index.value_or(15) << address);
+    return {};
+}
 
-DECLARE_OPERAND(mask4_12);
-DECLARE_OPERAND(mask4_39);
+inline error assemble_flag(context& ctx, opcode& op, token& token, const char* flag, int address)
+{
+    if (equal(token, flag)) {
+        op.add_bits(1ULL << address);
+        token = ctx.tokenize();
+    }
+    return {};
+}
 
-DECLARE_OPERAND(nop_trig);
-DECLARE_OPERAND(nop_tests);
-DECLARE_OPERAND(nop_mask);
+inline error assemble_uint(context& ctx, opcode& op, token& token, std::int64_t max_size,
+                           int address)
+{
+    std::uint64_t mask;
+    CHECK(convert_integer(token, 0, max_size, &mask));
+    op.add_bits(mask << address);
+    token = ctx.tokenize();
+    return {};
+}
 
-DECLARE_OPERAND(xmad_signs);
-DECLARE_OPERAND(xmad_psl36);
-DECLARE_OPERAND(xmad_psl55);
-DECLARE_OPERAND(xmad_mode50);
-DECLARE_OPERAND(xmad_mode50_c);
-DECLARE_OPERAND(xmad_mrg37);
-DECLARE_OPERAND(xmad_mrg56);
-DECLARE_OPERAND(xmad_x38);
-DECLARE_OPERAND(xmad_x54);
-DECLARE_OPERAND(xmad_h1_53);
-DECLARE_OPERAND(xmad_h1_52);
-DECLARE_OPERAND(xmad_h1_35);
+DEFINE_OPERAND(comma)
+{
+    CHECK(confirm_type(token, token_type::comma));
+    token = ctx.tokenize();
+    return {};
+}
 
-DECLARE_OPERAND(shr_format);
-DECLARE_OPERAND(shr_mode);
-DECLARE_OPERAND(shr_xmode);
-DECLARE_OPERAND(shr_brev);
+template <int address>
+DEFINE_OPERAND(dgpr)
+{
+    return assemble_dest_gpr(ctx, token, op, address);
+}
 
-DECLARE_OPERAND(exit_keeprefcount);
-DECLARE_OPERAND(exit_tests);
+template <int address>
+DEFINE_OPERAND(sgpr)
+{
+    return assemble_source_gpr(ctx, token, op, address);
+}
 
-DECLARE_OPERAND(stg_e);
-DECLARE_OPERAND(stg_cache);
-DECLARE_OPERAND(stg_size);
-DECLARE_OPERAND(stg_address);
+DEFINE_OPERAND(cbuf)
+{
+    return assemble_constant_buffer(ctx, token, op);
+}
+
+DEFINE_OPERAND(imm)
+{
+    return assemble_signed_20bit_immediate(ctx, token, op);
+}
+
+DEFINE_UINT(imm32, UINT32_MAX, 20);
+
+DEFINE_UINT(imm16, UINT16_MAX, 20);
+
+DEFINE_FLAG(cc, ".CC", 47);
+
+template <int address>
+DEFINE_UINT(mask4, 0xf, address);
+
+template <int address>
+DEFINE_FLAG(psl, ".PSL", address);
+
+template <int address>
+DEFINE_FLAG(x, ".X", address);
+
+template <int address>
+DEFINE_FLAG(mrg, ".MRG", address);
+
+template <int address>
+DEFINE_DOT_TABLE(half, 0, address, "H0", "H1");
+
+template <int address>
+DEFINE_FLAG(brev, ".BREV", address);
+
+namespace nop
+{
+    DEFINE_FLAG(trig, ".TRIG", 13);
+
+    DEFINE_OPERAND(tests)
+    {
+        static const char* tests[] = {
+            "F",       "LT",      "EQ",      "LE",  "GT",  "NE",   "GE",     "NUM",    "NAN",
+            "LTU",     "EQU",     "LEU",     "GTU", "NEU", "GEU",  "T",      "OFF",    "LO",
+            "SFF",     "LS",      "HI",      "SFT", "HS",  "OFT",  "CSM_TA", "CSM_TR", "CSM_MX",
+            "FCSM_TA", "FCSM_TR", "FCSM_MX", "RLE", "RGT", nullptr};
+        return assemble_cc_tests(ctx, op, token, tests, 8);
+    }
+
+    DEFINE_UINT(mask, UINT16_MAX, 20);
+}
+
+namespace xmad
+{
+    DEFINE_OPERAND(signs)
+    {
+        const bool is_s16 = equal(token, ".S16");
+        if (!is_s16 && !equal(token, ".U16")) {
+            return {};
+        }
+
+        token = ctx.tokenize();
+
+        if (is_s16) {
+            op.add_bits(1ULL << 48);
+        }
+
+        if (equal(token, ".S16")) {
+            op.add_bits(1ULL << 49);
+        } else if (!equal(token, ".U16")) {
+            return fail(token, "expected S16 or U16");
+        }
+
+        token = ctx.tokenize();
+        return {};
+    }
+
+    DEFINE_DOT_TABLE(mode_a, 0, 50, "", "CLO", "CHI", "CSFU", "CBCC");
+    DEFINE_DOT_TABLE(mode_b, 0, 50, "", "CLO", "CHI", "CSFU");
+}
+
+namespace shr
+{
+    DEFINE_DOT_TABLE(format, 1, 48, "U32", "S32");
+    DEFINE_DOT_TABLE(mode, 0, 39, "C", "W");
+    DEFINE_DOT_TABLE(xmode, 0, 43, "", "INVALIDSHRXMODE1", "X", "XHI");
+}
+
+namespace exit_insn
+{
+    DEFINE_FLAG(keeprefcount, ".KEEPREFCOUNT", 5);
+
+    DEFINE_OPERAND(tests)
+    {
+        static const char* tests[] = {
+            "F",       "LT",      "EQ",      "LE",  "GT",  "NE",   "GE",     "NUM",    "NAN",
+            "LTU",     "EQU",     "LEU",     "GTU", "NEU", "GEU",  "T",      "OFF",    "LO",
+            "SFF",     "LS",      "HI",      "SFT", "HS",  "OFT",  "CSM_TA", "CSM_TR", "CSM_MX",
+            "FCSM_TA", "FCSM_TR", "FCSM_MX", "RLE", "RGT", nullptr};
+        return assemble_cc_tests(ctx, op, token, tests, 0);
+    }
+}
+
+namespace stg
+{
+    DEFINE_FLAG(e, ".E", 45)
+
+    DEFINE_OPERAND(cache)
+    {
+        static const char* table[] = {"", "CG", "CS", "WT"};
+        std::optional<std::uint64_t> cache = find_in_table(token, table, ".");
+        if (cache) {
+            token = ctx.tokenize();
+        }
+        op.add_bits(cache.value_or(0) << 46);
+        return {};
+    }
+
+    DEFINE_OPERAND(size)
+    {
+        static const char* table[] = {
+            "U8", "S8", "U16", "S16", "32", "64", "128",
+        };
+        std::optional<std::uint64_t> size = find_in_table(token, table, ".");
+        if (size) {
+            token = ctx.tokenize();
+        }
+        op.add_bits(size.value_or(4) << 48); // defaults ".32"
+        return {};
+    }
+
+    DEFINE_OPERAND(address)
+    {
+        CHECK(confirm_type(token, token_type::bracket_left));
+
+        token = ctx.tokenize();
+        std::uint8_t regster = ZERO_REGISTER;
+        if (token.type == token_type::regster) {
+            regster = token.data.regster;
+            token = ctx.tokenize();
+
+            try_reuse(ctx, token, op, 8);
+        }
+        op.add_bits(static_cast<std::uint64_t>(regster) << 8);
+
+        if (token.type == token_type::immediate) {
+            const int is_zero_reg = regster == ZERO_REGISTER;
+            const std::int64_t min = is_zero_reg ? 0 : -(1 << 23);
+            const std::int64_t max = MAX_BITS(is_zero_reg ? 24 : 23);
+
+            std::uint64_t value;
+            CHECK(convert_integer(token, min, max, &value));
+            op.add_bits((value & MAX_BITS(24)) << 20);
+            token = ctx.tokenize();
+        }
+
+        CHECK(confirm_type(token, token_type::bracket_right));
+        token = ctx.tokenize();
+        return {};
+    }
+}

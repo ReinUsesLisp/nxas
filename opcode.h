@@ -13,11 +13,12 @@
 #define NUM_USER_REGISTERS 255
 #define NUM_USER_PREDICATES 7
 
-namespace reuse_flag {
-constexpr unsigned gpr8 = 1U;
-constexpr unsigned gpr20 = 2U;
-constexpr unsigned gpr39 = 4U;
-} // namespace reuse_flag
+namespace reuse_flag
+{
+    constexpr unsigned gpr8 = 1U;
+    constexpr unsigned gpr20 = 2U;
+    constexpr unsigned gpr39 = 4U;
+}
 
 struct opcode
 {
