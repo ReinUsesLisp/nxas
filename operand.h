@@ -312,3 +312,26 @@ namespace f2f
         return {};
     }
 }
+
+namespace f2i
+{
+    DEFINE_OPERAND(int_format)
+    {
+        static const char* table_unsigned[] = {"INVALID0", "U16", "U32", "U64", nullptr};
+        static const char* table_signed[] = {"INVALID1", "S16", "S32", "S64", nullptr};
+
+        std::optional result = find_in_table(token, table_unsigned, ".");
+        if (!result) {
+            result = find_in_table(token, table_signed, ".");
+            if (!result) {
+                return fail(token, "expected .U16, .U32, .U64, .S16, .S32 or .S64");
+            }
+            op.add_bits(1ULL << 12);
+        }
+        op.add_bits(*result << 8);
+        token = ctx.tokenize();
+        return {};
+    }
+
+    DEFINE_DOT_TABLE(rounding, 0, 39, "", "FLOOR", "CEIL", "TRUNC");
+}
