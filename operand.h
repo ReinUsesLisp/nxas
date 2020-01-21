@@ -134,6 +134,9 @@ template <int address>
 DEFINE_FLAG(sat, ".SAT", address);
 
 template <int address>
+DEFINE_DOT_TABLE(int_sign, 1, address, "S32", "U32");
+
+template <int address>
 DEFINE_DOT_TABLE(float_format, 2, address, "", "F16", "F32", "F64");
 
 template <int address>

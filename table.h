@@ -47,6 +47,9 @@ constexpr insn table[] = {
     INSN(0x5CB0000000000000ULL, 0, "F2I", ftz<44>, f2i::int_format, float_format<10>, f2i::rounding, dgpr<0>, cc, comma, neg<45>, abs<49, sgpr<20>>, half<41>),
     INSN(0x4CB0000000000000ULL, 0, "F2I", ftz<44>, f2i::int_format, float_format<10>, f2i::rounding, dgpr<0>, cc, comma, neg<45>, abs<49, cbuf>, half<41>),
     // TODO: F2I immediate
+    INSN(0x5C00000000000000ULL, 0, "BFE", int_sign<48>, brev<40>, dgpr<0>, cc, comma, sgpr<8>, comma, sgpr<20>),
+    INSN(0x4C00000000000000ULL, 0, "BFE", int_sign<48>, brev<40>, dgpr<0>, cc, comma, sgpr<8>, comma, cbuf),
+    INSN(0x3800000000000000ULL, 0, "BFE", int_sign<48>, brev<40>, dgpr<0>, cc, comma, sgpr<8>, comma, imm),
     INSN(0xE300000000000000ULL, 0, "EXIT", exit_insn::keeprefcount, exit_insn::tests),
     INSN(0xEED8000000000000ULL, RD, "STG", stg::e, stg::cache, stg::size, stg::address, comma, sgpr<0>),
 };
