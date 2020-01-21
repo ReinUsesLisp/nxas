@@ -54,6 +54,8 @@ class context
 
     token tokenize();
 
+    std::int64_t pc = 0;
+
   private:
     void next();
 

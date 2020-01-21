@@ -30,7 +30,7 @@ static error parse_insn(context& ctx, opcode& op, const insn& insn)
     op.add_bits(insn.opcode);
 
     token token = ctx.tokenize();
-    if ((insn.flags & NO_PRED) && (op.value & (7ULL << 16))) {
+    if ((insn.flags & NO_PRED) && (~op.value & (7ULL << 16))) {
         return fail(token, "%s does not support predicated execution", insn.mnemonic);
     }
 
@@ -47,13 +47,15 @@ bool parse_instruction(context& ctx, opcode& op)
         return false;
     }
 
+    if (ctx.pc % 0x20 == 0) {
+        ctx.pc += 8;
+    }
+
     if (token.type == token_type::at) {
         token = ctx.tokenize();
-        error message = assemble_predicate(token, op, 16, 1);
-        if (message) {
+        if (error message = assemble_predicate(token, op, 16, 1); message) {
             message.raise();
         }
-
         token = ctx.tokenize();
     } else {
         // write always execute by default
@@ -78,6 +80,7 @@ bool parse_instruction(context& ctx, opcode& op)
         message = parse_insn(ctx, op, insn);
         if (!message) {
             // successfully decoded instruction
+            ctx.pc += 8;
             return true;
         }
         // failure, restore context

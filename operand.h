@@ -81,6 +81,29 @@ DEFINE_OPERAND(comma)
     return {};
 }
 
+DEFINE_OPERAND(label)
+{
+    switch (token.type) {
+    case token_type::identifier:
+        return fail(token, "labels are not implemented");
+    case token_type::immediate: {
+        static constexpr std::int64_t max = MAX_BITS(23);
+        static constexpr std::int64_t min = -MAX_BITS(23) - 1;
+        const std::int64_t value = token.data.immediate - ctx.pc - 8;
+        if (value > max || value < min) {
+            return fail(token, "label out of range");
+        }
+        op.add_bits((static_cast<std::uint64_t>(value) & 0x7FFFFF) << 20);
+        op.add_bits((value < 0 ? 1ULL : 0ULL) << 43);
+
+        token = ctx.tokenize();
+        return {};
+    }
+    default:
+        return fail(token, "expected label");
+    }
+}
+
 template <int address>
 DEFINE_OPERAND(dgpr)
 {
