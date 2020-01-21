@@ -47,6 +47,10 @@ constexpr insn table[] = {
     INSN(0x5CB0000000000000ULL, 0, "F2I", ftz<44>, f2i::int_format, float_format<10>, f2i::rounding, dgpr<0>, cc, comma, neg<45>, abs<49, sgpr<20>>, half<41>),
     INSN(0x4CB0000000000000ULL, 0, "F2I", ftz<44>, f2i::int_format, float_format<10>, f2i::rounding, dgpr<0>, cc, comma, neg<45>, abs<49, cbuf>, half<41>),
     // TODO: F2I immediate
+    INSN(0x7080000000000000ULL, 0, "HFMA2", hfma2::merge<49>, hfma2::control<57>, sat<52>, dgpr<0>, comma, sgpr<8>, hfma2::swizzle<47>, comma, neg<56>, cbuf, comma, neg<51>, sgpr<39>, hfma2::swizzle<53>),
+    // TODO: HFMA2 immediate
+    INSN(0x6080000000000000ULL, 0, "HFMA2", hfma2::merge<49>, hfma2::control<57>, sat<52>, dgpr<0>, comma, sgpr<8>, hfma2::swizzle<47>, comma, neg<56>, sgpr<39>, hfma2::swizzle<53>, comma, neg<51>, cbuf),
+    INSN(0x5D00000000000000ULL, 0, "HFMA2", hfma2::merge<49>, hfma2::control<37>, sat<32>, dgpr<0>, comma, sgpr<8>, hfma2::swizzle<47>, comma, neg<31>, sgpr<20>, hfma2::swizzle<28>, comma, neg<35>, sgpr<39>, hfma2::swizzle<35>),
     INSN(0x5C00000000000000ULL, 0, "BFE", int_sign<48>, brev<40>, dgpr<0>, cc, comma, sgpr<8>, comma, sgpr<20>),
     INSN(0x4C00000000000000ULL, 0, "BFE", int_sign<48>, brev<40>, dgpr<0>, cc, comma, sgpr<8>, comma, cbuf),
     INSN(0x3800000000000000ULL, 0, "BFE", int_sign<48>, brev<40>, dgpr<0>, cc, comma, sgpr<8>, comma, imm),
