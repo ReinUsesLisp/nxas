@@ -6,6 +6,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <optional>
 #include <string_view>
 
 #include "error.h"
@@ -68,8 +69,14 @@ token context::tokenize()
     }
 
     const char* contents = text;
+    const char character = *text;
 
-    if (is_contained("!Pp", *text)) {
+    if (is_operator(character) && (!is_contained("+-", character) || !std::isdigit(text[1]))) {
+        token.type = get_operator_type(*text);
+        next();
+        return token;
+    }
+    if (is_contained("!Pp", character)) {
         token.type = token_type::predicate;
 
         if ((token.data.predicate.negated = *text == '!')) {
@@ -80,22 +87,26 @@ token context::tokenize()
         }
         next();
 
+        std::optional<int> index;
         if (is_contained("Tt", *text)) {
-            token.data.predicate.index = 7;
-        } else if (*text < '0' || *text > '6') {
-            fatal_error(token, "out of range predicate");
-        } else {
-            token.data.predicate.index = *text - '0';
+            index = 7;
+        } else if (std::isdigit(*text)) {
+            index = *text - '0';
         }
-        next();
-        return token;
+        if (index) {
+            // check the next character if the next character is a separator
+            next();
+            if (is_separator(*text)) {
+                if (*index > 6 || *index < 0) {
+                    fatal_error(token, "out of range predicate");
+                }
+                token.data.predicate.index = *index;
+                return token;
+            }
+            // if it's not a separator, we might have an identifier (e.g. P2R)
+        }
     }
-    if (is_operator(*text) && (!is_contained("+-", *text) || !std::isdigit(text[1]))) {
-        token.type = get_operator_type(*text);
-        next();
-        return token;
-    }
-    if (std::isdigit(*text) || is_contained("+-", *text)) {
+    if (std::isdigit(character) || is_contained("+-", character)) {
         token.type = token_type::immediate;
         while (std::isdigit(*text) || is_contained("+-AaBbCcDdEeFfXx", *text)) {
             next();
@@ -115,7 +126,7 @@ token context::tokenize()
         }
         return token;
     }
-    if (*text == 'R') {
+    if (character == 'R') {
         token.type = token_type::regster;
 
         next();

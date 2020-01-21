@@ -16,6 +16,7 @@ class error
     friend error fail(const token& token, const char* fmt, ...);
 
   public:
+    error() = default;
     operator bool() const { return static_cast<bool>(message); }
 
     [[noreturn]] void raise();

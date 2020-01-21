@@ -140,6 +140,9 @@ template <int address>
 DEFINE_DOT_TABLE(float_format, 2, address, "", "F16", "F32", "F64");
 
 template <int address>
+DEFINE_DOT_TABLE(byte_selector, 0, address, "B0", "B1", "B2", "B3");
+
+template <int address>
 DEFINE_OPERAND(neg)
 {
     if (token.type == token_type::minus) {
@@ -337,4 +340,20 @@ namespace f2i
     }
 
     DEFINE_DOT_TABLE(rounding, 0, 39, "", "FLOOR", "CEIL", "TRUNC");
+}
+
+namespace p2r
+{
+    template <int address>
+    DEFINE_OPERAND(mode)
+    {
+        static const char* table[] = {"PR", "CC", nullptr};
+        const std::optional result = find_in_table(token, table, "");
+        if (!result) {
+            return fail(token, "expected PR or CC");
+        }
+        op.add_bits(*result << address);
+        token = ctx.tokenize();
+        return {};
+    }
 }
