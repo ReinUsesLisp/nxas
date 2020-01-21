@@ -141,30 +141,33 @@ token context::tokenize()
             return token;
         }
 
-        while (std::isdigit(*text)) {
+        bool invalid_register = false;
+        while (!is_separator(*text)) {
+            if (!std::isdigit(*text)) {
+                invalid_register = true;
+                break;
+            }
             next();
         }
 
-        if (!is_separator(*text)) {
-            fatal_error(token, "no separator after register");
-        }
+        if (!invalid_register) {
+            char* conversion_end = NULL;
+            const long long value =
+                static_cast<std::int64_t>(std::strtoll(contents + 1, &conversion_end, 10));
+            if (conversion_end != text) {
+                fatal_error(token, "invalid register index \33[1;31m%.*s\33[0m",
+                            (int)(text - contents), contents);
+            }
+            if (value < 0 || value >= NUM_USER_REGISTERS) {
+                fatal_error(token,
+                            "register index \33[1;31m%.*s\33[0m is out of range, expected to be "
+                            "from 0 to 254 inclusively",
+                            (int)(text - contents), contents);
+            }
 
-        char* conversion_end = NULL;
-        const long long value =
-            static_cast<std::int64_t>(std::strtoll(contents + 1, &conversion_end, 10));
-        if (conversion_end != text) {
-            fatal_error(token, "invalid register index \33[1;31m%.*s\33[0m", (int)(text - contents),
-                        contents);
+            token.data.regster = static_cast<uint8_t>(value);
+            return token;
         }
-        if (value < 0 || value >= NUM_USER_REGISTERS) {
-            fatal_error(token,
-                        "register index \33[1;31m%.*s\33[0m is out of range, expected to be "
-                        "from 0 to 254 inclusively",
-                        (int)(text - contents), contents);
-        }
-
-        token.data.regster = static_cast<uint8_t>(value);
-        return token;
     }
 
     do {

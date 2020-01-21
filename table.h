@@ -53,7 +53,12 @@ constexpr insn table[] = {
     INSN(0x5CE8000000000000ULL, 0, "P2R", byte_selector<41>, dgpr<0>, comma, p2r::mode<40>, comma, sgpr<8>, comma, sgpr<20>),
     INSN(0x4CE8000000000000ULL, 0, "P2R", byte_selector<41>, dgpr<0>, comma, p2r::mode<40>, comma, sgpr<8>, comma, cbuf),
     INSN(0x38E8000000000000ULL, 0, "P2R", byte_selector<41>, dgpr<0>, comma, p2r::mode<40>, comma, sgpr<8>, comma, imm),
-    INSN(0xE300000000000000ULL, 0, "EXIT", exit_insn::keeprefcount, exit_insn::tests),
+    INSN(0xE350000000000000ULL, 0, "CONT", flow_tests),
+    INSN(0xE340000000000000ULL, 0, "BRK", flow_tests),
+    INSN(0xE330000000000000ULL, 0, "KIL", flow_tests),
+    INSN(0xE320000000000000ULL, 0, "RET", flow_tests),
+    INSN(0xE310000000000000ULL, 0, "LONGJMP", flow_tests),
+    INSN(0xE300000000000000ULL, 0, "EXIT", keeprefcount, flow_tests),
     INSN(0xEED8000000000000ULL, RD, "STG", stg::e, stg::cache, stg::size, stg::address, comma, sgpr<0>),
     INSN(0xE2A0000000000000ULL, NO_PRED, "PBK", label),
     // TODO: PBK constant buffer

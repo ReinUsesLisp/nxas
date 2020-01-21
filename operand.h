@@ -193,6 +193,18 @@ DEFINE_OPERAND(abs)
     return {};
 }
 
+DEFINE_OPERAND(flow_tests)
+{
+    static const char* tests[] = {
+        "F",       "LT",      "EQ",      "LE",  "GT",  "NE",   "GE",     "NUM",    "NAN",
+        "LTU",     "EQU",     "LEU",     "GTU", "NEU", "GEU",  "T",      "OFF",    "LO",
+        "SFF",     "LS",      "HI",      "SFT", "HS",  "OFT",  "CSM_TA", "CSM_TR", "CSM_MX",
+        "FCSM_TA", "FCSM_TR", "FCSM_MX", "RLE", "RGT", nullptr};
+    return assemble_cc_tests(ctx, op, token, tests, 0);
+}
+
+DEFINE_FLAG(keeprefcount, ".KEEPREFCOUNT", 5);
+
 namespace nop
 {
     DEFINE_FLAG(trig, ".TRIG", 13);
@@ -244,21 +256,6 @@ namespace shr
     DEFINE_DOT_TABLE(format, 1, 48, "U32", "S32");
     DEFINE_DOT_TABLE(mode, 0, 39, "C", "W");
     DEFINE_DOT_TABLE(xmode, 0, 43, "", "INVALIDSHRXMODE1", "X", "XHI");
-}
-
-namespace exit_insn
-{
-    DEFINE_FLAG(keeprefcount, ".KEEPREFCOUNT", 5);
-
-    DEFINE_OPERAND(tests)
-    {
-        static const char* tests[] = {
-            "F",       "LT",      "EQ",      "LE",  "GT",  "NE",   "GE",     "NUM",    "NAN",
-            "LTU",     "EQU",     "LEU",     "GTU", "NEU", "GEU",  "T",      "OFF",    "LO",
-            "SFF",     "LS",      "HI",      "SFT", "HS",  "OFT",  "CSM_TA", "CSM_TR", "CSM_MX",
-            "FCSM_TA", "FCSM_TR", "FCSM_MX", "RLE", "RGT", nullptr};
-        return assemble_cc_tests(ctx, op, token, tests, 0);
-    }
 }
 
 namespace stg
