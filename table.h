@@ -66,6 +66,7 @@ constexpr insn table[] = {
     INSN(0xEED8000000000000ULL, RD, "STG", stg::e, stg::cache, memory::size, memory::address, comma, sgpr<0>),
     INSN(0xEF58000000000000ULL, RD, "STS", memory::size, memory::address, comma, sgpr<0>),
     INSN(0xEF50000000000000ULL, RD, "STL", stl::cache, memory::size, memory::address, comma, sgpr<0>),
+    INSN(0xEF48000000000000ULL, RD|WR, "LDS", lds::u, memory::size, dgpr<0>, comma, memory::address),
     INSN(0xE2A0000000000000ULL, NO_PRED, "PBK", label),
     // TODO: PBK constant buffer
 };

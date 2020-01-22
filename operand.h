@@ -399,3 +399,8 @@ namespace stl
 {
     DEFINE_DOT_TABLE(cache, 0, 44, "", "CG", "CS", "WT");
 }
+
+namespace lds
+{
+    DEFINE_FLAG(u, ".U", 44);
+}
