@@ -54,6 +54,9 @@ constexpr insn table[] = {
     INSN(0x5D08000000000000ULL, 0, "HMUL2", fp16::merge<49>, fp16::control<39>, sat<32>, dgpr<0>, comma, abs<44, sgpr<8>>, fp16::swizzle<47>, comma, neg<31>, abs<30, sgpr<20>>, fp16::swizzle<28>),
     INSN(0x7880000000000000ULL, 0, "HMUL2", fp16::merge<49>, fp16::control<39>, sat<52>, dgpr<0>, comma, neg<43>, abs<44, sgpr<8>>, fp16::swizzle<47>, comma, abs<54, cbuf>),
     // TODO: HMUL2 immediate
+    INSN(0x5D10000000000000ULL, 0, "HADD2", fp16::merge<49>, ftz<39>, sat<32>, dgpr<0>, comma, neg<43>, abs<44, sgpr<8>>, fp16::swizzle<47>, comma, neg<31>, abs<30, sgpr<20>>, fp16::swizzle<28>),
+    INSN(0x7A80000000000000ULL, 0, "HADD2", fp16::merge<49>, ftz<39>, sat<32>, dgpr<0>, comma, neg<43>, abs<44, sgpr<8>>, fp16::swizzle<47>, comma, neg<56>, abs<54, cbuf>),
+    // TODO: HADD2 immediate
     INSN(0x5C00000000000000ULL, 0, "BFE", int_sign<48>, brev<40>, dgpr<0>, cc, comma, sgpr<8>, comma, sgpr<20>),
     INSN(0x4C00000000000000ULL, 0, "BFE", int_sign<48>, brev<40>, dgpr<0>, cc, comma, sgpr<8>, comma, cbuf),
     INSN(0x3800000000000000ULL, 0, "BFE", int_sign<48>, brev<40>, dgpr<0>, cc, comma, sgpr<8>, comma, imm),
