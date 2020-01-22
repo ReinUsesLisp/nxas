@@ -386,13 +386,13 @@ namespace p2r
     }
 }
 
-namespace hfma2
+namespace fp16
 {
     template <int address>
-    DEFINE_DOT_TABLE(control, 0, address, "", "FTZ", "FMZ");
+    DEFINE_DOT_TABLE(merge, 0, address, "", "F32", "MRG_H0", "MRG_H1");
 
     template <int address>
-    DEFINE_DOT_TABLE(merge, 0, address, "", "F32", "MRG_H0", "MRG_H1");
+    DEFINE_DOT_TABLE(control, 0, address, "", "FTZ", "FMZ");
 
     template <int address>
     DEFINE_DOT_TABLE(swizzle, 0, address, "H1_H0", "F32", "H0_H0", "H1_H1");
