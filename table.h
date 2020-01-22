@@ -63,7 +63,9 @@ constexpr insn table[] = {
     INSN(0xE320000000000000ULL, 0, "RET", flow_tests),
     INSN(0xE310000000000000ULL, 0, "LONGJMP", flow_tests),
     INSN(0xE300000000000000ULL, 0, "EXIT", keeprefcount, flow_tests),
-    INSN(0xEED8000000000000ULL, RD, "STG", stg::e, stg::cache, stg::size, stg::address, comma, sgpr<0>),
+    INSN(0xEED8000000000000ULL, RD, "STG", stg::e, stg::cache, memory::size, memory::address, comma, sgpr<0>),
+    INSN(0xEF58000000000000ULL, RD, "STS", memory::size, memory::address, comma, sgpr<0>),
+    INSN(0xEF50000000000000ULL, RD, "STL", stl::cache, memory::size, memory::address, comma, sgpr<0>),
     INSN(0xE2A0000000000000ULL, NO_PRED, "PBK", label),
     // TODO: PBK constant buffer
 };

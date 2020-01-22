@@ -193,6 +193,41 @@ DEFINE_OPERAND(abs)
     return {};
 }
 
+namespace memory
+{
+    DEFINE_DOT_TABLE(size, 4, 48, "U8", "S8", "U16", "S16", "32", "64", "128");
+
+    DEFINE_OPERAND(address)
+    {
+        CHECK(confirm_type(token, token_type::bracket_left));
+
+        token = ctx.tokenize();
+        std::uint8_t regster = ZERO_REGISTER;
+        if (token.type == token_type::regster) {
+            regster = token.data.regster;
+            token = ctx.tokenize();
+
+            try_reuse(ctx, token, op, 8);
+        }
+        op.add_bits(static_cast<std::uint64_t>(regster) << 8);
+
+        if (token.type == token_type::immediate) {
+            const int is_zero_reg = regster == ZERO_REGISTER;
+            const std::int64_t min = is_zero_reg ? 0 : -(1 << 23);
+            const std::int64_t max = MAX_BITS(is_zero_reg ? 24 : 23);
+
+            std::uint64_t value;
+            CHECK(convert_integer(token, min, max, &value));
+            op.add_bits((value & MAX_BITS(24)) << 20);
+            token = ctx.tokenize();
+        }
+
+        CHECK(confirm_type(token, token_type::bracket_right));
+        token = ctx.tokenize();
+        return {};
+    }
+}
+
 DEFINE_OPERAND(flow_tests)
 {
     static const char* tests[] = {
@@ -285,36 +320,6 @@ namespace stg
         op.add_bits(size.value_or(4) << 48); // defaults ".32"
         return {};
     }
-
-    DEFINE_OPERAND(address)
-    {
-        CHECK(confirm_type(token, token_type::bracket_left));
-
-        token = ctx.tokenize();
-        std::uint8_t regster = ZERO_REGISTER;
-        if (token.type == token_type::regster) {
-            regster = token.data.regster;
-            token = ctx.tokenize();
-
-            try_reuse(ctx, token, op, 8);
-        }
-        op.add_bits(static_cast<std::uint64_t>(regster) << 8);
-
-        if (token.type == token_type::immediate) {
-            const int is_zero_reg = regster == ZERO_REGISTER;
-            const std::int64_t min = is_zero_reg ? 0 : -(1 << 23);
-            const std::int64_t max = MAX_BITS(is_zero_reg ? 24 : 23);
-
-            std::uint64_t value;
-            CHECK(convert_integer(token, min, max, &value));
-            op.add_bits((value & MAX_BITS(24)) << 20);
-            token = ctx.tokenize();
-        }
-
-        CHECK(confirm_type(token, token_type::bracket_right));
-        token = ctx.tokenize();
-        return {};
-    }
 }
 
 namespace f2f
@@ -388,4 +393,9 @@ namespace hfma2
 
     template <int address>
     DEFINE_DOT_TABLE(swizzle, 0, address, "H1_H0", "F32", "H0_H0", "H1_H1");
+}
+
+namespace stl
+{
+    DEFINE_DOT_TABLE(cache, 0, 44, "", "CG", "CS", "WT");
 }
