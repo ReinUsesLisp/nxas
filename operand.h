@@ -132,6 +132,9 @@ DEFINE_UINT(imm16, UINT16_MAX, 20);
 
 DEFINE_FLAG(cc, ".CC", 47);
 
+template <int bits, int address>
+DEFINE_UINT(uint, MAX_BITS(bits), address);
+
 template <int address>
 DEFINE_UINT(mask4, 0xf, address);
 
@@ -193,6 +196,17 @@ DEFINE_OPERAND(abs)
         CHECK(confirm_type(token, token_type::vbar));
         token = ctx.tokenize();
     }
+    return {};
+}
+
+template <int address1, int address2>
+DEFINE_OPERAND(po)
+{
+    if (!equal(token, ".PO")) {
+        return {};
+    }
+    op.add_bits((1ULL << address1) | (1ULL << address2));
+    token = ctx.tokenize();
     return {};
 }
 
