@@ -175,6 +175,9 @@ DEFINE_OPERAND(neg)
     return {};
 }
 
+template <int address>
+DEFINE_FLAG(post_neg, ".NEG", address);
+
 template <int address, operand inner>
 DEFINE_OPERAND(abs)
 {
