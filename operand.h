@@ -505,3 +505,148 @@ namespace image
 
     DEFINE_DOT_TABLE(clamp, 1, 49, "IGN", "", "TRAP");
 }
+
+DEFINE_OPERAND(s2r)
+{
+    static const char* table[] = {
+        "SR_LANEID",
+        "",
+        "SR_VIRTCFG",
+        "SR_VIRTID",
+        "SR_PM0",
+        "SR_PM1",
+        "SR_PM2",
+        "SR_PM3",
+        "SR_PM4",
+        "SR_PM5",
+        "SR_PM6",
+        "SR_PM7",
+        "",
+        "",
+        "",
+        "SR_ORDERING_TICKET",
+        "SR_PRIM_TYPE",
+        "SR_INVOCATION_ID",
+        "SR_Y_DIRECTION",
+        "SR_THREAD_KILL",
+        "SM_SHADER_TYPE",
+        "SR_DIRECTCBEWRITEADDRESSLOW",
+        "SR_DIRECTCBEWRITEADDRESSHIGH",
+        "SR_DIRECTCBEWRITEENABLE",
+        "SR_MACHINE_ID_0",
+        "SR_MACHINE_ID_1",
+        "SR_MACHINE_ID_2",
+        "SR_MACHINE_ID_3",
+        "SR_AFFINITY",
+        "SR_INVOCATION_INFO",
+        "SR_WSCALEFACTOR_XY",
+        "SR_WSCALEFACTOR_Z",
+        "", // SR_TID
+        "", // SR_TID.X
+        "", // SR_TID.Y
+        "", // SR_TID.Z
+        "",
+        "", // SR_CTAID.X
+        "", // SR_CTAID.Y
+        "", // SR_CTAID.Z
+        "SR_NTID",
+        "SR_CirQueueIncrMinusOne",
+        "SR_NLATC",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "SR_SWINLO",
+        "SR_SWINSZ",
+        "SR_SMEMSZ",
+        "SR_SMEMBANKS",
+        "SR_LWINLO",
+        "SR_LWINSZ",
+        "SR_LMEMLOSZ",
+        "SR_LMEMHIOFF",
+        "SR_EQMASK",
+        "SR_LTMASK",
+        "SR_LEMASK",
+        "SR_GTMASK",
+        "SR_GEMASK",
+        "SR_REGALLOC",
+        "",
+        "",
+        "SR_GLOBALERRORSTATUS",
+        "",
+        "SR_WARPERRORSTATUS",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "SR_PM_HI0",
+        "SR_PM_HI1",
+        "SR_PM_HI2",
+        "SR_PM_HI3",
+        "SR_PM_HI4",
+        "SR_PM_HI5",
+        "SR_PM_HI6",
+        "SR_PM_HI7",
+        "SR_CLOCKLO",
+        "SR_CLOCKHI",
+        "SR_GLOBALTIMERLO",
+        "SR_GLOBALTIMERHI",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "SR_HWTASKID",
+        "SR_CIRCULARQUEUEENTRYINDEX",
+        "SR_CIRCULARQUEUEENTRYADDRESSLOW",
+        "SR_CIRCULARQUEUEENTRYADDRESSHIGH",
+    };
+
+    std::optional<std::uint64_t> value;
+    if (equal(token, "SR_TID")) {
+        token = ctx.tokenize();
+        if (equal(token, ".X")) {
+            value = 33;
+        } else if (equal(token, ".Y")) {
+            value = 34;
+        } else if (equal(token, ".Z")) {
+            value = 35;
+        } else {
+            value = 32;
+        }
+        if (value != 32) {
+            token = ctx.tokenize();
+        }
+    } else if (equal(token, "SR_CTAID")) {
+        token = ctx.tokenize();
+        if (equal(token, ".X")) {
+            value = 37;
+        } else if (equal(token, ".Y")) {
+            value = 38;
+        } else if (equal(token, ".Z")) {
+            value = 39;
+        } else {
+            return fail(token, "expected .X, .Y or .Z after SR_CTAID");
+        }
+        token = ctx.tokenize();
+    } else {
+        value = find_in_table(token, table, "");
+        if (!value) {
+            return fail(token, "invalid system register \33[1m%.*s\33[0m",
+                        static_cast<int>(token.data.string.size()), token.data.string.data());
+        }
+        fprintf(stderr, "SR%lld\n", *value);
+        token = ctx.tokenize();
+    }
+    op.add_bits(*value << 20);
+    return {};
+}

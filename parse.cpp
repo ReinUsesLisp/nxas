@@ -91,7 +91,7 @@ bool parse_instruction(context& ctx, opcode& op)
     if (message) {
         message.raise();
     } else {
-        fatal_error(token, "unknown mnemonic %.*s", std::size(token.data.string),
+        fatal_error(token, "unknown mnemonic \33[1m%.*s\33[0m", std::size(token.data.string),
                     std::data(token.data.string));
     }
 }

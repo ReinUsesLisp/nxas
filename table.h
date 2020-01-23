@@ -34,6 +34,7 @@ constexpr insn table[] = {
     INSN(0x3898000000000000ULL, 0, "MOV", dgpr<0>, comma, imm, comma, mask4<39>),
     INSN(0x010000000000F000ULL, 0, "MOV32I", dgpr<0>, comma, imm32),
     INSN(0x0100000000000000ULL, 0, "MOV32I", dgpr<0>, comma, imm32, comma, mask4<12>),
+    INSN(0xF0C8000000000000ULL, 0, "S2R", dgpr<0>, comma, s2r),
     INSN(0x5B00000000000000ULL, 0, "XMAD", xmad::signs, psl<36>, xmad::mode_a, mrg<37>, x<38>, dgpr<0>, cc, comma, sgpr<8>, half<53>, comma, sgpr<20>, half<35>, comma, sgpr<39>),
     INSN(0x5100000000000000ULL, 0, "XMAD", xmad::signs, xmad::mode_b, x<54>, dgpr<0>, cc, comma, sgpr<8>, half<53>, comma, sgpr<39>, half<52>, comma, cbuf),
     INSN(0x4E00000000000000ULL, 0, "XMAD", xmad::signs, psl<55>, xmad::mode_b, mrg<56>, x<54>, dgpr<0>, cc, comma, sgpr<8>, half<53>, comma, cbuf, half<52>, comma, sgpr<39>),
