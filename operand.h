@@ -168,6 +168,9 @@ template <int address>
 DEFINE_FLAG(bf, ".BF", address);
 
 template <int address>
+DEFINE_FLAG(h_and, ".H_AND", address);
+
+template <int address>
 DEFINE_DOT_TABLE(int_sign, 1, address, "S32", "U32");
 
 template <int address>
@@ -189,12 +192,18 @@ DEFINE_OPERAND(pred_combine)
     return {};
 }
 
-template <int address>
+template <int address, bool negable = false>
 DEFINE_OPERAND(pred)
 {
     CHECK(confirm_type(token, token_type::predicate));
     op.add_bits(static_cast<std::uint64_t>(token.data.predicate.index) << address);
-    op.add_bits(static_cast<std::uint64_t>(token.data.predicate.negated) << (address + 3));
+    if constexpr (negable) {
+        op.add_bits(static_cast<std::uint64_t>(token.data.predicate.negated) << (address + 3));
+    } else {
+        if (token.data.predicate.negated) {
+            return fail(token, "predicate can't be negated");
+        }
+    }
     token = ctx.tokenize();
     return {};
 }
