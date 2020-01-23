@@ -387,20 +387,34 @@ namespace f2f
 {
     DEFINE_OPERAND(rounding)
     {
-        static const char* equal[] = {"",      "",     "",      "PASS", "ROUND",
-                                      "FLOOR", "CEIL", "TRUNC", nullptr};
-        static const char* not_equal[] = {"RN", "RM", "RP", "RZ", nullptr};
-
         const int dst_format = (op.value >> 8) & 0b11;
         const int src_format = (op.value >> 10) & 0b11;
-        const char* const* const table = dst_format == src_format ? equal : not_equal;
-        const int default_value = dst_format == src_format ? 3 : 0;
+        if (dst_format == src_format) {
+            std::optional<std::uint64_t> result;
+            if (equal(token, ".ROUND")) {
+                result = 0b1000;
+            } else if (equal(token, ".FLOOR")) {
+                result = 0b1001;
+            } else if (equal(token, ".CEIL")) {
+                result = 0b1010;
+            } else if (equal(token, ".TRUNC")) {
+                result = 0b1011;
+            } else if (equal(token, ".PASS")) {
+                result = 0b0011;
+            }
+            if (result) {
+                token = ctx.tokenize();
+            }
+            op.add_bits(result.value_or(0b0011) << 39);
+            return {};
+        }
 
+        static const char* table[] = {"RN", "RM", "RP", "RZ", nullptr};
         const std::optional result = find_in_table(token, table, ".");
         if (result) {
             token = ctx.tokenize();
         }
-        op.add_bits(result.value_or(default_value) << 39);
+        op.add_bits(result.value_or(0) << 39);
         return {};
     }
 }
@@ -609,6 +623,7 @@ DEFINE_OPERAND(s2r)
         "SR_CIRCULARQUEUEENTRYINDEX",
         "SR_CIRCULARQUEUEENTRYADDRESSLOW",
         "SR_CIRCULARQUEUEENTRYADDRESSHIGH",
+        nullptr,
     };
 
     std::optional<std::uint64_t> value;
