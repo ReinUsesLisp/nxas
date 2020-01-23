@@ -27,6 +27,11 @@
     {                                                                                              \
         static const char* table[] = {__VA_ARGS__, nullptr};                                       \
         const std::optional result = find_in_table(token, table, ".");                             \
+        if constexpr (default_value < 0) {                                                         \
+            if (!result) {                                                                         \
+                return fail(token, "invalid identifier");                                          \
+            }                                                                                      \
+        }                                                                                          \
         if (result) {                                                                              \
             token = ctx.tokenize();                                                                \
         }                                                                                          \
@@ -160,6 +165,9 @@ template <int address>
 DEFINE_FLAG(sat, ".SAT", address);
 
 template <int address>
+DEFINE_FLAG(bf, ".BF", address);
+
+template <int address>
 DEFINE_DOT_TABLE(int_sign, 1, address, "S32", "U32");
 
 template <int address>
@@ -167,6 +175,29 @@ DEFINE_DOT_TABLE(float_format, 2, address, "", "F16", "F32", "F64");
 
 template <int address>
 DEFINE_DOT_TABLE(byte_selector, 0, address, "B0", "B1", "B2", "B3");
+
+template <int address>
+DEFINE_OPERAND(pred_combine)
+{
+    static const char* table[] = {"AND", "OR", "XOR", nullptr};
+    const std::optional value = find_in_table(token, table, ".");
+    if (!value) {
+        return fail(token, "expected .AND, .OR or .XOR");
+    }
+    op.add_bits(*value << address);
+    token = ctx.tokenize();
+    return {};
+}
+
+template <int address>
+DEFINE_OPERAND(pred)
+{
+    CHECK(confirm_type(token, token_type::predicate));
+    op.add_bits(static_cast<std::uint64_t>(token.data.predicate.index) << address);
+    op.add_bits(static_cast<std::uint64_t>(token.data.predicate.negated) << (address + 3));
+    token = ctx.tokenize();
+    return {};
+}
 
 template <int address>
 DEFINE_OPERAND(neg)
@@ -292,7 +323,7 @@ namespace xmad
         if (equal(token, ".S16")) {
             op.add_bits(1ULL << 49);
         } else if (!equal(token, ".U16")) {
-            return fail(token, "expected S16 or U16");
+            return fail(token, "expected .S16 or .U16");
         }
 
         token = ctx.tokenize();
@@ -420,4 +451,11 @@ namespace stl
 namespace lds
 {
     DEFINE_FLAG(u, ".U", 44);
+}
+
+namespace hset2
+{
+    template <int address>
+    DEFINE_DOT_TABLE(compare, -1, address, "F", "LT", "EQ", "LE", "GT", "NE", "GE", "NUM", "NAN",
+                     "LTU", "EQU", "LEU", "GTU", "NEU", "GEU", "T");
 }

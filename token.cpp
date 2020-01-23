@@ -87,8 +87,10 @@ token context::tokenize()
         }
         next();
 
+        bool is_true = false;
         std::optional<int> index;
         if (is_contained("Tt", *text)) {
+            is_true = true;
             index = 7;
         } else if (std::isdigit(*text)) {
             index = *text - '0';
@@ -97,7 +99,7 @@ token context::tokenize()
             // check the next character if the next character is a separator
             next();
             if (is_separator(*text)) {
-                if (*index > 6 || *index < 0) {
+                if (!is_true && (*index > 6 || *index < 0)) {
                     fatal_error(token, "out of range predicate");
                 }
                 token.data.predicate.index = *index;
