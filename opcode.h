@@ -32,6 +32,10 @@ struct opcode
 
 inline void opcode::add_bits(std::uint64_t bits)
 {
+    if ((value & bits) != 0) {
+        fprintf(stderr, "%llx\n", (value & bits));
+    }
+
     assert((value & bits) == 0);
     value |= bits;
 }

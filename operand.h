@@ -644,9 +644,13 @@ DEFINE_OPERAND(s2r)
             return fail(token, "invalid system register \33[1m%.*s\33[0m",
                         static_cast<int>(token.data.string.size()), token.data.string.data());
         }
-        fprintf(stderr, "SR%lld\n", *value);
         token = ctx.tokenize();
     }
     op.add_bits(*value << 20);
     return {};
+}
+
+namespace shfl
+{
+    DEFINE_DOT_TABLE(mode, -1, 30, "IDX", "UP", "DOWN", "BFLY");
 }
