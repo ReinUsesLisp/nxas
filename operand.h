@@ -245,6 +245,7 @@ namespace memory
 {
     DEFINE_DOT_TABLE(size, 4, 48, "U8", "S8", "U16", "S16", "32", "64", "128");
 
+    template <bool imm_offset = true>
     DEFINE_OPERAND(address)
     {
         CHECK(confirm_type(token, token_type::bracket_left));
@@ -259,15 +260,17 @@ namespace memory
         }
         op.add_bits(static_cast<std::uint64_t>(regster) << 8);
 
-        if (token.type == token_type::immediate) {
-            const int is_zero_reg = regster == ZERO_REGISTER;
-            const std::int64_t min = is_zero_reg ? 0 : -(1 << 23);
-            const std::int64_t max = MAX_BITS(is_zero_reg ? 24 : 23);
+        if constexpr (imm_offset) {
+            if (token.type == token_type::immediate) {
+                const int is_zero_reg = regster == ZERO_REGISTER;
+                const std::int64_t min = is_zero_reg ? 0 : -(1 << 23);
+                const std::int64_t max = MAX_BITS(is_zero_reg ? 24 : 23);
 
-            std::uint64_t value;
-            CHECK(convert_integer(token, min, max, &value));
-            op.add_bits((value & MAX_BITS(24)) << 20);
-            token = ctx.tokenize();
+                std::uint64_t value;
+                CHECK(convert_integer(token, min, max, &value));
+                op.add_bits((value & MAX_BITS(24)) << 20);
+                token = ctx.tokenize();
+            }
         }
 
         CHECK(confirm_type(token, token_type::bracket_right));
@@ -287,6 +290,18 @@ DEFINE_OPERAND(flow_tests)
 }
 
 DEFINE_FLAG(keeprefcount, ".KEEPREFCOUNT", 5);
+
+template <int address>
+DEFINE_OPERAND(store_cache)
+{
+    static const char* table[] = {"", "CG", "CS", "WT"};
+    std::optional<std::uint64_t> cache = find_in_table(token, table, ".");
+    if (cache) {
+        token = ctx.tokenize();
+    }
+    op.add_bits(cache.value_or(0) << address);
+    return {};
+}
 
 namespace nop
 {
@@ -344,17 +359,6 @@ namespace shr
 namespace stg
 {
     DEFINE_FLAG(e, ".E", 45)
-
-    DEFINE_OPERAND(cache)
-    {
-        static const char* table[] = {"", "CG", "CS", "WT"};
-        std::optional<std::uint64_t> cache = find_in_table(token, table, ".");
-        if (cache) {
-            token = ctx.tokenize();
-        }
-        op.add_bits(cache.value_or(0) << 46);
-        return {};
-    }
 
     DEFINE_OPERAND(size)
     {
@@ -458,4 +462,37 @@ namespace hset2
     template <int address>
     DEFINE_DOT_TABLE(compare, -1, address, "F", "LT", "EQ", "LE", "GT", "NE", "GE", "NUM", "NAN",
                      "LTU", "EQU", "LEU", "GTU", "NEU", "GEU", "T");
+}
+
+namespace image
+{
+    DEFINE_OPERAND(p)
+    {
+        if (!equal(token, ".P")) {
+            return fail(token, "expected .P or .B");
+        }
+        token = ctx.tokenize();
+        return {};
+    }
+
+    DEFINE_OPERAND(d)
+    {
+        if (!equal(token, ".D")) {
+            return fail(token, "expected .P or .B");
+        }
+        op.add_bits(1ULL << 52);
+        token = ctx.tokenize();
+        return {};
+    }
+
+    DEFINE_FLAG(ba, ".BA", 52);
+
+    DEFINE_DOT_TABLE(type, -1, 33, "1D", "1D_BUFFER", "1D_ARRAY", "2D", "2D_ARRAY", "3D");
+
+    DEFINE_DOT_TABLE(rgba, 15, 20, "", "R", "G", "RG", "B", "RB", "GB", "RGB", "A", "RA", "GA",
+                     "RGA", "BA", "RBA", "GBA", "RGBA");
+
+    DEFINE_DOT_TABLE(size, 4, 20, "U8", "S8", "U16", "S16", "32", "64", "128");
+
+    DEFINE_DOT_TABLE(clamp, 1, 49, "IGN", "", "TRAP");
 }
