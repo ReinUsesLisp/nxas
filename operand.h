@@ -180,6 +180,9 @@ template <int address>
 DEFINE_DOT_TABLE(byte_selector, 0, address, "B0", "B1", "B2", "B3");
 
 template <int address>
+DEFINE_DOT_TABLE(fp_rounding, 0, address, "RN", "RM", "RP", "RZ");
+
+template <int address>
 DEFINE_OPERAND(pred_combine)
 {
     static const char* table[] = {"AND", "OR", "XOR", nullptr};
@@ -693,4 +696,29 @@ namespace shfl
 namespace flo
 {
     DEFINE_DOT_TABLE(sign, 1, 48, "U32", "S32");
+}
+
+namespace ldg
+{
+    DEFINE_OPERAND(size)
+    {
+        static const char* table[] = {"U8", "S8", "U16", "S16", "32", "64", "128", "U"};
+        static const char* msg = "expected .U8, .S8, .U16, .S16, .32, .64, .128 or .U.128";
+
+        const std::optional result = find_in_table(token, table, ".");
+        if (!result) {
+            return fail(token, msg);
+        }
+        token = ctx.tokenize();
+        if (*result == 7) { // .U
+            if (!equal(token, ".128")) {
+                return fail(token, msg);
+            }
+            token = ctx.tokenize();
+        }
+        op.add_bits(*result << 48);
+        return {};
+    }
+
+    DEFINE_DOT_TABLE(cache, 0, 46, "", "CG", "CI", "CV");
 }

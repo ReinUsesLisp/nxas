@@ -35,6 +35,9 @@ constexpr insn table[] = {
     INSN(0x010000000000F000ULL, 0, "MOV32I", dgpr<0>, comma, imm32),
     INSN(0x0100000000000000ULL, 0, "MOV32I", dgpr<0>, comma, imm32, comma, mask4<12>),
     INSN(0xF0C8000000000000ULL, 0, "S2R", dgpr<0>, comma, s2r),
+    INSN(0x5C58000000000000ULL, 0, "FADD", ftz<44>, sat<50>, fp_rounding<39>, dgpr<0>, cc, comma, neg<48>, abs<46, sgpr<8>>, comma, neg<45>, abs<49, sgpr<20>>),
+    INSN(0x4C58000000000000ULL, 0, "FADD", ftz<44>, sat<50>, fp_rounding<39>, dgpr<0>, cc, comma, neg<48>, abs<46, sgpr<8>>, comma, neg<45>, abs<49, cbuf>),
+    // TODO: FADD immediate
     INSN(0x5B00000000000000ULL, 0, "XMAD", xmad::signs, psl<36>, xmad::mode_a, mrg<37>, x<38>, dgpr<0>, cc, comma, sgpr<8>, half<53>, comma, sgpr<20>, half<35>, comma, sgpr<39>),
     INSN(0x5100000000000000ULL, 0, "XMAD", xmad::signs, xmad::mode_b, x<54>, dgpr<0>, cc, comma, sgpr<8>, half<53>, comma, sgpr<39>, half<52>, comma, cbuf),
     INSN(0x4E00000000000000ULL, 0, "XMAD", xmad::signs, psl<55>, xmad::mode_b, mrg<56>, x<54>, dgpr<0>, cc, comma, sgpr<8>, half<53>, comma, cbuf, half<52>, comma, sgpr<39>),
@@ -100,6 +103,7 @@ constexpr insn table[] = {
     INSN(0xEED8000000000000ULL, RD, "STG", stg::e, store_cache<46>, memory::size, memory::address, comma, sgpr<0>),
     INSN(0xEF58000000000000ULL, RD, "STS", memory::size, memory::address, comma, sgpr<0>),
     INSN(0xEF50000000000000ULL, RD, "STL", stl::cache, memory::size, memory::address, comma, sgpr<0>),
+    INSN(0xEED0000000000000ULL, RD|WR, "LDG", stg::e, ldg::cache, ldg::size, dgpr<0>, comma, memory::address),
     INSN(0xEF48000000000000ULL, RD|WR, "LDS", lds::u, memory::size, dgpr<0>, comma, memory::address),
     INSN(0xE2A0000000000000ULL, NO_PRED, "PBK", label),
     // TODO: PBK constant buffer
