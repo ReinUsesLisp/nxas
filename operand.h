@@ -397,6 +397,11 @@ namespace shr
     DEFINE_DOT_TABLE(xmode, 0, 43, "", "INVALIDSHRXMODE1", "X", "XHI");
 }
 
+namespace bfe
+{
+    DEFINE_DOT_TABLE(format, 1, 48, "U32", "S32");
+}
+
 namespace stg
 {
     DEFINE_FLAG(e, ".E", 45)
@@ -437,7 +442,7 @@ namespace f2f
             if (result) {
                 token = ctx.tokenize();
             }
-            op.add_bits(result.value_or(0b0011) << 39);
+            op.add_bits(result.value_or(0) << 39);
             return {};
         }
 

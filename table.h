@@ -57,7 +57,7 @@ constexpr insn table[] = {
     INSN(0x7080000000000000ULL, 0, "HFMA2", fp16::merge<49>, fp16::control<57>, sat<52>, dgpr<0>, comma, sgpr<8>, fp16::swizzle<47>, comma, neg<56>, cbuf, comma, neg<51>, sgpr<39>, fp16::swizzle<53>),
     // TODO: HFMA2 immediate
     INSN(0x6080000000000000ULL, 0, "HFMA2", fp16::merge<49>, fp16::control<57>, sat<52>, dgpr<0>, comma, sgpr<8>, fp16::swizzle<47>, comma, neg<56>, sgpr<39>, fp16::swizzle<53>, comma, neg<51>, cbuf),
-    INSN(0x5D00000000000000ULL, 0, "HFMA2", fp16::merge<49>, fp16::control<37>, sat<32>, dgpr<0>, comma, sgpr<8>, fp16::swizzle<47>, comma, neg<31>, sgpr<20>, fp16::swizzle<28>, comma, neg<35>, sgpr<39>, fp16::swizzle<35>),
+    INSN(0x5D00000000000000ULL, 0, "HFMA2", fp16::merge<49>, fp16::control<37>, sat<32>, dgpr<0>, comma, sgpr<8>, fp16::swizzle<47>, comma, neg<31>, sgpr<20>, fp16::swizzle<28>, comma, neg<30>, sgpr<39>, fp16::swizzle<35>),
     INSN(0x5D08000000000000ULL, 0, "HMUL2", fp16::merge<49>, fp16::control<39>, sat<32>, dgpr<0>, comma, abs<44, sgpr<8>>, fp16::swizzle<47>, comma, neg<31>, abs<30, sgpr<20>>, fp16::swizzle<28>),
     INSN(0x7880000000000000ULL, 0, "HMUL2", fp16::merge<49>, fp16::control<39>, sat<52>, dgpr<0>, comma, neg<43>, abs<44, sgpr<8>>, fp16::swizzle<47>, comma, abs<54, cbuf>),
     // TODO: HMUL2 immediate
@@ -70,9 +70,9 @@ constexpr insn table[] = {
     INSN(0x5D20000000000000ULL, 0, "HSETP2", hset2::compare<35>, h_and<49>, ftz<6>, pred_combine<45>, pred<3>, comma, pred<0>, comma, neg<43>, abs<44, sgpr<8>>, fp16::swizzle<47>, comma, neg<31>, abs<30, sgpr<20>>, fp16::swizzle<28>, comma, pred<39, true>),
     INSN(0x7E80000000000000ULL, 0, "HSETP2", hset2::compare<49>, h_and<53>, ftz<6>, pred_combine<45>, pred<3>, comma, pred<0>, comma, neg<43>, abs<44, sgpr<8>>, fp16::swizzle<47>, comma, neg<56>, abs<54, cbuf>, comma, pred<39, true>),
     // TODO: HSETP2 immediate
-    INSN(0x5C00000000000000ULL, 0, "BFE", int_sign<48>, brev<40>, dgpr<0>, cc, comma, sgpr<8>, comma, sgpr<20>),
-    INSN(0x4C00000000000000ULL, 0, "BFE", int_sign<48>, brev<40>, dgpr<0>, cc, comma, sgpr<8>, comma, cbuf),
-    INSN(0x3800000000000000ULL, 0, "BFE", int_sign<48>, brev<40>, dgpr<0>, cc, comma, sgpr<8>, comma, imm),
+    INSN(0x5C00000000000000ULL, 0, "BFE", bfe::format, brev<40>, dgpr<0>, cc, comma, sgpr<8>, comma, sgpr<20>),
+    INSN(0x4C00000000000000ULL, 0, "BFE", bfe::format, brev<40>, dgpr<0>, cc, comma, sgpr<8>, comma, cbuf),
+    INSN(0x3800000000000000ULL, 0, "BFE", bfe::format, brev<40>, dgpr<0>, cc, comma, sgpr<8>, comma, imm),
     INSN(0x5090000000000000ULL, 0, "PSETP", pred_combine<24>, pred_combine<45>, pred<3>, comma, pred<0>, comma, pred<12, true>, comma, pred<29, true>, comma, pred<39, true>),
     INSN(0x5CE8000000000000ULL, 0, "P2R", byte_selector<41>, dgpr<0>, comma, p2r::mode<40>, comma, sgpr<8>, comma, sgpr<20>),
     INSN(0x4CE8000000000000ULL, 0, "P2R", byte_selector<41>, dgpr<0>, comma, p2r::mode<40>, comma, sgpr<8>, comma, cbuf),
@@ -118,7 +118,7 @@ constexpr insn table[] = {
     INSN(0xEF48000000000000ULL, RD|WR, "LDS", lds::u, memory::size, dgpr<0>, comma, memory::address),
     INSN(0xEC00000000000000ULL, RD|WR, "ATOMS", atoms::operation, atoms::size, dgpr<0>, comma, memory::address<true, 30, 22, 2>, comma, sgpr<20>),
     INSN(0xE240000000000000ULL, 0, "BRA", u<7>, lmt<6>, flow_tests, comma, label),
-    INSN(0xE240000000000000ULL, 0, "BRA", u<7>, lmt<6>, label),
+    INSN(0xE24000000000000FULL, 0, "BRA", u<7>, lmt<6>, label),
     INSN(0xE2A0000000000000ULL, NO_PRED, "PBK", label),
     INSN(0xE290000000000000ULL, NO_PRED, "SSY", label),
     // TODO: PBK constant buffer
