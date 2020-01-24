@@ -234,6 +234,9 @@ DEFINE_OPERAND(tilde)
 template <int address>
 DEFINE_FLAG(post_neg, ".NEG", address);
 
+template <int address>
+DEFINE_FLAG(post_abs, ".ABS", address);
+
 template <int address, operand inner>
 DEFINE_OPERAND(abs)
 {
@@ -721,4 +724,40 @@ namespace ldg
     }
 
     DEFINE_DOT_TABLE(cache, 0, 46, "", "CG", "CI", "CV");
+}
+
+namespace i2f
+{
+    DEFINE_OPERAND(int_format)
+    {
+        static const char* table_unsigned[] = {"U8", "U16", "U32", "U64", nullptr};
+        static const char* table_signed[] = {"S8", "S16", "S32", "S64", nullptr};
+
+        std::optional result = find_in_table(token, table_unsigned, ".");
+        if (!result) {
+            result = find_in_table(token, table_signed, ".");
+            if (!result) {
+                return fail(token, "expected .U8, .U16, .U32, .U64, .S8, .S16, .S32 or .S64");
+            }
+            op.add_bits(1ULL << 14);
+        }
+        op.add_bits(*result << 10);
+        token = ctx.tokenize();
+        return {};
+    }
+
+    DEFINE_OPERAND(selector)
+    {
+        static const char* bytes[] = {"B0", "B1", "B2", "B3", nullptr};
+        static const char* shorts[] = {"H0", "INVALIDSIZE1", "H1", "INVALIDSIZE3", nullptr};
+
+        const std::uint64_t type = (op.value >> 10) & 0b111;
+        const char* const* const table = type == 1 ? shorts : bytes;
+        const std::optional result = find_in_table(token, table, ".");
+        if (result) {
+            token = ctx.tokenize();
+        }
+        op.add_bits(result.value_or(0) << 41);
+        return {};
+    }
 }
