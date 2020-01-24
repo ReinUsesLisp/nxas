@@ -171,6 +171,12 @@ template <int address>
 DEFINE_FLAG(h_and, ".H_AND", address);
 
 template <int address>
+DEFINE_FLAG(u, ".U", address);
+
+template <int address>
+DEFINE_FLAG(lmt, ".LMT", address);
+
+template <int address>
 DEFINE_DOT_TABLE(int_sign, 1, address, "S32", "U32");
 
 template <int address>
