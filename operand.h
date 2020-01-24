@@ -276,7 +276,7 @@ namespace memory
 {
     DEFINE_DOT_TABLE(size, 4, 48, "U8", "S8", "U16", "S16", "32", "64", "128");
 
-    template <bool imm_offset = true>
+    template <bool imm_offset = true, int addr = 20, int size = 24, int shr = 0>
     DEFINE_OPERAND(address)
     {
         CHECK(confirm_type(token, token_type::bracket_left));
@@ -294,12 +294,13 @@ namespace memory
         if constexpr (imm_offset) {
             if (token.type == token_type::immediate) {
                 const int is_zero_reg = regster == ZERO_REGISTER;
-                const std::int64_t min = is_zero_reg ? 0 : -(1 << 23);
-                const std::int64_t max = MAX_BITS(is_zero_reg ? 24 : 23);
+                const std::int64_t min = is_zero_reg ? 0 : -(1 << (size - 1));
+                const std::int64_t max = MAX_BITS(is_zero_reg ? size : (size - 1));
 
                 std::uint64_t value;
                 CHECK(convert_integer(token, min, max, &value));
-                op.add_bits((value & MAX_BITS(24)) << 20);
+                value >>= shr;
+                op.add_bits((value & MAX_BITS(size)) << addr);
                 token = ctx.tokenize();
             }
         }
@@ -760,4 +761,12 @@ namespace i2f
         op.add_bits(result.value_or(0) << 41);
         return {};
     }
+}
+
+namespace atoms
+{
+    DEFINE_DOT_TABLE(operation, -1, 52, "ADD", "MIN", "MAX", "INC", "DEC", "AND", "OR", "XOR",
+                     "EXCH");
+
+    DEFINE_DOT_TABLE(size, -1, 28, "U32", "S32", "U64", "S64");
 }
