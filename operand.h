@@ -219,6 +219,16 @@ DEFINE_OPERAND(neg)
 }
 
 template <int address>
+DEFINE_OPERAND(tilde)
+{
+    if (token.type == token_type::tilde) {
+        op.add_bits(1ULL << address);
+        token = ctx.tokenize();
+    }
+    return {};
+}
+
+template <int address>
 DEFINE_FLAG(post_neg, ".NEG", address);
 
 template <int address, operand inner>
@@ -249,6 +259,12 @@ DEFINE_OPERAND(po)
     token = ctx.tokenize();
     return {};
 }
+
+template <int address>
+DEFINE_FLAG(sh, ".SH", address);
+
+template <int address>
+DEFINE_FLAG(inv, ".INV", address);
 
 namespace memory
 {
@@ -668,4 +684,9 @@ DEFINE_OPERAND(s2r)
 namespace shfl
 {
     DEFINE_DOT_TABLE(mode, -1, 30, "IDX", "UP", "DOWN", "BFLY");
+}
+
+namespace flo
+{
+    DEFINE_DOT_TABLE(sign, 1, 48, "U32", "S32");
 }

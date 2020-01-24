@@ -20,7 +20,7 @@
 
 [[gnu::always_inline]] static bool is_operator(int character)
 {
-    return is_contained("+-|[]@,;", character);
+    return is_contained("+-~|[]@,;", character);
 }
 
 [[gnu::always_inline]] static bool is_separator(int character)
@@ -37,6 +37,8 @@ static token_type get_operator_type(int character)
         return token_type::plus;
     case '-':
         return token_type::minus;
+    case '~':
+        return token_type::tilde;
     case '|':
         return token_type::vbar;
     case '[':
@@ -217,6 +219,8 @@ const char* name(token_type type)
         return "plus";
     case token_type::minus:
         return "minus";
+    case token_type::tilde:
+        return "tilde";
     case token_type::vbar:
         return "vertical bar";
     case token_type::bracket_left:

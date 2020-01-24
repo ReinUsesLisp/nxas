@@ -16,6 +16,7 @@ enum class token_type
     immediate,
     plus,
     minus,
+    tilde,
     vbar,
     bracket_left,
     bracket_right,
