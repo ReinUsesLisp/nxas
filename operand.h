@@ -319,7 +319,7 @@ DEFINE_FLAG(keeprefcount, ".KEEPREFCOUNT", 5);
 template <int address>
 DEFINE_OPERAND(store_cache)
 {
-    static const char* table[] = {"", "CG", "CS", "WT"};
+    static const char* table[] = {"", "CG", "CS", "WT", nullptr};
     std::optional<std::uint64_t> cache = find_in_table(token, table, ".");
     if (cache) {
         token = ctx.tokenize();
@@ -327,6 +327,9 @@ DEFINE_OPERAND(store_cache)
     op.add_bits(cache.value_or(0) << address);
     return {};
 }
+
+template <int address>
+DEFINE_DOT_TABLE(load_cache, 0, address, "", "CG", "CI", "CV");
 
 namespace nop
 {
@@ -524,7 +527,8 @@ namespace image
         return {};
     }
 
-    DEFINE_FLAG(ba, ".BA", 52);
+    template <int address>
+    DEFINE_FLAG(ba, ".BA", address);
 
     DEFINE_DOT_TABLE(type, -1, 33, "1D", "1D_BUFFER", "1D_ARRAY", "2D", "2D_ARRAY", "3D");
 
