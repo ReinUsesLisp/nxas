@@ -96,6 +96,7 @@ constexpr insn table[] = {
     INSN(0xEF10000010000000ULL, 0, "SHFL", shfl::mode, pred<48>, comma, dgpr<0>, comma, sgpr<8>, comma, uint<5, 20>, comma, sgpr<39>),
     INSN(0xEF10000020000000ULL, 0, "SHFL", shfl::mode, pred<48>, comma, dgpr<0>, comma, sgpr<8>, comma, sgpr<20>, comma, uint<13, 34>),
     INSN(0xEF10000030000000ULL, 0, "SHFL", shfl::mode, pred<48>, comma, dgpr<0>, comma, sgpr<8>, comma, uint<5, 20>, comma, uint<13, 34>),
+    INSN(0xF0F8000000000000ULL, 0, "SYNC", flow_tests),
     INSN(0xE350000000000000ULL, 0, "CONT", flow_tests),
     INSN(0xE340000000000000ULL, 0, "BRK", flow_tests),
     INSN(0xE330000000000000ULL, 0, "KIL", flow_tests),
