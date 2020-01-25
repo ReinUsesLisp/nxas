@@ -781,3 +781,8 @@ namespace atoms
 
     DEFINE_DOT_TABLE(size, -1, 28, "U32", "S32", "U64", "S64");
 }
+
+namespace ldl
+{
+    DEFINE_DOT_TABLE(cache, 0, 44, "", "LU", "CI", "CV");
+}
