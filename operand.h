@@ -786,3 +786,33 @@ namespace ldl
 {
     DEFINE_DOT_TABLE(cache, 0, 44, "", "LU", "CI", "CV");
 }
+
+namespace atom
+{
+    DEFINE_FLAG(e, ".E", 48);
+
+    DEFINE_DOT_TABLE(operation, -1, 52, "ADD", "MIN", "MAX", "INC", "DEC", "AND", "OR", "XOR",
+                     "EXCH", "SAFEADD");
+
+    DEFINE_OPERAND(size)
+    {
+        static const char* msg = "expected .U32, .S32, .U64, .S64, .F32.FTZ.RN or .F16x2.FTZ.RN";
+        static const char* table[] = {"U32", "S32", "U64", "F32", "F16x2", "S64", nullptr};
+        const std::optional result = find_in_table(token, table, ".");
+        if (result) {
+            token = ctx.tokenize();
+            if (*result == 3 || *result == 4) { // .F32 or .F16x2
+                if (!equal(token, ".FTZ")) {
+                    return fail(token, msg);
+                }
+                token = ctx.tokenize();
+                if (!equal(token, ".RN")) {
+                    return fail(token, msg);
+                }
+                token = ctx.tokenize();
+            }
+        }
+        op.add_bits(result.value_or(0) << 49);
+        return {};
+    }
+}
