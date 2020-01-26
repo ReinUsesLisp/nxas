@@ -721,17 +721,16 @@ namespace ldg
         static const char* msg = "expected .U8, .S8, .U16, .S16, .32, .64, .128 or .U.128";
 
         const std::optional result = find_in_table(token, table, ".");
-        if (!result) {
-            return fail(token, msg);
-        }
-        token = ctx.tokenize();
-        if (*result == 7) { // .U
-            if (!equal(token, ".128")) {
-                return fail(token, msg);
-            }
-            token = ctx.tokenize();
-        }
-        op.add_bits(*result << 48);
+        if (result) {
+	        token = ctx.tokenize();
+	        if (*result == 7) { // .U
+	            if (!equal(token, ".128")) {
+	                return fail(token, msg);
+	            }
+	            token = ctx.tokenize();
+	        }
+    	}
+        op.add_bits(result.value_or(4) << 48);
         return {};
     }
 
