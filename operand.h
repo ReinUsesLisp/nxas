@@ -815,3 +815,23 @@ namespace atom
         return {};
     }
 }
+
+namespace lea
+{	
+	DEFINE_OPERAND(hi)
+	{
+		if (!equal(token, ".HI")) {
+			return fail(token, "expected .HI");
+		}
+		token = ctx.tokenize();
+		return {};
+	}
+
+    DEFINE_OPERAND(lo)
+    {
+        if (equal(token, ".LO")) {
+            token = ctx.tokenize();
+        }
+        return {};
+    }
+}
