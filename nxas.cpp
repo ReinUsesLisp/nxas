@@ -14,32 +14,33 @@
 #include "span.h"
 #include "token.h"
 
-namespace {
-
-std::string read_file(const char* filename)
+namespace
 {
-    std::ifstream file(filename, std::ios::binary);
-    if (!file.is_open()) {
-        fatal_error(nullptr, "%s: failed to open", filename);
-    }
-    file.seekg(0, std::ios::end);
-    std::string text(file.tellg(), ' ');
 
-    file.seekg(0, std::ios::beg);
-    file.read(std::data(text), std::size(text));
-    return text;
-}
+    std::string read_file(const char* filename)
+    {
+        std::ifstream file(filename, std::ios::binary);
+        if (!file.is_open()) {
+            fatal_error(nullptr, "%s: failed to open", filename);
+        }
+        file.seekg(0, std::ios::end);
+        std::string text(file.tellg(), ' ');
 
-std::uint64_t generate_sched(span<opcode> opcodes, std::size_t index, std::size_t num_instructions,
-                             std::size_t address)
-{
-    if (index + address >= num_instructions) {
-        return 0x7E0ULL << (address * 21);
+        file.seekg(0, std::ios::beg);
+        file.read(std::data(text), std::size(text));
+        return text;
     }
 
-    const opcode& op = opcodes[index + address];
-    return (0x7E0ULL | (static_cast<std::uint64_t>(op.reuse) << 17)) << (address * 21);
-}
+    std::uint64_t generate_sched(span<opcode> opcodes, std::size_t index,
+                                 std::size_t num_instructions, std::size_t address)
+    {
+        if (index + address >= num_instructions) {
+            return 0x7E0ULL << (address * 21);
+        }
+
+        const opcode& op = opcodes[index + address];
+        return (0x7E0ULL | (static_cast<std::uint64_t>(op.reuse) << 17)) << (address * 21);
+    }
 
 } // anonymous namespace
 

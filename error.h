@@ -17,7 +17,10 @@ class error
 
   public:
     error() = default;
-    operator bool() const { return static_cast<bool>(message); }
+    operator bool() const
+    {
+        return static_cast<bool>(message);
+    }
 
     [[noreturn]] void raise();
 

@@ -51,7 +51,9 @@ struct token
 class context
 {
   public:
-    context(const char* filename_, const char* text_) : filename{filename_}, text{text_} {}
+    context(const char* filename_, const char* text_) : filename{filename_}, text{text_}
+    {
+    }
 
     token tokenize();
 
