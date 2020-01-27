@@ -722,14 +722,14 @@ namespace ldg
 
         const std::optional result = find_in_table(token, table, ".");
         if (result) {
-	        token = ctx.tokenize();
-	        if (*result == 7) { // .U
-	            if (!equal(token, ".128")) {
-	                return fail(token, msg);
-	            }
-	            token = ctx.tokenize();
-	        }
-    	}
+            token = ctx.tokenize();
+            if (*result == 7) { // .U
+                if (!equal(token, ".128")) {
+                    return fail(token, msg);
+                }
+                token = ctx.tokenize();
+            }
+        }
         op.add_bits(result.value_or(4) << 48);
         return {};
     }
@@ -817,15 +817,15 @@ namespace atom
 }
 
 namespace lea
-{	
-	DEFINE_OPERAND(hi)
-	{
-		if (!equal(token, ".HI")) {
-			return fail(token, "expected .HI");
-		}
-		token = ctx.tokenize();
-		return {};
-	}
+{
+    DEFINE_OPERAND(hi)
+    {
+        if (!equal(token, ".HI")) {
+            return fail(token, "expected .HI");
+        }
+        token = ctx.tokenize();
+        return {};
+    }
 
     DEFINE_OPERAND(lo)
     {
@@ -835,3 +835,6 @@ namespace lea
         return {};
     }
 }
+
+DEFINE_DOT_TABLE(float_compare, 15, 48, "F", "LT", "EQ", "LE", "GT", "NE", "GE", "NUM", "NAN",
+                 "LTU", "EQU", "LEU", "GTU", "NEU", "GEU", "T");
