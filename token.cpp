@@ -140,8 +140,7 @@ token context::tokenize()
         }
 
         if (!is_separator(*text)) {
-            fprintf(stderr, "no separator after immediate\n");
-            exit(EXIT_FAILURE);
+            fatal_error(token, "no separator after immediate");
         }
 
         char* conversion_end = NULL;
