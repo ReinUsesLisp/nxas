@@ -88,25 +88,36 @@ DEFINE_OPERAND(comma)
 
 DEFINE_OPERAND(label)
 {
-    switch (token.type) {
-    case token_type::identifier:
-        return fail(token, "labels are not implemented");
-    case token_type::immediate: {
-        static constexpr std::int64_t max = MAX_BITS(23);
-        static constexpr std::int64_t min = -MAX_BITS(23) - 1;
-        const std::int64_t value = token.data.immediate - ctx.pc - 8;
-        if (value > max || value < min) {
-            return fail(token, "label out of range");
-        }
-        op.add_bits((static_cast<std::uint64_t>(value) & 0x7FFFFF) << 20);
-        op.add_bits((value < 0 ? 1ULL : 0ULL) << 43);
+    std::int64_t absolute;
 
-        token = ctx.tokenize();
-        return {};
+    switch (token.type) {
+    case token_type::identifier: {
+        const std::optional label = ctx.find_label(token.data.string);
+        if (!label) {
+            return fail(token, "label \33[1m%.*s\33[0m not defined", std::size(token.data.string),
+                        std::data(token.data.string));
+        }
+        absolute = *label;
+        break;
     }
+    case token_type::immediate:
+        absolute = token.data.immediate;
+        break;
     default:
         return fail(token, "expected label");
     }
+
+    static constexpr std::int64_t max = MAX_BITS(23);
+    static constexpr std::int64_t min = -MAX_BITS(23) - 1;
+    const std::int64_t value = absolute - ctx.pc - 8;
+    if (value > max || value < min) {
+        return fail(token, "label out of range");
+    }
+    op.add_bits((static_cast<std::uint64_t>(value) & 0x7FFFFF) << 20);
+    op.add_bits((value < 0 ? 1ULL : 0ULL) << 43);
+
+    token = ctx.tokenize();
+    return {};
 }
 
 template <int address>

@@ -28,6 +28,21 @@
     return is_contained(" \t\r\n.", character) || is_operator(character) || !character;
 }
 
+[[gnu::always_inline]] static bool is_alpha(int character)
+{
+    return (character >= 'a' && character <= 'z') || (character >= 'A' && character <= 'Z');
+}
+
+[[gnu::always_inline]] static bool is_decimal(int character)
+{
+    return character >= '0' && character <= '9';
+}
+
+[[gnu::always_inline]] static bool is_alnum(int character)
+{
+    return is_alpha(character) || is_decimal(character);
+}
+
 static token_type get_operator_type(int character)
 {
     switch (character) {
@@ -53,6 +68,14 @@ static token_type get_operator_type(int character)
         return token_type::comma;
     }
 }
+
+context::context(const char* filename_, const char* text_)
+    : filename{filename_}, text_begin{text_}, text{text_}
+{
+    generate_labels();
+}
+
+context::~context() = default;
 
 token context::tokenize()
 {
@@ -178,9 +201,23 @@ token context::tokenize()
         next();
     } while (!is_separator(*text));
 
+    if (text[-1] == ':') {
+        // ignore labels
+        return tokenize();
+    }
+
     token.type = token_type::identifier;
     token.data.string = std::string_view(contents, static_cast<std::size_t>(text - contents));
     return token;
+}
+
+std::optional<std::int64_t> context::find_label(std::string_view label) const
+{
+    const auto it = labels.find(std::string{label});
+    if (it == std::end(labels)) {
+        return {};
+    }
+    return it->second;
 }
 
 void context::next()
@@ -198,6 +235,55 @@ void context::next()
         column = 0;
         break;
     }
+}
+
+void context::reset()
+{
+    text = text_begin;
+    line = 0;
+    column = 0;
+    pc = 0;
+}
+
+void context::generate_labels()
+{
+    const auto advance = [this] {
+        if (*text == ';') {
+            pc += 8;
+            if (pc % 0x20 == 0) {
+                pc += 8;
+            }
+        }
+        next();
+    };
+    const auto next_line = [this, advance] {
+        do {
+            advance();
+        } while (*text && column > 0);
+    };
+
+    assert(line == 0 && column == 0);
+
+    pc = 8;
+
+    while (*text) {
+        if (!is_alpha(*text)) {
+            next_line();
+            continue;
+        }
+        const char* const potential_label = text;
+        while (is_alnum(*text) || *text == '_') {
+            advance();
+        }
+        if (*text == ':') {
+            std::string label;
+            label.append(potential_label, static_cast<std::size_t>(text - potential_label));
+            labels.insert({std::move(label), pc});
+        }
+        next_line();
+    }
+
+    reset();
 }
 
 const char* name(token_type type)

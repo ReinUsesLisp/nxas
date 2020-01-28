@@ -1,9 +1,11 @@
 #pragma once
 
-#include <string_view>
-
 #include <cstddef>
 #include <cstdint>
+#include <optional>
+#include <string>
+#include <string_view>
+#include <unordered_map>
 
 #include "error.h"
 
@@ -51,21 +53,28 @@ struct token
 class context
 {
   public:
-    context(const char* filename_, const char* text_) : filename{filename_}, text{text_}
-    {
-    }
+    context(const char* filename_, const char* text_);
+    ~context();
 
     token tokenize();
+
+    std::optional<std::int64_t> find_label(std::string_view label) const;
 
     std::int64_t pc = 0;
 
   private:
     void next();
 
+    void reset();
+
+    void generate_labels();
+
     const char* filename;
+    const char* text_begin;
     const char* text;
     int line = 0;
     int column = 0;
+    std::unordered_map<std::string, std::int64_t> labels;
 };
 
 const char* name(token_type type);
