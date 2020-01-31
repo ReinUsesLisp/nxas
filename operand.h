@@ -188,6 +188,9 @@ template <int address>
 DEFINE_FLAG(lmt, ".LMT", address);
 
 template <int address>
+DEFINE_FLAG(w, ".W", address);
+
+template <int address>
 DEFINE_DOT_TABLE(int_sign, 1, address, "S32", "U32");
 
 template <int address>
@@ -849,3 +852,28 @@ namespace lea
 
 DEFINE_DOT_TABLE(float_compare, 15, 48, "F", "LT", "EQ", "LE", "GT", "NE", "GE", "NUM", "NAN",
                  "LTU", "EQU", "LEU", "GTU", "NEU", "GEU", "T");
+
+namespace shf
+{
+    DEFINE_OPERAND(r)
+    {
+        if (!equal(token, ".R")) {
+            return fail(token, "expected .R");
+        }
+        token = ctx.tokenize();
+        return {};
+    }
+
+    DEFINE_OPERAND(l)
+    {
+        if (!equal(token, ".L")) {
+            return fail(token, "expected .L");
+        }
+        token = ctx.tokenize();
+        return {};
+    }
+
+    DEFINE_DOT_TABLE(max_shift, 0, 37, "32", "INVALIDMAXSHIFT3", "U64", "S64");
+
+    DEFINE_DOT_TABLE(xmode, 0, 48, "", "HI", "X", "XHI");
+}

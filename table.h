@@ -45,6 +45,10 @@ constexpr insn table[] = {
     INSN(0x5C28000000000000ULL, 0, "SHR", shr::format, shr::mode, shr::xmode, brev<40>, dgpr<0>, cc, comma, sgpr<8>, comma, sgpr<20>),
     INSN(0x4C28000000000000ULL, 0, "SHR", shr::format, shr::mode, shr::xmode, brev<40>, dgpr<0>, cc, comma, sgpr<8>, comma, cbuf),
     INSN(0x3828000000000000ULL, 0, "SHR", shr::format, shr::mode, shr::xmode, brev<40>, dgpr<0>, cc, comma, sgpr<8>, comma, imm),
+    INSN(0x5CF8000000000000ULL, 0, "SHF", shf::r, w<50>, shf::max_shift, shf::xmode, dgpr<0>, cc, comma, sgpr<8>, comma,        sgpr<20>, comma, sgpr<39>),
+    INSN(0x5BF8000000000000ULL, 0, "SHF", shf::l, w<50>, shf::max_shift, shf::xmode, dgpr<0>, cc, comma, sgpr<8>, comma,        sgpr<20>, comma, sgpr<39>),
+    INSN(0x38F8000000000000ULL, 0, "SHF", shf::r, w<50>, shf::max_shift, shf::xmode, dgpr<0>, cc, comma, sgpr<8>, comma, uinteger<6, 20>, comma, sgpr<39>),
+    INSN(0x36F8000000000000ULL, 0, "SHF", shf::l, w<50>, shf::max_shift, shf::xmode, dgpr<0>, cc, comma, sgpr<8>, comma, uinteger<6, 20>, comma, sgpr<39>),
     INSN(0x5CA8000000000000ULL, 0, "F2F", ftz<44>, float_format<8>, float_format<10>, f2f::rounding, sat<50>, dgpr<0>, cc, comma, neg<45>, abs<49, sgpr<20>>, half<41>),
     INSN(0x4CA8000000000000ULL, 0, "F2F", ftz<44>, float_format<8>, float_format<10>, f2f::rounding, sat<50>, dgpr<0>, cc, comma, neg<45>, abs<49, cbuf>, half<41>),
     // TODO: F2F immediate
