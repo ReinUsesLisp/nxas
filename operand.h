@@ -877,3 +877,5 @@ namespace shf
 
     DEFINE_DOT_TABLE(xmode, 0, 48, "", "HI", "X", "XHI");
 }
+
+DEFINE_DOT_TABLE(noinc, 1, 6, "NOINC", "INC");

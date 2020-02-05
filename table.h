@@ -150,8 +150,11 @@ constexpr insn table[] = {
     INSN(0xE240000000000000ULL, 0, "BRA", u<7>, lmt<6>, flow_tests, comma, label),
     INSN(0xE24000000000000FULL, 0, "BRA", u<7>, lmt<6>, label),
     INSN(0xE2A0000000000000ULL, NO_PRED, "PBK", label),
-    INSN(0xE290000000000000ULL, NO_PRED, "SSY", label),
     // TODO: PBK constant buffer
+    INSN(0xE290000000000000ULL, NO_PRED, "SSY", label),
+    // TODO: SSY constant buffer
+    INSN(0xE260000000000000ULL, NO_PRED, "CAL", noinc, label),
+    // TODO: CAL constant buffer
 };
 // clang-format on
 
