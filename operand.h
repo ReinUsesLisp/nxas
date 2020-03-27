@@ -879,3 +879,48 @@ namespace shf
 }
 
 DEFINE_DOT_TABLE(noinc, 1, 6, "NOINC", "INC");
+
+namespace video
+{
+    DEFINE_DOT_TABLE(dest_sign, 1, 54, "UD", "SD");
+
+    template <int address, int sign_address>
+    DEFINE_OPERAND(src_format)
+    {
+        static const char* signed_table[] = {"S8", "", "S16", "S32", nullptr};
+        static const char* unsigned_table[] = {"U8", "", "U16", "U32", nullptr};
+        bool is_signed = true;
+        std::optional result = find_in_table(token, signed_table, ".");
+        if (!result) {
+            is_signed = false;
+            result = find_in_table(token, unsigned_table, ".");
+        }
+        op.add_bits(result.value_or(2) << address); // .U32
+        op.add_bits((is_signed ? 1ULL : 0ULL) << sign_address);
+
+        token = ctx.tokenize();
+        return {};
+    }
+
+    template <int address>
+    DEFINE_DOT_TABLE(mx, 0, address, "MN", "MX");
+
+    template <int address>
+    DEFINE_DOT_TABLE(vmnmx_op, 7, address, "MRG_16H", "MRG_16L", "MRG_8B0", "MRG_8B2", "ACC", "MIN", "MAX");
+
+    template <int address, int type_address>
+    DEFINE_OPERAND(selector)
+    {
+        static const char* bytes[] = {"B0", "B1", "B2", "B3", nullptr};
+        static const char* shorts[] = {"H0", "H1", nullptr};
+
+        const std::uint64_t type = (op.value >> type_address) & 0b111;
+        const char* const* const table = type == 2 ? shorts : bytes;
+        const std::optional result = find_in_table(token, table, ".");
+        if (result) {
+            token = ctx.tokenize();
+        }
+        op.add_bits(result.value_or(0) << address);
+        return {};
+    }
+}

@@ -74,6 +74,7 @@ constexpr insn table[] = {
     INSN(0x5D20000000000000ULL, 0, "HSETP2", hset2::compare<35>, h_and<49>, ftz<6>, pred_combine<45>, pred<3>, comma, pred<0>, comma, neg<43>, abs<44, sgpr<8>>, fp16::swizzle<47>, comma, neg<31>, abs<30, sgpr<20>>, fp16::swizzle<28>, comma, pred<39, true>),
     INSN(0x7E80000000000000ULL, 0, "HSETP2", hset2::compare<49>, h_and<53>, ftz<6>, pred_combine<45>, pred<3>, comma, pred<0>, comma, neg<43>, abs<44, sgpr<8>>, fp16::swizzle<47>, comma, neg<56>, abs<54, cbuf>, comma, pred<39, true>),
     // TODO: HSETP2 immediate
+    INSN(0x3A04000000000000ULL, 0, "VMNMX", video::dest_sign, video::src_format<37, 48>, video::src_format<29, 49>, video::mx<56>, sat<55>, video::vmnmx_op<51>, dgpr<0>, cc, comma, sgpr<8>, video::selector<36, 37>, comma, sgpr<20>, video::selector<28, 29>, comma, sgpr<39>),
     INSN(0x5C00000000000000ULL, 0, "BFE", bfe::format, brev<40>, dgpr<0>, cc, comma, sgpr<8>, comma, sgpr<20>),
     INSN(0x4C00000000000000ULL, 0, "BFE", bfe::format, brev<40>, dgpr<0>, cc, comma, sgpr<8>, comma, cbuf),
     INSN(0x3800000000000000ULL, 0, "BFE", bfe::format, brev<40>, dgpr<0>, cc, comma, sgpr<8>, comma, imm),
