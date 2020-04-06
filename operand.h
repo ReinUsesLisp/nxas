@@ -787,6 +787,43 @@ namespace i2f
     }
 }
 
+namespace i2i
+{
+    template <int address, int sign_address>
+    DEFINE_OPERAND(format)
+    {
+        static const char* table_unsigned[] = {"U8", "U16", "U32", nullptr};
+        static const char* table_signed[] = {"S8", "S16", "S32", nullptr};
+
+        std::optional result = find_in_table(token, table_unsigned, ".");
+        if (!result) {
+            result = find_in_table(token, table_signed, ".");
+            if (!result) {
+                return fail(token, "expected .U8, .U16, .U32, .S8, .S16 or .S32");
+            }
+            op.add_bits(1ULL << sign_address);
+        }
+        op.add_bits(*result << address);
+        token = ctx.tokenize();
+        return {};
+    }
+
+    DEFINE_OPERAND(selector)
+    {
+        static const char* bytes[] = {"B0", "B1", "B2", "B3", nullptr};
+        static const char* shorts[] = {"H0", "INVALIDSIZE1", "H1", "INVALIDSIZE3", nullptr};
+
+        const std::uint64_t type = (op.value >> 10) & 0b111;
+        const char* const* const table = type == 1 ? shorts : bytes;
+        const std::optional result = find_in_table(token, table, ".");
+        if (result) {
+            token = ctx.tokenize();
+        }
+        op.add_bits(result.value_or(0) << 41);
+        return {};
+    }
+}
+
 namespace atoms
 {
     DEFINE_DOT_TABLE(operation, -1, 52, "ADD", "MIN", "MAX", "INC", "DEC", "AND", "OR", "XOR",

@@ -58,6 +58,9 @@ constexpr insn table[] = {
     INSN(0x5CB8000000000000ULL, 0, "I2F", float_format<8>, i2f::int_format, fp_rounding<39>, dgpr<0>, cc, comma, neg<45>, abs<49, sgpr<20>>, i2f::selector),
     INSN(0x4CB8000000000000ULL, 0, "I2F", float_format<8>, i2f::int_format, fp_rounding<39>, dgpr<0>, cc, comma, neg<45>, abs<49, cbuf>, i2f::selector),
     INSN(0x38B8000000000000ULL, 0, "I2F", float_format<8>, i2f::int_format, fp_rounding<39>, dgpr<0>, cc, comma, imm, post_neg<45>, post_abs<49>, i2f::selector),
+    INSN(0x5CE0000000000000ULL, 0, "I2I", i2i::format<8, 12>, i2i::format<10, 13>, sat<50>, dgpr<0>, cc, comma, neg<45>, abs<49, sgpr<20>>, i2i::selector),
+    INSN(0x4CE0000000000000ULL, 0, "I2I", i2i::format<8, 12>, i2i::format<10, 13>, sat<50>, dgpr<0>, cc, comma, neg<45>, abs<49, cbuf>, i2i::selector),
+    INSN(0x38E0000000000000ULL, 0, "I2I", i2i::format<8, 12>, i2i::format<10, 13>, sat<50>, dgpr<0>, cc, comma, imm, post_neg<45>, post_abs<49>),
     INSN(0x7080000000000000ULL, 0, "HFMA2", fp16::merge<49>, fp16::control<57>, sat<52>, dgpr<0>, comma, sgpr<8>, fp16::swizzle<47>, comma, neg<56>, cbuf, comma, neg<51>, sgpr<39>, fp16::swizzle<53>),
     // TODO: HFMA2 immediate
     INSN(0x6080000000000000ULL, 0, "HFMA2", fp16::merge<49>, fp16::control<57>, sat<52>, dgpr<0>, comma, sgpr<8>, fp16::swizzle<47>, comma, neg<56>, sgpr<39>, fp16::swizzle<53>, comma, neg<51>, cbuf),
