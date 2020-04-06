@@ -837,7 +837,7 @@ namespace ldl
     DEFINE_DOT_TABLE(cache, 0, 44, "", "LU", "CI", "CV");
 }
 
-template<int address>
+template <int address>
 DEFINE_OPERAND(atomic_size)
 {
     static const char* msg = "expected .U32, .S32, .U64, .S64, .F32.FTZ.RN, .F16x2.RN or .S64";

@@ -47,6 +47,10 @@ bool parse_instruction(context& ctx, opcode& op)
         return false;
     }
 
+    while (token.type == token_type::identifier && token.data.string[0] == '.') {
+        ctx.parse_option(token);
+    }
+
     if (ctx.pc % 0x20 == 0) {
         ctx.pc += 8;
     }

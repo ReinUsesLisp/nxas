@@ -1,6 +1,5 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <algorithm>
-#include <cstdio>
 #include <cstring>
 #include <fstream>
 #include <iterator>
@@ -16,7 +15,6 @@
 
 namespace
 {
-
     std::string read_file(const char* filename)
     {
         std::ifstream file(filename, std::ios::binary);
@@ -71,6 +69,9 @@ int main(int argc, char** argv)
     if (!input_file) {
         fatal_error("no input file");
     }
+    if (!output_file) {
+        fatal_error("no output file");
+    }
 
     // prepare our context
     const std::string input_text = read_file(input_file);
@@ -82,9 +83,8 @@ int main(int argc, char** argv)
     // a semicolon (which will trigger a fatal)
     const std::size_t num_scolons = std::count(std::begin(input_text), std::end(input_text), ';');
     const std::size_t max_decode_instructions = num_scolons + 1;
-    const std::size_t max_output_instructions = num_scolons * 4 / 3 + 3;
 
-    std::vector<std::uint64_t> output(max_output_instructions);
+    std::vector<std::uint64_t> output;
     std::vector<opcode> opcodes(max_decode_instructions);
 
     std::size_t index = 0;
@@ -93,38 +93,29 @@ int main(int argc, char** argv)
     assert(index == max_decode_instructions);
     const std::size_t num_instructions = index - 1;
 
-    std::size_t output_index = 0;
     for (index = 0; index < num_instructions; ++index) {
         if (index % 3 == 0) {
             std::uint64_t sched = 0;
             for (std::size_t address = 0; address < 3; ++address) {
                 sched |= generate_sched(opcodes, index, num_instructions, address);
             }
-            output[output_index++] = sched;
+            output.push_back(sched);
         }
 
-        output[output_index++] = opcodes[index].value;
+        output.push_back(opcodes[index].value);
     }
-    while (output_index % 4) {
-        output[output_index++] = 0x50B0000000070F00ULL;
+    while (output.size() % 4) {
+        output.push_back(0x50B0000000070F00ULL);
     }
-    const std::size_t num_output = output_index;
 
-    std::FILE* outfp = stdout;
-    if (output_file) {
-        outfp = std::fopen(output_file, "wb");
-        if (!outfp) {
+    try {
+        std::ofstream outfp(output_file, std::ios::binary);
+        if (!outfp.is_open()) {
             fatal_error("%s: failed to open", output_file);
         }
-    }
-    const bool success =
-        std::fwrite(std::data(output), sizeof(std::uint64_t), num_output, outfp) == num_output;
+        ctx.write(output, outfp);
 
-    if (output_file && std::fclose(outfp) != 0) {
-        fatal_error("failed to close output file");
-    }
-
-    if (!success) {
-        fatal_error("failed to write output binary");
+    } catch (const std::ios_base::failure& e) {
+        fatal_error("failed to write output file: %s", e.what());
     }
 }

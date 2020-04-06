@@ -1,0 +1,135 @@
+#include <cstdint>
+#include <cstring>
+#include <fstream>
+
+#include "token.h"
+
+constexpr std::uint32_t DKSH_MAGIC = 0x48534B44;
+
+struct dksh_header
+{
+    std::uint32_t magic;
+    std::uint32_t header_sz;
+    std::uint32_t control_sz;
+    std::uint32_t code_sz;
+    std::uint32_t programs_off;
+    std::uint32_t num_programs;
+};
+
+struct dksh_program_header
+{
+    std::uint32_t type;
+    std::uint32_t entrypoint;
+    std::uint32_t num_gprs;
+    std::uint32_t constbuf1_off;
+    std::uint32_t constbuf1_sz;
+    std::uint32_t per_warp_scratch_sz;
+    union
+    {
+        struct
+        {
+            std::uint32_t alt_entrypoint;
+            std::uint32_t alt_num_gprs;
+        } vert;
+        struct
+        {
+            bool has_table_3d1;
+            bool early_fragment_tests;
+            bool post_depth_coverage;
+            bool persample_invocation;
+            std::uint32_t table_3d1[4];
+            std::uint32_t param_d8;
+            std::uint16_t param_65b;
+            std::uint16_t param_489;
+        } frag;
+        struct
+        {
+            bool flag_47c;
+            bool has_table_490;
+            bool _padding[2];
+            std::uint32_t table_490[8];
+        } geom;
+        struct
+        {
+            std::uint32_t param_c8;
+        } tess_eval;
+        struct
+        {
+            std::array<std::uint32_t, 3> block_dims;
+            std::uint32_t shared_mem_sz;
+            std::uint32_t local_pos_mem_sz;
+            std::uint32_t local_neg_mem_sz;
+            std::uint32_t crs_sz;
+            std::uint32_t num_barriers;
+        } comp;
+    };
+    std::uint32_t reserved;
+};
+
+static constexpr std::size_t align256(std::size_t value)
+{
+    return (value + 0xff) & ~0xff;
+}
+
+void context::write_dksh(std::size_t code_size, std::ofstream& outfp) const
+{
+    if (!type) {
+        fatal_error(
+            "no type provided, "
+            "valid are types: vertex, tess_control, tess_eval, geometry, fragment, compute");
+    }
+
+    const std::optional entrypoint_code_offset = find_label(entrypoint.value_or("main"));
+    if (!entrypoint_code_offset) {
+        fatal_error("entrypoint \"%s\" not found", entrypoint->c_str());
+    }
+
+    const int local_pos_sz = (local_mem_size + 7) & ~7;
+    const int local_neg_sz = 0;
+    const int crs_sz = 0x800;
+
+    dksh_program_header program_header;
+    std::memset(&program_header, 0, sizeof(program_header));
+    program_header.type = static_cast<std::uint32_t>(*type);
+    program_header.entrypoint = *entrypoint_code_offset;
+    program_header.num_gprs = num_gprs;
+    program_header.constbuf1_off = 0; // TODO
+    program_header.constbuf1_sz = 0;
+    program_header.per_warp_scratch_sz = (local_pos_sz + local_neg_sz) * 32 + crs_sz;
+    switch (*type) {
+    case program_type::vertex:
+        if (second_entrypoint || second_num_gprs) {
+            fatal_error("dual vertex shaders are not implemented");
+        }
+        break;
+    case program_type::fragment:
+        program_header.frag.early_fragment_tests = early_fragment_tests;
+        program_header.frag.post_depth_coverage = post_depth_coverage;
+        program_header.frag.persample_invocation = persample_invocation;
+        break;
+    case program_type::compute:
+        program_header.comp.block_dims = block_dimensions;
+        program_header.comp.shared_mem_sz = align256(shared_mem_size);
+        program_header.comp.local_pos_mem_sz = local_pos_sz;
+        program_header.comp.local_neg_mem_sz = local_neg_sz;
+        program_header.comp.crs_sz = crs_sz;
+        program_header.comp.num_barriers = num_barriers;
+        break;
+    default:
+        break;
+    }
+
+    static constexpr std::size_t dksh_size = sizeof(dksh_header) + sizeof(dksh_program_header);
+    static constexpr std::array<std::uint8_t, align256(dksh_size) - dksh_size> padding{};
+    dksh_header header;
+    header.magic = DKSH_MAGIC;
+    header.header_sz = sizeof(dksh_header);
+    header.control_sz = align256(dksh_size);
+    header.code_sz = align256(code_size * sizeof(std::uint64_t));
+    header.programs_off = sizeof(dksh_header);
+    header.num_programs = 1;
+
+    outfp.write(reinterpret_cast<const char*>(&header), sizeof(header));
+    outfp.write(reinterpret_cast<const char*>(&program_header), sizeof(program_header));
+    outfp.write(reinterpret_cast<const char*>(&padding), sizeof(padding));
+}

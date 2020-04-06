@@ -13,32 +13,32 @@
 #include "opcode.h"
 #include "token.h"
 
-[[gnu::always_inline]] static bool is_contained(std::string_view string, int character)
+static bool is_contained(std::string_view string, int character)
 {
     return std::find(std::begin(string), std::end(string), (char)character) != std::end(string);
 }
 
-[[gnu::always_inline]] static bool is_operator(int character)
+static bool is_operator(int character)
 {
     return is_contained("+-~|[]@,;", character);
 }
 
-[[gnu::always_inline]] static bool is_separator(int character)
+static bool is_separator(int character)
 {
     return is_contained(" \t\r\n.", character) || is_operator(character) || !character;
 }
 
-[[gnu::always_inline]] static bool is_alpha(int character)
+static bool is_alpha(int character)
 {
     return (character >= 'a' && character <= 'z') || (character >= 'A' && character <= 'Z');
 }
 
-[[gnu::always_inline]] static bool is_decimal(int character)
+static bool is_decimal(int character)
 {
     return character >= '0' && character <= '9';
 }
 
-[[gnu::always_inline]] static bool is_alnum(int character)
+static bool is_alnum(int character)
 {
     return is_alpha(character) || is_decimal(character);
 }

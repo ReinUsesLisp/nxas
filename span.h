@@ -50,6 +50,16 @@ class span
         return last - start;
     }
 
+    constexpr T* data()
+    {
+        return start;
+    }
+
+    constexpr T* data() const
+    {
+        return start;
+    }
+
   private:
     T* start;
     T* last;
