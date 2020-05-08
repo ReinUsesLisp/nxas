@@ -531,12 +531,9 @@ namespace lds
     DEFINE_FLAG(u, ".U", 44);
 }
 
-namespace hset2
-{
-    template <int address>
-    DEFINE_DOT_TABLE(compare, -1, address, "F", "LT", "EQ", "LE", "GT", "NE", "GE", "NUM", "NAN",
-                     "LTU", "EQU", "LEU", "GTU", "NEU", "GEU", "T");
-}
+template <int address>
+DEFINE_DOT_TABLE(float_compare, -1, address, "F", "LT", "EQ", "LE", "GT", "NE", "GE", "NUM", "NAN",
+                 "LTU", "EQU", "LEU", "GTU", "NEU", "GEU", "T");
 
 namespace image
 {
@@ -890,9 +887,6 @@ namespace lea
         return {};
     }
 }
-
-DEFINE_DOT_TABLE(float_compare, 15, 48, "F", "LT", "EQ", "LE", "GT", "NE", "GE", "NUM", "NAN",
-                 "LTU", "EQU", "LEU", "GTU", "NEU", "GEU", "T");
 
 namespace shf
 {

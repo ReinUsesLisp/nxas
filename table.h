@@ -38,6 +38,9 @@ constexpr insn table[] = {
     INSN(0x5C58000000000000ULL, 0, "FADD", ftz<44>, sat<50>, fp_rounding<39>, dgpr<0>, cc, comma, neg<48>, abs<46, sgpr<8>>, comma, neg<45>, abs<49, sgpr<20>>),
     INSN(0x4C58000000000000ULL, 0, "FADD", ftz<44>, sat<50>, fp_rounding<39>, dgpr<0>, cc, comma, neg<48>, abs<46, sgpr<8>>, comma, neg<45>, abs<49, cbuf>),
     // TODO: FADD immediate
+    INSN(0x5BB0000000000000ULL, 0, "FSETP", float_compare<48>, ftz<47>, pred_combine<45>, pred<3>, comma, pred<0>, comma, neg<43>, abs<7, sgpr<8>>, comma, neg<6>, abs<44, sgpr<20>>, comma, pred<39>),
+    INSN(0x4BB0000000000000ULL, 0, "FSETP", float_compare<48>, ftz<47>, pred_combine<45>, pred<3>, comma, pred<0>, comma, neg<43>, abs<7, sgpr<8>>, comma, neg<6>, abs<44, cbuf>, comma, pred<39>),
+    // TODO: FSETP immediate
     INSN(0x5B00000000000000ULL, 0, "XMAD", xmad::signs, psl<36>, xmad::mode_a, mrg<37>, x<38>, dgpr<0>, cc, comma, sgpr<8>, half<53>, comma, sgpr<20>, half<35>, comma, sgpr<39>),
     INSN(0x5100000000000000ULL, 0, "XMAD", xmad::signs, xmad::mode_b, x<54>, dgpr<0>, cc, comma, sgpr<8>, half<53>, comma, sgpr<39>, half<52>, comma, cbuf),
     INSN(0x4E00000000000000ULL, 0, "XMAD", xmad::signs, psl<55>, xmad::mode_b, mrg<56>, x<54>, dgpr<0>, cc, comma, sgpr<8>, half<53>, comma, cbuf, half<52>, comma, sgpr<39>),
@@ -71,11 +74,11 @@ constexpr insn table[] = {
     INSN(0x5D10000000000000ULL, 0, "HADD2", fp16::merge<49>, ftz<39>, sat<32>, dgpr<0>, comma, neg<43>, abs<44, sgpr<8>>, fp16::swizzle<47>, comma, neg<31>, abs<30, sgpr<20>>, fp16::swizzle<28>),
     INSN(0x7A80000000000000ULL, 0, "HADD2", fp16::merge<49>, ftz<39>, sat<32>, dgpr<0>, comma, neg<43>, abs<44, sgpr<8>>, fp16::swizzle<47>, comma, neg<56>, abs<54, cbuf>),
     // TODO: HADD2 immediate
-    INSN(0x5D18000000000000ULL, 0, "HSET2", bf<49>, hset2::compare<35>, ftz<50>, pred_combine<45>, dgpr<0>, comma, neg<43>, abs<44, sgpr<8>>, fp16::swizzle<47>, comma, neg<31>, abs<30, sgpr<20>>, fp16::swizzle<28>, comma, pred<39, true>),
-    INSN(0x7C80000000000000ULL, 0, "HSET2", bf<53>, hset2::compare<49>, ftz<54>, pred_combine<45>, dgpr<0>, comma, neg<43>, abs<44, sgpr<8>>, fp16::swizzle<47>, comma, neg<56>, cbuf, comma, pred<39, true>),
+    INSN(0x5D18000000000000ULL, 0, "HSET2", bf<49>, float_compare<35>, ftz<50>, pred_combine<45>, dgpr<0>, comma, neg<43>, abs<44, sgpr<8>>, fp16::swizzle<47>, comma, neg<31>, abs<30, sgpr<20>>, fp16::swizzle<28>, comma, pred<39, true>),
+    INSN(0x7C80000000000000ULL, 0, "HSET2", bf<53>, float_compare<49>, ftz<54>, pred_combine<45>, dgpr<0>, comma, neg<43>, abs<44, sgpr<8>>, fp16::swizzle<47>, comma, neg<56>, cbuf, comma, pred<39, true>),
     // TODO: HSET2 immediate
-    INSN(0x5D20000000000000ULL, 0, "HSETP2", hset2::compare<35>, h_and<49>, ftz<6>, pred_combine<45>, pred<3>, comma, pred<0>, comma, neg<43>, abs<44, sgpr<8>>, fp16::swizzle<47>, comma, neg<31>, abs<30, sgpr<20>>, fp16::swizzle<28>, comma, pred<39, true>),
-    INSN(0x7E80000000000000ULL, 0, "HSETP2", hset2::compare<49>, h_and<53>, ftz<6>, pred_combine<45>, pred<3>, comma, pred<0>, comma, neg<43>, abs<44, sgpr<8>>, fp16::swizzle<47>, comma, neg<56>, abs<54, cbuf>, comma, pred<39, true>),
+    INSN(0x5D20000000000000ULL, 0, "HSETP2", float_compare<35>, h_and<49>, ftz<6>, pred_combine<45>, pred<3>, comma, pred<0>, comma, neg<43>, abs<44, sgpr<8>>, fp16::swizzle<47>, comma, neg<31>, abs<30, sgpr<20>>, fp16::swizzle<28>, comma, pred<39, true>),
+    INSN(0x7E80000000000000ULL, 0, "HSETP2", float_compare<49>, h_and<53>, ftz<6>, pred_combine<45>, pred<3>, comma, pred<0>, comma, neg<43>, abs<44, sgpr<8>>, fp16::swizzle<47>, comma, neg<56>, abs<54, cbuf>, comma, pred<39, true>),
     // TODO: HSETP2 immediate
     INSN(0x3A04000000000000ULL, 0, "VMNMX", video::dest_sign, video::src_format<37, 48>, video::src_format<29, 49>, video::mx<56>, sat<55>, video::vmnmx_op<51>, dgpr<0>, cc, comma, sgpr<8>, video::selector<36, 37>, comma, sgpr<20>, video::selector<28, 29>, comma, sgpr<39>),
     INSN(0x5C00000000000000ULL, 0, "BFE", bfe::format, brev<40>, dgpr<0>, cc, comma, sgpr<8>, comma, sgpr<20>),
@@ -120,9 +123,9 @@ constexpr insn table[] = {
     INSN(0x36D7000000000000ULL, 0, "LEA", lea::lo, x<46>,                  dgpr<0>, cc, comma, neg<45>, sgpr<8>, comma, imm, comma, uinteger<5, 39>),
     INSN(0x36D0000000000000ULL, 0, "LEA", lea::lo, x<46>, pred<48>, comma, dgpr<0>, cc, comma, neg<45>, sgpr<8>, comma, imm),
     INSN(0x36D0000000000000ULL, 0, "LEA", lea::lo, x<46>, pred<48>, comma, dgpr<0>, cc, comma, neg<45>, sgpr<8>, comma, imm, comma, uinteger<5, 39>),
-    INSN(0x5BA0000000000000ULL, 0, "FCMP", float_compare, ftz<47>, dgpr<0>, comma, sgpr<8>, comma, sgpr<20>, comma, sgpr<39>),
-    INSN(0x53A0000000000000ULL, 0, "FCMP", float_compare, ftz<47>, dgpr<0>, comma, sgpr<8>, comma, sgpr<39>, comma,     cbuf),
-    INSN(0x4BA0000000000000ULL, 0, "FCMP", float_compare, ftz<47>, dgpr<0>, comma, sgpr<8>, comma,     cbuf, comma, sgpr<39>),
+    INSN(0x5BA0000000000000ULL, 0, "FCMP", float_compare<48>, ftz<47>, dgpr<0>, comma, sgpr<8>, comma, sgpr<20>, comma, sgpr<39>),
+    INSN(0x53A0000000000000ULL, 0, "FCMP", float_compare<48>, ftz<47>, dgpr<0>, comma, sgpr<8>, comma, sgpr<39>, comma,     cbuf),
+    INSN(0x4BA0000000000000ULL, 0, "FCMP", float_compare<48>, ftz<47>, dgpr<0>, comma, sgpr<8>, comma,     cbuf, comma, sgpr<39>),
     // TODO: FCMP immediate
     INSN(0xEF10000000000000ULL, 0, "SHFL", shfl::mode, pred<48>, comma, dgpr<0>, comma, sgpr<8>, comma,        sgpr<20>, comma, sgpr<39>),
     INSN(0xEF10000010000000ULL, 0, "SHFL", shfl::mode, pred<48>, comma, dgpr<0>, comma, sgpr<8>, comma, uinteger<5, 20>, comma, sgpr<39>),
