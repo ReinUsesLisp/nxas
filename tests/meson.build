@@ -45,6 +45,17 @@ tests_expressions = [
 	['MOV R2, -0xa30, 0x8', '0x3998047f5d070002'],
 	['MOV32I R0, 0xaaccddee', '0x010aaccddee7f000'],
 	['MOV32I RZ, 0xdeadbeef, 0x8', '0x010deadbeef780ff'],
+	['FADD RZ, RZ, RZ', '0x5c5800000ff7ffff'],
+	['FADD.FTZ R0, R3, R8', '0x5c58100000870300'],
+	['FADD.FTZ.RP R0.CC, R1, RZ', '0x5c5891000ff70100'],
+	['FADD.SAT R0, -|RZ|, R0', '0x5c5d40000007ff00'],
+	['FADD.RM RZ.CC, -R0, R0', '0x5c598080000700ff'],
+	['FADD.RZ RZ, |R0|, R0', '0x5c584180000700ff'],
+	['FADD RZ, R0, -R1', '0x5c582000001700ff'],
+	['FADD RZ, R0, |R1|', '0x5c5a0000001700ff'],
+	['FADD RZ, RZ, c[0x0][0xae0]', '0x4c5800002b87ffff'],
+	['FADD.RM.SAT RZ.CC, RZ, -c[0x4][0xac]', '0x4c5ca09002b7ffff'],
+	['FADD R0, R1, |c[0x0][0x0]|;', '0x4c5a000000070100'],
 ]
 
 foreach e : tests_expressions
