@@ -37,6 +37,14 @@ tests_expressions = [
 	['NOP CC.RGT', '0x50b0000000071f00'],
 	['NOP 0x3', '0x50b0000000370000'],
 	['NOP CC.OFF, 0x80', '0x50b0000008071000'],
+	['MOV R0, R1', '0x5c98078000170000'],
+	['MOV RZ, RZ, 0x5', '0x5c9802800ff700ff'],
+	['MOV R8, c[0x3][0x20]', '0x4c98078c00870008'],
+	['MOV R2, c[0x10][0x90], 0x8', '0x4c98044002470002'],
+	['MOV R1, 0x3d', '0x3898078003d70001'],
+	['MOV R2, -0xa30, 0x8', '0x3998047f5d070002'],
+	['MOV32I R0, 0xaaccddee', '0x010aaccddee7f000'],
+	['MOV32I RZ, 0xdeadbeef, 0x8', '0x010deadbeef780ff'],
 ]
 
 foreach e : tests_expressions
