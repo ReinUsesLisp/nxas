@@ -35,8 +35,8 @@ constexpr insn table[] = {
     INSN(0x010000000000F000ULL, 0, "MOV32I", dgpr<0>, comma, imm32),
     INSN(0x0100000000000000ULL, 0, "MOV32I", dgpr<0>, comma, imm32, comma, mask4<12>),
     INSN(0xF0C8000000000000ULL, 0, "S2R", dgpr<0>, comma, s2r),
-    INSN(0x5C58000000000000ULL, 0, "FADD", ftz<44>, sat<50>, fp_rounding<39>, dgpr<0>, cc, comma, neg<48>, abs<46, sgpr<8>>, comma, neg<45>, abs<49, sgpr<20>>),
-    INSN(0x4C58000000000000ULL, 0, "FADD", ftz<44>, sat<50>, fp_rounding<39>, dgpr<0>, cc, comma, neg<48>, abs<46, sgpr<8>>, comma, neg<45>, abs<49, cbuf>),
+    INSN(0x5C58000000000000ULL, 0, "FADD", ftz<44>, fp_rounding<39>, sat<50>, dgpr<0>, cc, comma, neg<48>, abs<46, sgpr<8>>, comma, neg<45>, abs<49, sgpr<20>>),
+    INSN(0x4C58000000000000ULL, 0, "FADD", ftz<44>, fp_rounding<39>, sat<50>, dgpr<0>, cc, comma, neg<48>, abs<46, sgpr<8>>, comma, neg<45>, abs<49, cbuf>),
     // TODO: FADD immediate
     INSN(0x5BB0000000000000ULL, 0, "FSETP", float_compare<48>, ftz<47>, pred_combine<45>, pred<3>, comma, pred<0>, comma, neg<43>, abs<7, sgpr<8>>, comma, neg<6>, abs<44, sgpr<20>>, comma, pred<39>),
     INSN(0x4BB0000000000000ULL, 0, "FSETP", float_compare<48>, ftz<47>, pred_combine<45>, pred<3>, comma, pred<0>, comma, neg<43>, abs<7, sgpr<8>>, comma, neg<6>, abs<44, cbuf>, comma, pred<39>),
