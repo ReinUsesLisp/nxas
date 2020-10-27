@@ -56,8 +56,31 @@ tests_expressions = [
 	['FADD RZ, RZ, c[0x0][0xae0]', '0x4c5800002b87ffff'],
 	['FADD.RM.SAT RZ.CC, RZ, -c[0x4][0xac]', '0x4c5ca09002b7ffff'],
 	['FADD R0, R1, |c[0x0][0x0]|;', '0x4c5a000000070100'],
+    ['FSETP.F.AND P0, P1, R2, R3, P4',  '0x5bb0020000370201'],
+    ['FSETP.F.AND P0, P1, R2, R3, !P4', '0x5bb0060000370201'],
+    ['FSETP.F.OR P0, P1, R2, R3, P4',   '0x5bb0220000370201'],
+    ['FSETP.F.XOR P0, P1, R2, R3, P4',  '0x5bb0420000370201'],
+    ['FSETP.F.OR P0, P1, -R2, R3, P4',  '0x5bb02a0000370201'],
+    ['FSETP.F.OR P0, P1, |R2|, R3, P4', '0x5bb0220000370281'],
+    ['FSETP.F.OR P0, P1, R2, -R3, P4',  '0x5bb0220000370241'],
+    ['FSETP.F.OR P0, P1, R2, |R3|, P4', '0x5bb0320000370201'],
+    ['FSETP.LT.OR PT, PT, RZ, RZ, PT',  '0x5bb123800ff7ff3f'],
+    ['FSETP.EQ.OR PT, PT, RZ, RZ, PT',  '0x5bb223800ff7ff3f'],
+    ['FSETP.LE.OR PT, PT, RZ, RZ, PT',  '0x5bb323800ff7ff3f'],
+    ['FSETP.GT.OR PT, PT, RZ, RZ, PT',  '0x5bb423800ff7ff3f'],
+    ['FSETP.NE.OR PT, PT, RZ, RZ, PT',  '0x5bb523800ff7ff3f'],
+    ['FSETP.GE.OR PT, PT, RZ, RZ, PT',  '0x5bb623800ff7ff3f'],
+    ['FSETP.NUM.OR PT, PT, RZ, RZ, PT', '0x5bb723800ff7ff3f'],
+    ['FSETP.NAN.OR PT, PT, RZ, RZ, PT', '0x5bb823800ff7ff3f'],
+    ['FSETP.LTU.OR PT, PT, RZ, RZ, PT', '0x5bb923800ff7ff3f'],
+    ['FSETP.EQU.OR PT, PT, RZ, RZ, PT', '0x5bba23800ff7ff3f'],
+    ['FSETP.LEU.OR PT, PT, RZ, RZ, PT', '0x5bbb23800ff7ff3f'],
+    ['FSETP.GTU.OR PT, PT, RZ, RZ, PT', '0x5bbc23800ff7ff3f'],
+    ['FSETP.NEU.OR PT, PT, RZ, RZ, PT', '0x5bbd23800ff7ff3f'],
+    ['FSETP.GEU.OR PT, PT, RZ, RZ, PT', '0x5bbe23800ff7ff3f'],
+    ['FSETP.T.OR PT, PT, RZ, RZ, PT',   '0x5bbf23800ff7ff3f'],
 ]
 
 foreach e : tests_expressions
-	test(e[0], tester, args : [e[0], e[1]])
+    test(e[0], tester, args : [e[0], e[1]])
 endforeach
