@@ -38,8 +38,8 @@ constexpr insn table[] = {
     INSN(0x5C58000000000000ULL, 0, "FADD", ftz<44>, fp_rounding<39>, sat<50>, dgpr<0>, cc, comma, neg<48>, abs<46, sgpr<8>>, comma, neg<45>, abs<49, sgpr<20>>),
     INSN(0x4C58000000000000ULL, 0, "FADD", ftz<44>, fp_rounding<39>, sat<50>, dgpr<0>, cc, comma, neg<48>, abs<46, sgpr<8>>, comma, neg<45>, abs<49, cbuf>),
     // TODO: FADD immediate
-    INSN(0x5BB0000000000000ULL, 0, "FSETP", float_compare<48>, ftz<47>, pred_combine<45>, pred<3>, comma, pred<0>, comma, neg<43>, abs<7, sgpr<8>>, comma, neg<6>, abs<44, sgpr<20>>, comma, pred<39>),
-    INSN(0x4BB0000000000000ULL, 0, "FSETP", float_compare<48>, ftz<47>, pred_combine<45>, pred<3>, comma, pred<0>, comma, neg<43>, abs<7, sgpr<8>>, comma, neg<6>, abs<44, cbuf>, comma, pred<39>),
+    INSN(0x5BB0000000000000ULL, 0, "FSETP", float_compare<48>, ftz<47>, pred_combine<45>, pred<3>, comma, pred<0>, comma, neg<43>, abs<7, sgpr<8>>, comma, neg<6>, abs<44, sgpr<20>>, comma, pred<39, true>),
+    INSN(0x4BB0000000000000ULL, 0, "FSETP", float_compare<48>, ftz<47>, pred_combine<45>, pred<3>, comma, pred<0>, comma, neg<43>, abs<7, sgpr<8>>, comma, neg<6>, abs<44, cbuf>, comma, pred<39, true>),
     // TODO: FSETP immediate
     INSN(0x5B00000000000000ULL, 0, "XMAD", xmad::signs, psl<36>, xmad::mode_a, mrg<37>, x<38>, dgpr<0>, cc, comma, sgpr<8>, half<53>, comma, sgpr<20>, half<35>, comma, sgpr<39>),
     INSN(0x5100000000000000ULL, 0, "XMAD", xmad::signs, xmad::mode_b, x<54>, dgpr<0>, cc, comma, sgpr<8>, half<53>, comma, sgpr<39>, half<52>, comma, cbuf),
