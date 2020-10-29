@@ -19,6 +19,7 @@ enum class token_type
     regster,
     predicate,
     immediate,
+    float_immediate,
     plus,
     minus,
     tilde,
@@ -41,6 +42,7 @@ union token_data
     token_predicate predicate;
     std::string_view string{};
     std::int64_t immediate;
+    float float_immediate;
     std::uint8_t regster;
 };
 

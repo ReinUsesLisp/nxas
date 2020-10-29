@@ -135,19 +135,38 @@ token context::tokenize()
     }
     if (std::isdigit(character) || is_contained("+-", character)) {
         token.type = token_type::immediate;
-        while (std::isdigit(*text) || is_contained("+-AaBbCcDdEeFfXx", *text)) {
+        bool has_hex = false;
+        bool is_floating_point = false;
+        bool is_hex = false;
+        while (std::isdigit(*text) || is_contained("+-", *text) ||
+               (is_hex = is_contained("AaBbCcDdEeFfXx", *text))) {
+            has_hex |= is_hex;
             next();
         }
-
+        if (*text == '.') {
+            if (has_hex) {
+                fatal_error(token, "floating point literal cannot have hex characters");
+            }
+            is_floating_point = true;
+            do {
+                next();
+            } while (std::isdigit(*text));
+        }
         if (!is_separator(*text)) {
             fatal_error(token, "no separator after immediate");
         }
-
-        char* conversion_end = NULL;
-        token.data.immediate =
-            static_cast<std::int64_t>(std::strtoll(contents, &conversion_end, 0));
+        // TODO: use charconv here once gcc 11 ships
+        char* conversion_end = nullptr;
+        if (is_floating_point) {
+            token.type = token_type::float_immediate;
+            token.data.float_immediate = std::strtof(contents, &conversion_end);
+        } else {
+            token.type = token_type::immediate;
+            token.data.immediate =
+                static_cast<std::int64_t>(std::strtoll(contents, &conversion_end, 0));
+        }
         if (conversion_end != text) {
-            fatal_error(token, "failed to convert integer constant \33[1;31m%.*s\33[0m",
+            fatal_error(token, "failed to parse literal \33[1;31m%.*s\33[0m",
                         (int)(text - contents), contents);
         }
         return token;

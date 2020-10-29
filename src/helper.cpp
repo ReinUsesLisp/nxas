@@ -1,8 +1,7 @@
-#include <inttypes.h>
-#include <stdbool.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cinttypes>
+#include <cstdint>
+#include <cstdlib>
+#include <cstring>
 
 #include "helper.h"
 #include "token.h"
@@ -136,6 +135,35 @@ error assemble_signed_20bit_immediate(context& ctx, token& token, opcode& op)
     op.add_bits(raw << 20);
     op.add_bits(negative << 56);
 
+    token = ctx.tokenize();
+    return {};
+}
+
+error assemble_float_20bit_immediate(context& ctx, token& token, opcode& op)
+{
+    float value;
+    switch (token.type) {
+    case token_type::float_immediate:
+        value = token.data.float_immediate;
+        break;
+    case token_type::immediate:
+        value = static_cast<float>(token.data.immediate);
+        if (static_cast<int64_t>(token.data.immediate) != value) {
+            return fail(token, "integer immediate " PRId64 "cannot be represented as float",
+                        token.data.immediate);
+        }
+        break;
+    default:
+        return fail(token, "expected floating-point literal");
+    }
+    uint32_t raw;
+    std::memcpy(&raw, &value, sizeof(raw));
+    // TODO: add a setting to warn/error precision losses
+    // if ((raw >> 12) << 12 != raw) ...
+    op.add_bits(static_cast<uint64_t>((raw << 1) >> 13) << 20);
+    if (raw >> 31 != 0) {
+        op.add_bits(1ULL << 56);
+    }
     token = ctx.tokenize();
     return {};
 }

@@ -142,6 +142,11 @@ DEFINE_OPERAND(imm)
     return assemble_signed_20bit_immediate(ctx, token, op);
 }
 
+DEFINE_OPERAND(fimm)
+{
+    return assemble_float_20bit_immediate(ctx, token, op);
+}
+
 DEFINE_UINT(imm32, UINT32_MAX, 20);
 
 DEFINE_UINT(imm16, UINT16_MAX, 20);
