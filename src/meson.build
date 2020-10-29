@@ -13,4 +13,4 @@ nxas_dep = declare_dependency(
     include_directories : './'
 )
 
-executable('nxas', sources : 'nxas.cpp', dependencies : nxas_dep)
+executable('nxas', install : true, sources : 'nxas.cpp', dependencies : nxas_dep)
