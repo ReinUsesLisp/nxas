@@ -2,6 +2,7 @@
 
 #include <climits>
 #include <cstdint>
+#include <optional>
 
 #include "error.h"
 #include "helper.h"
@@ -26,7 +27,7 @@
     DEFINE_OPERAND(name)                                                                           \
     {                                                                                              \
         static const char* table[] = {__VA_ARGS__, nullptr};                                       \
-        const std::optional result = find_in_table(token, table, ".");                             \
+        const std::optional<uint64_t> result = find_in_table(token, table, ".");                   \
         if constexpr (default_value < 0) {                                                         \
             if (!result) {                                                                         \
                 return fail(token, "invalid identifier");                                          \
@@ -107,13 +108,13 @@ DEFINE_OPERAND(label)
         return fail(token, "expected label");
     }
 
-    static constexpr std::int64_t max = MAX_BITS(23);
-    static constexpr std::int64_t min = -MAX_BITS(23) - 1;
+    static constexpr int64_t max = MAX_BITS(23);
+    static constexpr int64_t min = -static_cast<int64_t>(MAX_BITS(23)) - 1;
     const std::int64_t value = absolute - ctx.pc - 8;
     if (value > max || value < min) {
         return fail(token, "label out of range");
     }
-    op.add_bits((static_cast<std::uint64_t>(value) & 0x7FFFFF) << 20);
+    op.add_bits((static_cast<uint64_t>(value) & 0x7FFFFF) << 20);
     op.add_bits((value < 0 ? 1ULL : 0ULL) << 43);
 
     token = ctx.tokenize();
@@ -211,7 +212,7 @@ template <int address>
 DEFINE_OPERAND(pred_combine)
 {
     static const char* table[] = {"AND", "OR", "XOR", nullptr};
-    const std::optional value = find_in_table(token, table, ".");
+    const std::optional<int64_t> value = find_in_table(token, table, ".");
     if (!value) {
         return fail(token, "expected .AND, .OR or .XOR");
     }
@@ -504,7 +505,7 @@ namespace p2r
     DEFINE_OPERAND(mode)
     {
         static const char* table[] = {"PR", "CC", nullptr};
-        const std::optional result = find_in_table(token, table, "");
+        const std::optional<uint64_t> result = find_in_table(token, table, "");
         if (!result) {
             return fail(token, "expected PR or CC");
         }
@@ -797,7 +798,7 @@ namespace i2i
         static const char* table_unsigned[] = {"U8", "U16", "U32", nullptr};
         static const char* table_signed[] = {"S8", "S16", "S32", nullptr};
 
-        std::optional result = find_in_table(token, table_unsigned, ".");
+        std::optional<int64_t> result = find_in_table(token, table_unsigned, ".");
         if (!result) {
             result = find_in_table(token, table_signed, ".");
             if (!result) {
@@ -844,7 +845,7 @@ DEFINE_OPERAND(atomic_size)
 {
     static const char* msg = "expected .U32, .S32, .U64, .S64, .F32.FTZ.RN, .F16x2.RN or .S64";
     static const char* table[] = {"U32", "S32", "U64", "F32", "F16x2", "S64", nullptr};
-    const std::optional result = find_in_table(token, table, ".");
+    const std::optional<uint64_t> result = find_in_table(token, table, ".");
     if (result) {
         token = ctx.tokenize();
         switch (*result) {
@@ -930,7 +931,7 @@ namespace video
         static const char* signed_table[] = {"S8", "", "S16", "S32", nullptr};
         static const char* unsigned_table[] = {"U8", "", "U16", "U32", nullptr};
         bool is_signed = true;
-        std::optional result = find_in_table(token, signed_table, ".");
+        std::optional<int64_t> result = find_in_table(token, signed_table, ".");
         if (!result) {
             is_signed = false;
             result = find_in_table(token, unsigned_table, ".");

@@ -1,4 +1,4 @@
-project('nxas', 'cpp', default_options : ['cpp_std=gnu++2a'])
+project('nxas', 'cpp', default_options : ['cpp_std=c++17'])
 
 subdir('src')
 subdir('tests')

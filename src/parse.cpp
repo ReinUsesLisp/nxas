@@ -34,8 +34,8 @@ static error parse_insn(context& ctx, opcode& op, const insn& insn)
         return fail(token, "%s does not support predicated execution", insn.mnemonic);
     }
 
-    for (std::size_t i = 0; insn.operands[i]; ++i) {
-        CHECK(insn.operands[i](ctx, token, op));
+    for (const operand& operand : insn.operands) {
+        CHECK(operand(ctx, token, op));
     }
     return confirm_type(token, token_type::semicolon);
 }

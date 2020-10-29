@@ -1,7 +1,9 @@
 #ifndef TABLE_H_INCLUDED
 #define TABLE_H_INCLUDED
 
+#include <array>
 #include <cstdint>
+#include <vector>
 
 #include "operand.h"
 
@@ -10,10 +12,11 @@
 #define WR 4U
 
 #define INSN(opcode, flags, mnemonic, ...)                                                         \
+    insn                                                                                           \
     {                                                                                              \
-        opcode, mnemonic, flags, (operand[])                                                       \
+        opcode, mnemonic, flags,                                                                   \
         {                                                                                          \
-            __VA_ARGS__, nullptr                                                                   \
+            __VA_ARGS__                                                                            \
         }                                                                                          \
     }
 
@@ -22,11 +25,11 @@ struct insn
     uint64_t opcode;
     char mnemonic[12];
     unsigned flags;
-    operand* operands;
+    std::vector<operand> operands;
 };
 
 // clang-format off
-constexpr insn table[] = {
+const insn table[]{
     INSN(0x50B0000000000000ULL, 0, "NOP", nop::trig, nop::tests),
     INSN(0x50B0000000000000ULL, 0, "NOP", nop::trig, nop::mask),
     INSN(0x50B0000000000000ULL, 0, "NOP", nop::trig, nop::tests, comma, nop::mask),
