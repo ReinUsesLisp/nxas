@@ -90,6 +90,10 @@ tests_expressions = [
     ['FCMP.NE R0, R0, c[0x1][0x4], R2',  '0x4ba5010400170000'],
     ['FCMP.NAN R0, R0, R2, c[0x4][0x8]', '0x53a8011000270000'],
     ['FCMP.LT.FTZ R0, R0, -32, R2',      '0x37a1814200070000'],
+    ['FSETP.T.OR PT, PT, R2, INF .NEG.ABS, PT', '0x36bf33ff8007027f'],
+    ['FSETP.T.OR PT, PT, R3, -INF .NEG, PT',    '0x37bf23ff8007037f'],
+    ['FSETP.T.OR PT, PT, R5, +QNAN .ABS, PT',   '0x36bf33ffc007053f'],
+    ['FSETP.T.OR PT, PT, R4, -QNAN, PT',        '0x37bf23ffc007043f'],
 ]
 
 foreach e : tests_expressions

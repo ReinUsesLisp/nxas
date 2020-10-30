@@ -2,6 +2,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
+#include <limits>
 
 #include "helper.h"
 #include "token.h"
@@ -141,6 +142,8 @@ error assemble_signed_20bit_immediate(context& ctx, token& token, opcode& op)
 
 error assemble_float_20bit_immediate(context& ctx, token& token, opcode& op)
 {
+    static constexpr char MESSAGE[] = "expected floating-point literal, QNAN, or INF";
+
     float value;
     switch (token.type) {
     case token_type::float_immediate:
@@ -153,8 +156,27 @@ error assemble_float_20bit_immediate(context& ctx, token& token, opcode& op)
                         token.data.immediate);
         }
         break;
+    case token_type::plus:
+    case token_type::minus:
+    case token_type::identifier: {
+        const bool negate = token.type == token_type::minus;
+        if (token.type != token_type::identifier) {
+            token = ctx.tokenize();
+        }
+        if (equal(token, "QNAN")) {
+            value = std::numeric_limits<float>::quiet_NaN();
+        } else if (equal(token, "INF")) {
+            value = std::numeric_limits<float>::infinity();
+        } else {
+            return fail(token, MESSAGE);
+        }
+        if (negate) {
+            value = -value;
+        }
+        break;
+    }
     default:
-        return fail(token, "expected floating-point literal");
+        return fail(token, MESSAGE);
     }
     uint32_t raw;
     std::memcpy(&raw, &value, sizeof(raw));
