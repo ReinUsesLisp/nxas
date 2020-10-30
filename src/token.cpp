@@ -319,6 +319,8 @@ const char* name(token_type type)
         return "predicate";
     case token_type::immediate:
         return "immediate";
+    case token_type::float_immediate:
+        return "floating-point immediate";
     case token_type::plus:
         return "plus";
     case token_type::minus:
