@@ -82,7 +82,7 @@ class context
         compute = 5,
     };
 
-    void next();
+    void next() noexcept;
 
     void reset();
 

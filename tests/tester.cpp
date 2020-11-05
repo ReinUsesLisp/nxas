@@ -11,16 +11,19 @@
 
 int main(int argc, char** argv)
 {
-    if (argc < 3) {
-        std::fprintf(stderr, "%s usage: <expression> <expected opcode>\n", argv[0]);
+    if (argc < 2) {
+        std::fprintf(stderr, "%s usage: <expression> (<expected opcode>)\n", argv[0]);
         return 1;
     }
     const std::string expression = std::string(argv[1]) + ';';
-    const char* const expected = argv[2];
+    const char* const expected = argc > 2 ? argv[2] : nullptr;
 
     context ctx("file", expression.c_str());
     opcode result;
     parse_instruction(ctx, result);
+    if (!expected) {
+        return 0;
+    }
     const size_t expected_len = std::strlen(expected);
     if (expected_len < 3) {
         std::fprintf(stderr, "Expected opcode is too short\n");

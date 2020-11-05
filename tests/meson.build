@@ -112,8 +112,26 @@ tests_expressions = [
     ['F2F.F64.F32.RP RZ, RZ',            '0x5ca801000ff70bff'],
     ['F2F.F64.F32.RZ RZ, RZ',            '0x5ca801800ff70bff'],
     ['F2F.FTZ.F64.F64.TRUNC.SAT RZ, RZ', '0x5cac15800ff70fff'],
+    ['foo: BRA foo', '0xe2400fffff87000f'],
+    ['Foo: BRA Foo', '0xe2400fffff87000f'],
+]
+fail_tests_expressions = [
+    'F2F !R0, R1',
+    'F2F R0, R255',
+    'F2F R0, R256',
+    'F2F A, RZ',
+    '@P7 F2F RZ, RZ',
+    '{: BRA {',
+    '_: BRA _',
+    'FADD R0, RZ, 13a.5',
+    'I2I.U32.U32 RZ, 5k',
+    'BRA foo',
 ]
 
 foreach e : tests_expressions
     test(e[0], tester, args : [e[0], e[1]])
+endforeach
+
+foreach e : fail_tests_expressions
+    test(e, tester, args : e, should_fail : true)
 endforeach

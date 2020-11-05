@@ -13,37 +13,37 @@
 #include "opcode.h"
 #include "token.h"
 
-static bool is_contained(std::string_view string, int character)
+static bool is_contained(std::string_view string, int character) noexcept
 {
-    return std::find(std::begin(string), std::end(string), (char)character) != std::end(string);
+    return std::find(string.begin(), string.end(), static_cast<char>(character)) != string.end();
 }
 
-static bool is_operator(int character)
+static bool is_operator(int character) noexcept
 {
     return is_contained("+-~|[]@,;", character);
 }
 
-static bool is_separator(int character)
+static bool is_separator(int character) noexcept
 {
     return is_contained(" \t\r\n.", character) || is_operator(character) || !character;
 }
 
-static bool is_alpha(int character)
+static bool is_alpha(int character) noexcept
 {
     return (character >= 'a' && character <= 'z') || (character >= 'A' && character <= 'Z');
 }
 
-static bool is_decimal(int character)
+static bool is_decimal(int character) noexcept
 {
     return character >= '0' && character <= '9';
 }
 
-static bool is_alnum(int character)
+static bool is_alnum(int character) noexcept
 {
     return is_alpha(character) || is_decimal(character);
 }
 
-static token_type get_operator_type(int character)
+static token_type get_operator_type(int character) noexcept
 {
     switch (character) {
     default:
@@ -238,7 +238,7 @@ std::optional<std::int64_t> context::find_label(std::string_view label) const
     return it->second;
 }
 
-void context::next()
+void context::next() noexcept
 {
     const char character = text++[0];
     switch (character) {
