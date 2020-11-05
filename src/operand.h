@@ -410,6 +410,20 @@ namespace xmad
     DEFINE_DOT_TABLE(mode_b, 0, 50, "", "CLO", "CHI", "CSFU");
 }
 
+namespace lop3
+{
+    DEFINE_DOT_TABLE(operation, 0, 36, "", "T", "Z", "NZ")
+
+    DEFINE_OPERAND(lut)
+    {
+        if (!equal(token, ".LUT")) {
+            return fail(token, "expected .LUT");
+        }
+        token = ctx.tokenize();
+        return {};
+    }
+}
+
 namespace shr
 {
     DEFINE_DOT_TABLE(format, 1, 48, "U32", "S32");

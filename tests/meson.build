@@ -112,6 +112,9 @@ tests_expressions = [
     ['F2F.F64.F32.RP RZ, RZ',            '0x5ca801000ff70bff'],
     ['F2F.F64.F32.RZ RZ, RZ',            '0x5ca801800ff70bff'],
     ['F2F.FTZ.F64.F64.TRUNC.SAT RZ, RZ', '0x5cac15800ff70fff'],
+    ['@!PT LOP3.LUT.X.NZ RZ.CC, RZ, RZ, RZ, 0xff',       '0x5be7ffffffffffff'],
+    ['@!PT LOP3.LUT RZ.CC, RZ, 0x7ffff, RZ, 0xff',       '0x3cffffffffffffff'],
+    ['@!PT LOP3.LUT RZ.CC, RZ, c[0x1f][-0x4], RZ, 0xff', '0x02ffffffffffffff'],
     ['foo: BRA foo', '0xe2400fffff87000f'],
     ['Foo: BRA Foo', '0xe2400fffff87000f'],
 ]
