@@ -221,22 +221,3 @@ error assemble_constant_buffer(context& ctx, token& token, opcode& op)
     token = ctx.tokenize();
     return {};
 }
-
-error assemble_gpr20_cbuf_imm(context& ctx, token& token, opcode& op, std::uint64_t register_opcode,
-                              std::uint64_t cbuf_opcode, std::uint64_t immediate_opcode)
-{
-    token = ctx.tokenize();
-    switch (token.type) {
-    case token_type::regster:
-        op.add_bits(register_opcode);
-        return assemble_source_gpr(ctx, token, op, 20);
-    case token_type::identifier:
-        op.add_bits(cbuf_opcode);
-        return assemble_constant_buffer(ctx, token, op);
-    case token_type::immediate:
-        op.add_bits(immediate_opcode);
-        return assemble_signed_20bit_immediate(ctx, token, op);
-    default:
-        return fail(token, "expected immediate, constant buffer or register");
-    }
-}

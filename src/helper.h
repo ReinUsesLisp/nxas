@@ -35,6 +35,3 @@ error assemble_signed_20bit_immediate(context& ctx, token& token, opcode& op);
 error assemble_float_20bit_immediate(context& ctx, token& token, opcode& op);
 
 error assemble_constant_buffer(context& ctx, token& token, opcode& op);
-
-error assemble_gpr20_cbuf_imm(context& ctx, token& token, opcode& op, std::uint64_t register_opcode,
-                              std::uint64_t cbuf_opcode, std::uint64_t immediate_opcode);
