@@ -15,7 +15,7 @@
 
 static bool is_contained(std::string_view string, int character) noexcept
 {
-    return std::find(string.begin(), string.end(), static_cast<char>(character)) != string.end();
+    return std::ranges::find(string, static_cast<char>(character)) != string.end();
 }
 
 static bool is_operator(int character) noexcept
@@ -79,10 +79,9 @@ context::~context() = default;
 
 token context::tokenize()
 {
-    while (std::isspace(*text) || *text == '\t') {
+    while (is_contained(" \t\r\n", *text)) {
         next();
     }
-
     token token;
     token.filename = filename;
     token.line = line;
@@ -92,11 +91,10 @@ token context::tokenize()
         token.type = token_type::none;
         return token;
     }
-
     const char* contents = text;
     const char character = *text;
 
-    if (is_operator(character) && (!is_contained("+-", character) || !std::isdigit(text[1]))) {
+    if (is_operator(character) && (!is_contained("+-", character) || !is_decimal(text[1]))) {
         token.type = get_operator_type(*text);
         next();
         return token;
@@ -117,7 +115,7 @@ token context::tokenize()
         if (is_contained("Tt", *text)) {
             is_true = true;
             index = 7;
-        } else if (std::isdigit(*text)) {
+        } else if (is_decimal(*text)) {
             index = *text - '0';
         }
         if (index) {
@@ -133,12 +131,12 @@ token context::tokenize()
             // if it's not a separator, we might have an identifier (e.g. P2R)
         }
     }
-    if (std::isdigit(character) || is_contained("+-", character)) {
+    if (is_decimal(character) || is_contained("+-", character)) {
         token.type = token_type::immediate;
         bool has_hex = false;
         bool is_floating_point = false;
         bool is_hex = false;
-        while (std::isdigit(*text) || is_contained("+-", *text) ||
+        while (is_decimal(*text) || is_contained("+-", *text) ||
                (is_hex = is_contained("AaBbCcDdEeFfXx", *text))) {
             has_hex |= is_hex;
             next();
@@ -150,7 +148,7 @@ token context::tokenize()
             is_floating_point = true;
             do {
                 next();
-            } while (std::isdigit(*text));
+            } while (is_decimal(*text));
         }
         if (!is_separator(*text)) {
             fatal_error(token, "no separator after immediate");
@@ -184,16 +182,14 @@ token context::tokenize()
             token.data.regster = ZERO_REGISTER;
             return token;
         }
-
         bool invalid_register = false;
         while (!is_separator(*text)) {
-            if (!std::isdigit(*text)) {
+            if (!is_decimal(*text)) {
                 invalid_register = true;
                 break;
             }
             next();
         }
-
         if (!invalid_register) {
             char* conversion_end = NULL;
             const long long value =
@@ -213,7 +209,6 @@ token context::tokenize()
             return token;
         }
     }
-
     do {
         next();
     } while (!is_separator(*text));
@@ -222,7 +217,6 @@ token context::tokenize()
         // ignore labels
         return tokenize();
     }
-
     token.type = token_type::identifier;
     token.data.string = std::string_view(contents, static_cast<std::size_t>(text - contents));
     return token;
