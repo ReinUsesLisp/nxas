@@ -1,6 +1,22 @@
 tester = executable('tester', 'tester.cpp', dependencies : [nxas_dep])
 
 tests_expressions = [
+    ['@P0 AL2P P0, R0, R0',         '0xefa0000000000000'],
+    ['@P0 AL2P P0, R0, R0, 0x1',    '0xefa0000000100000'],
+    ['@P0 AL2P P0, R0, R0, -0x1',   '0xefa000007ff00000'],
+    ['@P0 AL2P P0, R0, R0, -0x2',   '0xefa000007fe00000'],
+    ['@P0 AL2P P0, R0, R0, -0x400', '0xefa0000040000000'],
+    ['@P0 AL2P P0, R0, R0, 0x3ff',  '0xefa000003ff00000'],
+    ['AL2P.96 R0, 0x14',            '0xefa170000147ff00'],
+    ['AL2P.96 R0, R5, 0x10',        '0xefa1700001070500'],
+    ['AL2P.96 P2, R0, 0x10',        '0xefa120000107ff00'],
+    ['AL2P.96 P3, R0, R5, 0x3ff',   '0xefa130003ff70500'],
+    ['AL2P.96 P3, R0, R5',          '0xefa1300000070500'],
+    ['AL2P.O R0',                   '0xefa070010007ff00'],
+    ['AL2P.O RZ, 0x3ff',            '0xefa070013ff7ffff'],
+    ['AL2P.O RZ, 0x3f4',            '0xefa070013f47ffff'],
+    ['AL2P.64 P4, R0, R5, -0x5',    '0xefa0c0007fb70500'],
+    ['AL2P.128 P4, R0, R5, 1',      '0xefa1c00000170500'],
     ['NOP',            '0x50b0000000070f00'],
     ['NOP.TRIG',       '0x50b0000000072f00'],
     ['NOP CC.F',       '0x50b0000000070000'],

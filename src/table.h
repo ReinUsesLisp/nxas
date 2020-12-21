@@ -30,6 +30,14 @@ struct insn
 
 // clang-format off
 const insn table[]{
+    INSN(0xEFA0000000000000ULL, 0, "AL2P", al2p::o, amem::size, pred<44>, comma, dgpr<0>, comma, sgpr<8>, comma, sinteger<11, 20>),
+    INSN(0xEFA0700000000000ULL, 0, "AL2P", al2p::o, amem::size,                  dgpr<0>, comma, sgpr<8>, comma, sinteger<11, 20>),
+    INSN(0xEFA000000000FF00ULL, 0, "AL2P", al2p::o, amem::size, pred<44>, comma, dgpr<0>,                 comma, sinteger<11, 20>),
+    INSN(0xEFA070000000FF00ULL, 0, "AL2P", al2p::o, amem::size,                  dgpr<0>,                 comma, sinteger<11, 20>),
+    INSN(0xEFA0000000000000ULL, 0, "AL2P", al2p::o, amem::size, pred<44>, comma, dgpr<0>, comma, sgpr<8>),
+    INSN(0xEFA0700000000000ULL, 0, "AL2P", al2p::o, amem::size,                  dgpr<0>, comma, sgpr<8>),
+    INSN(0xEFA000000000FF00ULL, 0, "AL2P", al2p::o, amem::size, pred<44>, comma, dgpr<0>),
+    INSN(0xEFA070000000FF00ULL, 0, "AL2P", al2p::o, amem::size,                  dgpr<0>),
     INSN(0x50B0000000000000ULL, 0, "NOP", nop::trig, nop::tests),
     INSN(0x50B0000000000000ULL, 0, "NOP", nop::trig, nop::mask),
     INSN(0x50B0000000000000ULL, 0, "NOP", nop::trig, nop::tests, comma, nop::mask),

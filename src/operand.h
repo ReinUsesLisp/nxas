@@ -23,6 +23,12 @@
         return assemble_uint(ctx, op, token, max_size, address);                                   \
     }
 
+#define DEFINE_INT(name, bits, address)                                                            \
+    DEFINE_OPERAND(name)                                                                           \
+    {                                                                                              \
+        return assemble_int(ctx, op, token, bits, address);                                        \
+    }
+
 #define DEFINE_DOT_TABLE(name, default_value, address, ...)                                        \
     DEFINE_OPERAND(name)                                                                           \
     {                                                                                              \
@@ -73,9 +79,22 @@ inline error assemble_flag(context& ctx, opcode& op, token& token, const char* f
 inline error assemble_uint(context& ctx, opcode& op, token& token, std::int64_t max_size,
                            int address)
 {
-    std::uint64_t mask;
-    CHECK(convert_integer(token, 0, max_size, &mask));
-    op.add_bits(mask << address);
+    uint64_t value;
+    CHECK(convert_integer(token, 0, max_size, &value));
+    op.add_bits(value << address);
+    token = ctx.tokenize();
+    return {};
+}
+
+inline error assemble_int(context& ctx, opcode& op, token& token, int bits, int address)
+{
+    const int raw_bits = bits - 1;
+    const int64_t min = -1LL << raw_bits;
+    const int64_t max = (1LL << raw_bits) - 1;
+    uint64_t value;
+    CHECK(convert_integer(token, min, max, &value));
+    const uint64_t raw = value & ((1ULL << bits) - 1);
+    op.add_bits(raw << address);
     token = ctx.tokenize();
     return {};
 }
@@ -156,6 +175,9 @@ DEFINE_FLAG(cc, ".CC", 47);
 
 template <int bits, int address>
 DEFINE_UINT(uinteger, MAX_BITS(bits), address);
+
+template <int bits, int address>
+DEFINE_INT(sinteger, bits, address);
 
 template <int address>
 DEFINE_UINT(mask4, 0xf, address);
@@ -363,6 +385,16 @@ DEFINE_OPERAND(store_cache)
 
 template <int address>
 DEFINE_DOT_TABLE(load_cache, 0, address, "", "CG", "CI", "CV");
+
+namespace amem
+{
+    DEFINE_DOT_TABLE(size, 0, 47, "32", "64", "96", "128");
+}
+
+namespace al2p
+{
+    DEFINE_FLAG(o, ".O", 32);
+}
 
 namespace nop
 {
