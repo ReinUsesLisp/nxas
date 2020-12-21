@@ -218,7 +218,7 @@ token context::tokenize()
         return tokenize();
     }
     token.type = token_type::identifier;
-    token.data.string = std::string_view(contents, static_cast<std::size_t>(text - contents));
+    token.data.string = std::string_view(contents, static_cast<size_t>(text - contents));
     return token;
 }
 
@@ -288,7 +288,7 @@ void context::generate_labels()
         }
         if (*text == ':') {
             std::string label;
-            label.append(potential_label, static_cast<std::size_t>(text - potential_label));
+            label.append(potential_label, static_cast<size_t>(text - potential_label));
             labels.insert({std::move(label), pc});
         }
         next_line();

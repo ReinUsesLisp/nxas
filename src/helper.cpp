@@ -78,7 +78,7 @@ std::optional<uint64_t> find_in_table(const token& token, const char* const* tab
         text = text.substr(std::size(prefix));
     }
 
-    for (std::size_t i = 0; table[i]; ++i) {
+    for (size_t i = 0; table[i]; ++i) {
         if (text.compare(table[i]) != 0) {
             continue;
         }

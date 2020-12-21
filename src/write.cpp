@@ -8,7 +8,7 @@
 void context::write(std::span<const uint64_t> code, std::ofstream& outfp) const
 {
     const bool has_gfx_header = type && *type != program_type::compute;
-    const std::size_t code_size = code.size() + (has_gfx_header ? 8 : 0);
+    const size_t code_size = code.size() + (has_gfx_header ? 8 : 0);
 
     if (is_dksh) {
         write_dksh(code_size, outfp);

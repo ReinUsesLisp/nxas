@@ -68,12 +68,12 @@ struct dksh_program_header
     uint32_t reserved;
 };
 
-static constexpr std::size_t align256(std::size_t value)
+static constexpr size_t align256(size_t value)
 {
     return (value + 0xff) & ~0xff;
 }
 
-void context::write_dksh(std::size_t code_size, std::ofstream& outfp) const
+void context::write_dksh(size_t code_size, std::ofstream& outfp) const
 {
     if (!type) {
         fatal_error(
@@ -120,7 +120,7 @@ void context::write_dksh(std::size_t code_size, std::ofstream& outfp) const
         break;
     }
 
-    static constexpr std::size_t dksh_size = sizeof(dksh_header) + sizeof(dksh_program_header);
+    static constexpr size_t dksh_size = sizeof(dksh_header) + sizeof(dksh_program_header);
     static constexpr std::array<uint8_t, align256(dksh_size) - dksh_size> padding{};
     dksh_header header;
     header.magic = DKSH_MAGIC;
