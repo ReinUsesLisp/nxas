@@ -162,8 +162,7 @@ token context::tokenize()
             token.data.float_immediate = std::strtof(contents, &conversion_end);
         } else {
             token.type = token_type::immediate;
-            token.data.immediate =
-                static_cast<std::int64_t>(std::strtoll(contents, &conversion_end, 0));
+            token.data.immediate = static_cast<int64_t>(std::strtoll(contents, &conversion_end, 0));
         }
         if (conversion_end != text) {
             fatal_error(token, "failed to parse literal \33[1;31m%.*s\33[0m",
@@ -198,7 +197,7 @@ token context::tokenize()
         if (!invalid_register) {
             char* conversion_end = NULL;
             const long long value =
-                static_cast<std::int64_t>(std::strtoll(contents + 1, &conversion_end, 10));
+                static_cast<int64_t>(std::strtoll(contents + 1, &conversion_end, 10));
             if (conversion_end != text) {
                 fatal_error(token, "invalid register index \33[1;31m%.*s\33[0m",
                             (int)(text - contents), contents);
@@ -229,7 +228,7 @@ token context::tokenize()
     return token;
 }
 
-std::optional<std::int64_t> context::find_label(std::string_view label) const
+std::optional<int64_t> context::find_label(std::string_view label) const
 {
     const auto it = labels.find(std::string{label});
     if (it == std::end(labels)) {

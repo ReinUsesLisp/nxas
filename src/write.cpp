@@ -15,7 +15,7 @@ void context::write(std::span<const uint64_t> code, std::ofstream& outfp) const
     if (has_gfx_header) {
         write_gfx_header(outfp);
     }
-    outfp.write(reinterpret_cast<const char*>(code.data()), code.size() * sizeof(std::uint64_t));
+    outfp.write(reinterpret_cast<const char*>(code.data()), code.size() * sizeof(uint64_t));
 }
 
 void context::write_gfx_header(std::ofstream&) const

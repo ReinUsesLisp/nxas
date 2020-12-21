@@ -11,7 +11,7 @@ static error assemble_gpr(context& ctx, token& token, opcode& op, int address)
 {
     CHECK(confirm_type(token, token_type::regster));
 
-    op.add_bits(static_cast<std::uint64_t>(token.data.regster) << address);
+    op.add_bits(static_cast<uint64_t>(token.data.regster) << address);
 
     token = ctx.tokenize();
     return try_reuse(ctx, token, op, address);
@@ -45,23 +45,23 @@ int equal(const token& token, const char* string)
     return token.data.string.compare(string) == 0;
 }
 
-error convert_integer(const token& token, std::int64_t min, std::int64_t max, std::uint64_t* result)
+error convert_integer(const token& token, int64_t min, int64_t max, uint64_t* result)
 {
     CHECK(confirm_type(token, token_type::immediate));
 
-    std::int64_t value = token.data.immediate;
+    int64_t value = token.data.immediate;
     if (value < min || value > max) {
         return fail(token,
                     "integer \33[1m%d\33[0m is out of range, expected to be "
                     "from %" PRId64 " to %" PRId64 " inclusively",
                     value, min, max);
     }
-    *result = static_cast<std::uint64_t>(value);
+    *result = static_cast<uint64_t>(value);
     return {};
 }
 
-std::optional<std::uint64_t> find_in_table(const token& token, const char* const* table,
-                                           std::string_view prefix)
+std::optional<uint64_t> find_in_table(const token& token, const char* const* table,
+                                      std::string_view prefix)
 {
     if (token.type != token_type::identifier) {
         return {};
@@ -80,7 +80,7 @@ std::optional<std::uint64_t> find_in_table(const token& token, const char* const
         if (text.compare(table[i]) != 0) {
             continue;
         }
-        return static_cast<std::uint64_t>(i);
+        return static_cast<uint64_t>(i);
     }
     return {};
 }
@@ -120,16 +120,15 @@ error assemble_source_gpr(context& ctx, token& token, opcode& op, int address)
 
 error assemble_signed_20bit_immediate(context& ctx, token& token, opcode& op)
 {
-    std::int64_t value;
-    CHECK(
-        convert_integer(token, -(1 << 19), MAX_BITS(19), reinterpret_cast<std::uint64_t*>(&value)));
+    int64_t value;
+    CHECK(convert_integer(token, -(1 << 19), MAX_BITS(19), reinterpret_cast<uint64_t*>(&value)));
 
-    std::uint64_t raw, negative;
+    uint64_t raw, negative;
     if (value < 0) {
         raw = (value - (1 << 19)) & MAX_BITS(19);
         negative = 1;
     } else {
-        raw = static_cast<std::uint64_t>(value);
+        raw = static_cast<uint64_t>(value);
         negative = 0;
     }
 
@@ -201,20 +200,20 @@ error assemble_constant_buffer(context& ctx, token& token, opcode& op)
     CHECK(confirm_type_next(ctx, token, token_type::bracket_left));
 
     token = ctx.tokenize();
-    std::uint64_t value;
+    uint64_t value;
     CHECK(convert_integer(token, 0, MAX_BITS(5), &value));
-    op.add_bits(static_cast<std::uint64_t>(value) << 34);
+    op.add_bits(static_cast<uint64_t>(value) << 34);
 
     CHECK(confirm_type_next(ctx, token, token_type::bracket_right));
     CHECK(confirm_type_next(ctx, token, token_type::bracket_left));
 
     token = ctx.tokenize();
     CHECK(convert_integer(token, INT16_MIN, INT16_MAX, &value));
-    const int offset = static_cast<std::int16_t>(value);
+    const int offset = static_cast<int16_t>(value);
     if (offset % 4) {
         return fail(first_token, "immediate constant buffer access has to be aligned to 4 bytes");
     }
-    op.add_bits(static_cast<std::uint64_t>(static_cast<std::uint16_t>(offset) >> 2) << 20);
+    op.add_bits(static_cast<uint64_t>(static_cast<uint16_t>(offset) >> 2) << 20);
 
     CHECK(confirm_type_next(ctx, token, token_type::bracket_right));
 

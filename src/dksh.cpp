@@ -4,32 +4,32 @@
 
 #include "token.h"
 
-constexpr std::uint32_t DKSH_MAGIC = 0x48534B44;
+constexpr uint32_t DKSH_MAGIC = 0x48534B44;
 
 struct dksh_header
 {
-    std::uint32_t magic;
-    std::uint32_t header_sz;
-    std::uint32_t control_sz;
-    std::uint32_t code_sz;
-    std::uint32_t programs_off;
-    std::uint32_t num_programs;
+    uint32_t magic;
+    uint32_t header_sz;
+    uint32_t control_sz;
+    uint32_t code_sz;
+    uint32_t programs_off;
+    uint32_t num_programs;
 };
 
 struct dksh_program_header
 {
-    std::uint32_t type;
-    std::uint32_t entrypoint;
-    std::uint32_t num_gprs;
-    std::uint32_t constbuf1_off;
-    std::uint32_t constbuf1_sz;
-    std::uint32_t per_warp_scratch_sz;
+    uint32_t type;
+    uint32_t entrypoint;
+    uint32_t num_gprs;
+    uint32_t constbuf1_off;
+    uint32_t constbuf1_sz;
+    uint32_t per_warp_scratch_sz;
     union
     {
         struct
         {
-            std::uint32_t alt_entrypoint;
-            std::uint32_t alt_num_gprs;
+            uint32_t alt_entrypoint;
+            uint32_t alt_num_gprs;
         } vert;
         struct
         {
@@ -37,33 +37,33 @@ struct dksh_program_header
             bool early_fragment_tests;
             bool post_depth_coverage;
             bool persample_invocation;
-            std::uint32_t table_3d1[4];
-            std::uint32_t param_d8;
-            std::uint16_t param_65b;
-            std::uint16_t param_489;
+            uint32_t table_3d1[4];
+            uint32_t param_d8;
+            uint16_t param_65b;
+            uint16_t param_489;
         } frag;
         struct
         {
             bool flag_47c;
             bool has_table_490;
             bool _padding[2];
-            std::uint32_t table_490[8];
+            uint32_t table_490[8];
         } geom;
         struct
         {
-            std::uint32_t param_c8;
+            uint32_t param_c8;
         } tess_eval;
         struct
         {
-            std::array<std::uint32_t, 3> block_dims;
-            std::uint32_t shared_mem_sz;
-            std::uint32_t local_pos_mem_sz;
-            std::uint32_t local_neg_mem_sz;
-            std::uint32_t crs_sz;
-            std::uint32_t num_barriers;
+            std::array<uint32_t, 3> block_dims;
+            uint32_t shared_mem_sz;
+            uint32_t local_pos_mem_sz;
+            uint32_t local_neg_mem_sz;
+            uint32_t crs_sz;
+            uint32_t num_barriers;
         } comp;
     };
-    std::uint32_t reserved;
+    uint32_t reserved;
 };
 
 static constexpr std::size_t align256(std::size_t value)
@@ -90,7 +90,7 @@ void context::write_dksh(std::size_t code_size, std::ofstream& outfp) const
 
     dksh_program_header program_header;
     std::memset(&program_header, 0, sizeof(program_header));
-    program_header.type = static_cast<std::uint32_t>(*type);
+    program_header.type = static_cast<uint32_t>(*type);
     program_header.entrypoint = *entrypoint_code_offset;
     program_header.num_gprs = num_gprs;
     program_header.constbuf1_off = 0; // TODO
@@ -120,12 +120,12 @@ void context::write_dksh(std::size_t code_size, std::ofstream& outfp) const
     }
 
     static constexpr std::size_t dksh_size = sizeof(dksh_header) + sizeof(dksh_program_header);
-    static constexpr std::array<std::uint8_t, align256(dksh_size) - dksh_size> padding{};
+    static constexpr std::array<uint8_t, align256(dksh_size) - dksh_size> padding{};
     dksh_header header;
     header.magic = DKSH_MAGIC;
     header.header_sz = sizeof(dksh_header);
     header.control_sz = align256(dksh_size);
-    header.code_sz = align256(code_size * sizeof(std::uint64_t));
+    header.code_sz = align256(code_size * sizeof(uint64_t));
     header.programs_off = sizeof(dksh_header);
     header.num_programs = 1;
 

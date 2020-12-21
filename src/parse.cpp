@@ -11,14 +11,14 @@
 #include "table.h"
 #include "token.h"
 
-static error assemble_predicate(const token& token, opcode& op, std::size_t shift, int is_negable)
+static error assemble_predicate(const token& token, opcode& op, size_t shift, int is_negable)
 {
     CHECK(confirm_type(token, token_type::predicate));
 
     if (!is_negable && token.data.predicate.negated) {
         return fail(token, "predicate can't be negated");
     }
-    std::uint64_t bits = token.data.predicate.index;
+    uint64_t bits = token.data.predicate.index;
     bits |= (token.data.predicate.negated ? 1 : 0) << 3;
     bits <<= shift;
     op.add_bits(bits);
@@ -74,8 +74,8 @@ bool parse_instruction(context& ctx, opcode& op)
     const opcode saved_op = op;
     error message;
 
-    const std::size_t num_insns = sizeof(table) / sizeof(table[0]);
-    for (std::size_t i = 0; i < num_insns; ++i) {
+    const size_t num_insns = sizeof(table) / sizeof(table[0]);
+    for (size_t i = 0; i < num_insns; ++i) {
         const insn& insn = table[i];
         if (!equal(token, insn.mnemonic)) {
             continue;

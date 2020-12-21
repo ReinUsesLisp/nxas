@@ -51,7 +51,7 @@ typedef error (*operand)(context&, token&, opcode&);
 inline error assemble_cc_tests(context& ctx, opcode& op, token& token, const char* const tests[],
                                int address)
 {
-    std::optional<std::uint64_t> test_index;
+    std::optional<uint64_t> test_index;
     if (equal(token, "CC")) {
         token = ctx.tokenize();
         CHECK(confirm_type(token, token_type::identifier));
@@ -76,8 +76,7 @@ inline error assemble_flag(context& ctx, opcode& op, token& token, const char* f
     return {};
 }
 
-inline error assemble_uint(context& ctx, opcode& op, token& token, std::int64_t max_size,
-                           int address)
+inline error assemble_uint(context& ctx, opcode& op, token& token, int64_t max_size, int address)
 {
     uint64_t value;
     CHECK(convert_integer(token, 0, max_size, &value));
@@ -108,7 +107,7 @@ DEFINE_OPERAND(comma)
 
 DEFINE_OPERAND(label)
 {
-    std::int64_t absolute;
+    int64_t absolute;
 
     switch (token.type) {
     case token_type::identifier: {
@@ -129,7 +128,7 @@ DEFINE_OPERAND(label)
 
     static constexpr int64_t max = MAX_BITS(23);
     static constexpr int64_t min = -static_cast<int64_t>(MAX_BITS(23)) - 1;
-    const std::int64_t value = absolute - ctx.pc - 8;
+    const int64_t value = absolute - ctx.pc - 8;
     if (value > max || value < min) {
         return fail(token, "label out of range");
     }
@@ -247,9 +246,9 @@ template <int address, bool negable = false>
 DEFINE_OPERAND(pred)
 {
     CHECK(confirm_type(token, token_type::predicate));
-    op.add_bits(static_cast<std::uint64_t>(token.data.predicate.index) << address);
+    op.add_bits(static_cast<uint64_t>(token.data.predicate.index) << address);
     if constexpr (negable) {
-        op.add_bits(static_cast<std::uint64_t>(token.data.predicate.negated) << (address + 3));
+        op.add_bits(static_cast<uint64_t>(token.data.predicate.negated) << (address + 3));
     } else {
         if (token.data.predicate.negated) {
             return fail(token, "predicate can't be negated");
@@ -330,22 +329,22 @@ namespace memory
         CHECK(confirm_type(token, token_type::bracket_left));
 
         token = ctx.tokenize();
-        std::uint8_t regster = ZERO_REGISTER;
+        uint8_t regster = ZERO_REGISTER;
         if (token.type == token_type::regster) {
             regster = token.data.regster;
             token = ctx.tokenize();
 
             try_reuse(ctx, token, op, 8);
         }
-        op.add_bits(static_cast<std::uint64_t>(regster) << 8);
+        op.add_bits(static_cast<uint64_t>(regster) << 8);
 
         if constexpr (imm_offset) {
             if (token.type == token_type::immediate) {
                 const int is_zero_reg = regster == ZERO_REGISTER;
-                const std::int64_t min = is_zero_reg ? 0 : -(1 << (size - 1));
-                const std::int64_t max = MAX_BITS(is_zero_reg ? size : (size - 1));
+                const int64_t min = is_zero_reg ? 0 : -(1 << (size - 1));
+                const int64_t max = MAX_BITS(is_zero_reg ? size : (size - 1));
 
-                std::uint64_t value;
+                uint64_t value;
                 CHECK(convert_integer(token, min, max, &value));
                 value >>= shr;
                 op.add_bits((value & MAX_BITS(size)) << addr);
@@ -375,7 +374,7 @@ template <int address>
 DEFINE_OPERAND(store_cache)
 {
     static const char* table[] = {"", "CG", "CS", "WT", nullptr};
-    std::optional<std::uint64_t> cache = find_in_table(token, table, ".");
+    std::optional<uint64_t> cache = find_in_table(token, table, ".");
     if (cache) {
         token = ctx.tokenize();
     }
@@ -477,7 +476,7 @@ namespace stg
         static const char* table[] = {
             "U8", "S8", "U16", "S16", "32", "64", "128",
         };
-        std::optional<std::uint64_t> size = find_in_table(token, table, ".");
+        std::optional<uint64_t> size = find_in_table(token, table, ".");
         if (size) {
             token = ctx.tokenize();
         }
@@ -493,7 +492,7 @@ namespace f2f
         const int dst_format = (op.value >> 8) & 0b11;
         const int src_format = (op.value >> 10) & 0b11;
         if (dst_format == src_format) {
-            std::optional<std::uint64_t> result;
+            std::optional<uint64_t> result;
             if (equal(token, ".ROUND")) {
                 result = 0b1000;
             } else if (equal(token, ".FLOOR")) {
@@ -727,7 +726,7 @@ DEFINE_OPERAND(s2r)
         nullptr,
     };
 
-    std::optional<std::uint64_t> value;
+    std::optional<uint64_t> value;
     if (equal(token, "SR_TID")) {
         token = ctx.tokenize();
         if (equal(token, ".X")) {
@@ -825,7 +824,7 @@ namespace i2f
         static const char* bytes[] = {"B0", "B1", "B2", "B3", nullptr};
         static const char* shorts[] = {"H0", "INVALIDSIZE1", "H1", "INVALIDSIZE3", nullptr};
 
-        const std::uint64_t type = (op.value >> 10) & 0b111;
+        const uint64_t type = (op.value >> 10) & 0b111;
         const char* const* const table = type == 1 ? shorts : bytes;
         const std::optional result = find_in_table(token, table, ".");
         if (result) {
@@ -862,7 +861,7 @@ namespace i2i
         static const char* bytes[] = {"B0", "B1", "B2", "B3", nullptr};
         static const char* shorts[] = {"H0", "INVALIDSIZE1", "H1", "INVALIDSIZE3", nullptr};
 
-        const std::uint64_t type = (op.value >> 10) & 0b111;
+        const uint64_t type = (op.value >> 10) & 0b111;
         const char* const* const table = type == 1 ? shorts : bytes;
         const std::optional result = find_in_table(token, table, ".");
         if (result) {
@@ -1002,7 +1001,7 @@ namespace video
         static const char* bytes[] = {"B0", "B1", "B2", "B3", nullptr};
         static const char* shorts[] = {"H0", "H1", nullptr};
 
-        const std::uint64_t type = (op.value >> type_address) & 0b111;
+        const uint64_t type = (op.value >> type_address) & 0b111;
         const char* const* const table = type == 2 ? shorts : bytes;
         const std::optional result = find_in_table(token, table, ".");
         if (result) {

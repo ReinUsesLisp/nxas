@@ -29,15 +29,15 @@ namespace
         return text;
     }
 
-    std::uint64_t generate_sched(std::span<const opcode> opcodes, std::size_t index,
-                                 std::size_t num_instructions, std::size_t address)
+    uint64_t generate_sched(std::span<const opcode> opcodes, size_t index, size_t num_instructions,
+                            size_t address)
     {
         if (index + address >= num_instructions) {
             return 0x7E0ULL << (address * 21);
         }
 
         const opcode& op = opcodes[index + address];
-        return (0x7E0ULL | (static_cast<std::uint64_t>(op.reuse) << 17)) << (address * 21);
+        return (0x7E0ULL | (static_cast<uint64_t>(op.reuse) << 17)) << (address * 21);
     }
 
 } // anonymous namespace
@@ -81,22 +81,22 @@ int main(int argc, char** argv)
     // is possible because every instruction ends with a semicolon on the number of decoding
     // instructions we allocate one extra because one instruction might be bugged and it won't have
     // a semicolon (which will trigger a fatal)
-    const std::size_t num_scolons = std::count(std::begin(input_text), std::end(input_text), ';');
-    const std::size_t max_decode_instructions = num_scolons + 1;
+    const size_t num_scolons = std::count(std::begin(input_text), std::end(input_text), ';');
+    const size_t max_decode_instructions = num_scolons + 1;
 
-    std::vector<std::uint64_t> output;
+    std::vector<uint64_t> output;
     std::vector<opcode> opcodes(max_decode_instructions);
 
-    std::size_t index = 0;
+    size_t index = 0;
     while (parse_instruction(ctx, opcodes[index++])) {
     }
     assert(index == max_decode_instructions);
-    const std::size_t num_instructions = index - 1;
+    const size_t num_instructions = index - 1;
 
     for (index = 0; index < num_instructions; ++index) {
         if (index % 3 == 0) {
-            std::uint64_t sched = 0;
-            for (std::size_t address = 0; address < 3; ++address) {
+            uint64_t sched = 0;
+            for (size_t address = 0; address < 3; ++address) {
                 sched |= generate_sched(opcodes, index, num_instructions, address);
             }
             output.push_back(sched);

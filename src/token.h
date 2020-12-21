@@ -41,9 +41,9 @@ union token_data
 {
     token_predicate predicate;
     std::string_view string{};
-    std::int64_t immediate;
+    int64_t immediate;
     float float_immediate;
-    std::uint8_t regster;
+    uint8_t regster;
 };
 
 struct token
@@ -65,11 +65,11 @@ class context
 
     void parse_option(token& token);
 
-    std::optional<std::int64_t> find_label(std::string_view label) const;
+    std::optional<int64_t> find_label(std::string_view label) const;
 
     void write(std::span<const uint64_t> code, std::ofstream& outfp) const;
 
-    std::int64_t pc = 0;
+    int64_t pc = 0;
 
   private:
     enum class program_type
@@ -90,14 +90,14 @@ class context
 
     void write_gfx_header(std::ofstream& outfp) const;
 
-    void write_dksh(std::size_t code_size, std::ofstream& outfp) const;
+    void write_dksh(size_t code_size, std::ofstream& outfp) const;
 
     const char* filename;
     const char* text_begin;
     const char* text;
     int line = 0;
     int column = 0;
-    std::unordered_map<std::string, std::int64_t> labels;
+    std::unordered_map<std::string, int64_t> labels;
 
     std::optional<program_type> type;
     bool is_dksh = false;
