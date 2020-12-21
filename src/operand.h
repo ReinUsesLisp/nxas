@@ -127,8 +127,8 @@ DEFINE_OPERAND(label)
         return fail(token, "expected label");
     }
 
-    static constexpr int64_t max = MAX_BITS(23);
-    static constexpr int64_t min = -static_cast<int64_t>(MAX_BITS(23)) - 1;
+    static constexpr int64_t max = max_bits(23);
+    static constexpr int64_t min = -static_cast<int64_t>(max_bits(23)) - 1;
     const int64_t value = absolute - ctx.pc - 8;
     if (value > max || value < min) {
         return fail(token, "label out of range");
@@ -174,7 +174,7 @@ DEFINE_UINT(imm16, UINT16_MAX, 20);
 DEFINE_FLAG(cc, ".CC", 47);
 
 template <int bits, int address>
-DEFINE_UINT(uinteger, MAX_BITS(bits), address);
+DEFINE_UINT(uinteger, max_bits(bits), address);
 
 template <int bits, int address>
 DEFINE_INT(sinteger, bits, address);
@@ -343,12 +343,12 @@ namespace memory
             if (token.type == token_type::immediate) {
                 const int is_zero_reg = regster == ZERO_REGISTER;
                 const int64_t min = is_zero_reg ? 0 : -(1 << (size - 1));
-                const int64_t max = MAX_BITS(is_zero_reg ? size : (size - 1));
+                const int64_t max = max_bits(is_zero_reg ? size : (size - 1));
 
                 uint64_t value;
                 CHECK(convert_integer(token, min, max, &value));
                 value >>= shr;
-                op.add_bits((value & MAX_BITS(size)) << addr);
+                op.add_bits((value & max_bits(size)) << addr);
                 token = ctx.tokenize();
             }
         }

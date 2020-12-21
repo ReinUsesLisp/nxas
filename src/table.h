@@ -6,10 +6,6 @@
 
 #include "operand.h"
 
-#define NO_PRED 1U
-#define RD 2U
-#define WR 4U
-
 #define INSN(opcode, flags, mnemonic, ...)                                                         \
     insn                                                                                           \
     {                                                                                              \
@@ -18,6 +14,10 @@
             __VA_ARGS__                                                                            \
         }                                                                                          \
     }
+
+constexpr unsigned NO_PRED = 1;
+constexpr unsigned RD = 2;
+constexpr unsigned WR = 4;
 
 struct insn
 {

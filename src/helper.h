@@ -14,7 +14,10 @@ struct opcode;
 
 #define DEFINE_INSTRUCTION(name) error parse_##name(context& ctx, opcode& op)
 
-#define MAX_BITS(size) ((1ULL << (size)) - 1)
+constexpr uint64_t max_bits(int size)
+{
+    return (uint64_t{1} << size) - 1;
+}
 
 error confirm_type(const token& token, token_type type);
 

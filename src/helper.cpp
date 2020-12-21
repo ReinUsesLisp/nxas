@@ -123,11 +123,11 @@ error assemble_source_gpr(context& ctx, token& token, opcode& op, int address)
 error assemble_signed_20bit_immediate(context& ctx, token& token, opcode& op)
 {
     int64_t value;
-    CHECK(convert_integer(token, -(1 << 19), MAX_BITS(19), reinterpret_cast<uint64_t*>(&value)));
+    CHECK(convert_integer(token, -(1 << 19), max_bits(19), reinterpret_cast<uint64_t*>(&value)));
 
     uint64_t raw, negative;
     if (value < 0) {
-        raw = (value - (1 << 19)) & MAX_BITS(19);
+        raw = (value - (1 << 19)) & max_bits(19);
         negative = 1;
     } else {
         raw = static_cast<uint64_t>(value);
@@ -203,7 +203,7 @@ error assemble_constant_buffer(context& ctx, token& token, opcode& op)
 
     token = ctx.tokenize();
     uint64_t value;
-    CHECK(convert_integer(token, 0, MAX_BITS(5), &value));
+    CHECK(convert_integer(token, 0, max_bits(5), &value));
     op.add_bits(static_cast<uint64_t>(value) << 34);
 
     CHECK(confirm_type_next(ctx, token, token_type::bracket_right));

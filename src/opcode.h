@@ -3,15 +3,15 @@
 #include <cassert>
 #include <cstdint>
 
-#define ZERO_REGISTER 255
-#define TRUE_PREDICATE 7
+constexpr int ZERO_REGISTER = 255;
+constexpr int TRUE_PREDICATE = 7;
 
-#define NUM_REGISTERS 256
-#define NUM_PREDICATES 8
-#define NUM_CONDITION_CODES 4
+constexpr int NUM_REGISTERS = 256;
+constexpr int NUM_PREDICATES = 8;
+constexpr int NUM_CONDITION_CODES = 4;
 
-#define NUM_USER_REGISTERS 255
-#define NUM_USER_PREDICATES 7
+constexpr int NUM_USER_REGISTERS = 255;
+constexpr int NUM_USER_PREDICATES = 7;
 
 namespace reuse_flag
 {
