@@ -1,10 +1,10 @@
 #include <cstdint>
 #include <fstream>
+#include <span>
 
-#include "span.h"
 #include "token.h"
 
-void context::write(span<std::uint64_t> code, std::ofstream& outfp) const
+void context::write(std::span<const uint64_t> code, std::ofstream& outfp) const
 {
     const bool has_gfx_header = type && *type != program_type::compute;
     const std::size_t code_size = code.size() + (has_gfx_header ? 8 : 0);

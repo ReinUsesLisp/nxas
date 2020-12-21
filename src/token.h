@@ -5,12 +5,12 @@
 #include <cstdint>
 #include <iosfwd>
 #include <optional>
+#include <span>
 #include <string>
 #include <string_view>
 #include <unordered_map>
 
 #include "error.h"
-#include "span.h"
 
 enum class token_type
 {
@@ -67,7 +67,7 @@ class context
 
     std::optional<std::int64_t> find_label(std::string_view label) const;
 
-    void write(span<std::uint64_t> code, std::ofstream& outfp) const;
+    void write(std::span<const uint64_t> code, std::ofstream& outfp) const;
 
     std::int64_t pc = 0;
 

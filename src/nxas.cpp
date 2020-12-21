@@ -3,6 +3,7 @@
 #include <cstring>
 #include <fstream>
 #include <iterator>
+#include <span>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -10,7 +11,6 @@
 #include "error.h"
 #include "opcode.h"
 #include "parse.h"
-#include "span.h"
 #include "token.h"
 
 namespace
@@ -29,7 +29,7 @@ namespace
         return text;
     }
 
-    std::uint64_t generate_sched(span<opcode> opcodes, std::size_t index,
+    std::uint64_t generate_sched(std::span<const opcode> opcodes, std::size_t index,
                                  std::size_t num_instructions, std::size_t address)
     {
         if (index + address >= num_instructions) {
