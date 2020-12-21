@@ -4,7 +4,9 @@
 #include <cstring>
 #include <limits>
 
+#include "context.h"
 #include "helper.h"
+#include "operand.h"
 #include "token.h"
 
 static error assemble_gpr(context& ctx, token& token, opcode& op, int address)

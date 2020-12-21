@@ -1,8 +1,9 @@
-#include <stddef.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstddef>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 
+#include "context.h"
 #include "error.h"
 #include "helper.h"
 #include "opcode.h"

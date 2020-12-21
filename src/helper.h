@@ -1,14 +1,16 @@
 #pragma once
 
-#include <stddef.h>
-#include <stdint.h>
+#include <cstddef>
+#include <cstdint>
 
 #include <optional>
 #include <string_view>
 
 #include "error.h"
-#include "opcode.h"
 #include "token.h"
+
+class context;
+struct opcode;
 
 #define DEFINE_INSTRUCTION(name) error parse_##name(context& ctx, opcode& op)
 

@@ -1,5 +1,4 @@
-#ifndef TABLE_H_INCLUDED
-#define TABLE_H_INCLUDED
+#pragma once
 
 #include <array>
 #include <cstdint>
@@ -184,5 +183,3 @@ const insn table[]{
     // TODO: CAL constant buffer
 };
 // clang-format on
-
-#endif // TABLE_H_INCLUDED

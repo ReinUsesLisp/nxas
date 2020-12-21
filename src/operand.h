@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <optional>
 
+#include "context.h"
 #include "error.h"
 #include "helper.h"
 #include "opcode.h"

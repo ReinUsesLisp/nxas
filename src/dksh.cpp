@@ -1,8 +1,10 @@
+#include <array>
 #include <cstdint>
 #include <cstring>
 #include <fstream>
 
-#include "token.h"
+#include "context.h"
+#include "error.h"
 
 constexpr uint32_t DKSH_MAGIC = 0x48534B44;
 
@@ -78,7 +80,6 @@ void context::write_dksh(std::size_t code_size, std::ofstream& outfp) const
             "no type provided, "
             "valid are types: vertex, tess_control, tess_eval, geometry, fragment, compute");
     }
-
     const std::optional entrypoint_code_offset = find_label(entrypoint.value_or("main"));
     if (!entrypoint_code_offset) {
         fatal_error("entrypoint \"%s\" not found", entrypoint->c_str());

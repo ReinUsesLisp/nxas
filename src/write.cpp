@@ -2,7 +2,8 @@
 #include <fstream>
 #include <span>
 
-#include "token.h"
+#include "context.h"
+#include "error.h"
 
 void context::write(std::span<const uint64_t> code, std::ofstream& outfp) const
 {

@@ -1,4 +1,3 @@
-#define _CRT_SECURE_NO_WARNINGS
 #include <algorithm>
 #include <cstring>
 #include <fstream>
@@ -8,6 +7,7 @@
 #include <string_view>
 #include <vector>
 
+#include "context.h"
 #include "error.h"
 #include "opcode.h"
 #include "parse.h"

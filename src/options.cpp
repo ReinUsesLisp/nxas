@@ -1,3 +1,4 @@
+#include "context.h"
 #include "error.h"
 #include "helper.h"
 #include "token.h"
@@ -10,12 +11,10 @@ void context::parse_option(token& token)
             fatal_error(token, "unexpected new line in option");
         }
     };
-
     const auto parse_type = [this, &check_option_line, &token] {
         if (type) {
             fatal_error(token, "program type already specified");
         }
-
         token = tokenize();
         check_option_line();
 
@@ -36,19 +35,15 @@ void context::parse_option(token& token)
                         static_cast<int>(token.data.string.size()), token.data.string.data());
         }
     };
-
     if (equal(token, ".dksh")) {
         is_dksh = true;
         parse_type();
-
     } else if (equal(token, ".type")) {
         parse_type();
-
     } else if (equal(token, ".num_gprs")) {
         token = tokenize();
         check_option_line();
     }
-
     token = tokenize();
     if (option_line == token.line) {
         fatal_error(token, "expected new line after option");
