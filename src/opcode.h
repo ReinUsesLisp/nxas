@@ -23,7 +23,20 @@ namespace reuse_flag
 struct opcode
 {
     uint64_t value = 0;
-    uint8_t reuse = 0;
+    uint32_t reuse = 0;
+    union
+    {
+        uint32_t raw_sched;
+        struct
+        {
+            uint32_t stall : 4 = 0;
+            uint32_t yield : 1 = 0;
+            uint32_t write_barrier : 3 = 7;
+            uint32_t read_barrier : 3 = 7;
+            uint32_t wait_barrier : 6 = 0;
+            uint32_t padding : 15 = 0;
+        };
+    };
 
     void add_bits(uint64_t bits);
 

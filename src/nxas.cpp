@@ -13,34 +13,29 @@
 #include "parse.h"
 #include "token.h"
 
-namespace
+static std::string read_file(const char* filename)
 {
-    std::string read_file(const char* filename)
-    {
-        std::ifstream file(filename, std::ios::binary);
-        if (!file.is_open()) {
-            fatal_error(nullptr, "%s: failed to open", filename);
-        }
-        file.seekg(0, std::ios::end);
-        std::string text(file.tellg(), ' ');
-
-        file.seekg(0, std::ios::beg);
-        file.read(std::data(text), std::size(text));
-        return text;
+    std::ifstream file(filename, std::ios::binary);
+    if (!file.is_open()) {
+        fatal_error(nullptr, "%s: failed to open", filename);
     }
+    file.seekg(0, std::ios::end);
+    std::string text(file.tellg(), ' ');
 
-    uint64_t generate_sched(std::span<const opcode> opcodes, size_t index, size_t num_instructions,
-                            size_t address)
-    {
-        if (index + address >= num_instructions) {
-            return 0x7E0ULL << (address * 21);
-        }
+    file.seekg(0, std::ios::beg);
+    file.read(std::data(text), std::size(text));
+    return text;
+}
 
-        const opcode& op = opcodes[index + address];
-        return (0x7E0ULL | (static_cast<uint64_t>(op.reuse) << 17)) << (address * 21);
+static uint64_t generate_sched(std::span<const opcode> opcodes, size_t index,
+                               size_t num_instructions, size_t address)
+{
+    if (index + address >= num_instructions) {
+        return 0x7E0ULL << (address * 21);
     }
-
-} // anonymous namespace
+    const opcode& op = opcodes[index + address];
+    return (op.raw_sched | (static_cast<uint64_t>(op.reuse) << 17)) << (address * 21);
+}
 
 int main(int argc, char** argv)
 {

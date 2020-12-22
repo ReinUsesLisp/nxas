@@ -27,6 +27,79 @@ static error assemble_predicate(const token& token, opcode& op, size_t shift, in
     return {};
 }
 
+static error assemble_sched(context& ctx, token& token, opcode& op)
+{
+    std::optional<uint32_t> stall;
+    std::optional<uint32_t> write_barrier;
+    std::optional<uint32_t> read_barrier;
+    uint32_t wait_barrier = 0;
+    bool yield = false;
+    while (token.type == token_type::at) {
+        token = ctx.tokenize();
+        if (equal(token, "WAIT")) {
+            if (stall) {
+                return fail(token, "clocks to stall are already specified");
+            }
+            token = ctx.tokenize();
+            if (error message = confirm_type(token, token_type::immediate); message) {
+                return message;
+            }
+            if (token.data.immediate < 0 || token.data.immediate > 15) {
+                return fail(token, "number of waited clocks must be between 0 and 15 inclusively");
+            }
+            stall = static_cast<uint32_t>(token.data.immediate);
+            token = ctx.tokenize();
+        } else if (equal(token, "WB") || equal(token, "RB")) {
+            const bool is_write = equal(token, "WB");
+            if (write_barrier) {
+                return fail(token, "%s barrier already specified", is_write ? "write" : "read");
+            }
+            token = ctx.tokenize();
+            if (error message = confirm_type(token, token_type::immediate); message) {
+                return message;
+            }
+            if (token.data.immediate < 0 || token.data.immediate > 5) {
+                return fail(token, "barrier index must be between 0 and 5 inclusively");
+            }
+            if (is_write) {
+                write_barrier = static_cast<uint32_t>(token.data.immediate);
+            } else {
+                read_barrier = static_cast<uint32_t>(token.data.immediate);
+            }
+            token = ctx.tokenize();
+        } else if (equal(token, "Y") || equal(token, "YIELD")) {
+            if (yield) {
+                return fail(token, "yield already specified");
+            }
+            yield = true;
+            token = ctx.tokenize();
+        } else if (equal(token, "DEP")) {
+            token = ctx.tokenize();
+            if (error message = confirm_type(token, token_type::immediate); message) {
+                return message;
+            }
+            if (token.data.immediate < 0 || token.data.immediate > 5) {
+                return fail(token, "dependency barrier index must be between 0 and 5 inclusively");
+            }
+            const uint32_t mask = 1U << token.data.immediate;
+            if (wait_barrier & mask) {
+                return fail(token, "dependency barrier index %d already specified",
+                            (int)token.data.immediate);
+            }
+            wait_barrier |= mask;
+            token = ctx.tokenize();
+        } else {
+            return fail(token, "expected @WAIT, @WB, @RB, @DEP, or @YIELD/@Y");
+        }
+    }
+    op.stall = stall.value_or(0);
+    op.write_barrier = write_barrier.value_or(7);
+    op.read_barrier = read_barrier.value_or(7);
+    op.wait_barrier = wait_barrier;
+    op.yield = yield ? 1 : 0;
+    return {};
+}
+
 static std::pair<error, int> parse_insn(context& ctx, opcode& op, const insn& insn)
 {
     op.add_bits(insn.opcode);
@@ -41,6 +114,11 @@ static std::pair<error, int> parse_insn(context& ctx, opcode& op, const insn& in
             return {std::move(message), score};
         }
         ++score;
+    }
+    score += 1000; // A number high enough to have better score than any number of operands
+
+    if (error message = assemble_sched(ctx, token, op); message) {
+        return {std::move(message), score};
     }
     return {confirm_type(token, token_type::semicolon), score};
 }

@@ -145,6 +145,20 @@ fail_tests_expressions = [
     'FADD R0, RZ, 13a.5',
     'I2I.U32.U32 RZ, 5k',
     'BRA foo',
+    'NOP @Y @Y',
+    'NOP @INVALID',
+    'NOP @DEP 0 @DEP 1 @DEP 0',
+    'NOP @DEP 6',
+    'NOP @WB -1',
+    'NOP @WB 6',
+    'NOP @RB -1',
+    'NOP @RB 6',
+    'NOP @RB -322',
+    'NOP @WAIT 16',
+    'NOP @WAIT -1',
+    'NOP @WAIT 5 @WAIT 0',
+    'NOP @WAIT id',
+    'NOP @DEP -2'
 ]
 
 foreach e : tests_expressions
