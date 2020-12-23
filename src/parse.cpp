@@ -51,7 +51,7 @@ static error assemble_sched(context& ctx, token& token, opcode& op)
             token = ctx.tokenize();
         } else if (equal(token, "WB") || equal(token, "RB")) {
             const bool is_write = equal(token, "WB");
-            if (write_barrier) {
+            if (is_write ? write_barrier : read_barrier) {
                 return fail(token, "%s barrier already specified", is_write ? "write" : "read");
             }
             token = ctx.tokenize();
