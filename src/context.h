@@ -3,12 +3,12 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
-#include <iosfwd>
 #include <optional>
 #include <span>
 #include <string>
 #include <string_view>
 #include <unordered_map>
+#include <vector>
 
 #include "token.h"
 
@@ -24,7 +24,7 @@ class context
 
     std::optional<int64_t> find_label(std::string_view label) const;
 
-    void write(std::span<const uint64_t> code, std::ofstream& outfp) const;
+    std::vector<uint64_t> binary(std::span<const uint64_t> code) const;
 
     int64_t pc = 0;
 
@@ -45,9 +45,9 @@ class context
 
     void generate_labels();
 
-    void write_gfx_header(std::ofstream& outfp) const;
+    void write_gfx_header(std::vector<uint64_t>& output) const;
 
-    void write_dksh(size_t code_size, std::ofstream& outfp) const;
+    void write_dksh(size_t code_size, std::vector<uint64_t>& output) const;
 
     const char* filename;
     const char* text_begin;

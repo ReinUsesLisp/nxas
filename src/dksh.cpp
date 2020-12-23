@@ -73,7 +73,7 @@ static constexpr size_t align256(size_t value)
     return (value + 0xff) & ~0xff;
 }
 
-void context::write_dksh(size_t code_size, std::ofstream& outfp) const
+void context::write_dksh(size_t code_size, std::vector<uint64_t>& output) const
 {
     if (!type) {
         fatal_error(
@@ -119,9 +119,7 @@ void context::write_dksh(size_t code_size, std::ofstream& outfp) const
     default:
         break;
     }
-
     static constexpr size_t dksh_size = sizeof(dksh_header) + sizeof(dksh_program_header);
-    static constexpr std::array<uint8_t, align256(dksh_size) - dksh_size> padding{};
     dksh_header header;
     header.magic = DKSH_MAGIC;
     header.header_sz = sizeof(dksh_header);
@@ -130,7 +128,9 @@ void context::write_dksh(size_t code_size, std::ofstream& outfp) const
     header.programs_off = sizeof(dksh_header);
     header.num_programs = 1;
 
-    outfp.write(reinterpret_cast<const char*>(&header), sizeof(header));
-    outfp.write(reinterpret_cast<const char*>(&program_header), sizeof(program_header));
-    outfp.write(reinterpret_cast<const char*>(&padding), sizeof(padding));
+    std::array<uint64_t, align256(dksh_size)> result{};
+    char* const result_bytes = reinterpret_cast<char*>(result.data());
+    std::memcpy(result_bytes, &header, sizeof(header));
+    std::memcpy(result_bytes + sizeof(header), &program_header, sizeof(program_header));
+    output.insert(output.end(), result.begin(), result.end());
 }

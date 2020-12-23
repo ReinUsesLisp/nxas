@@ -1,4 +1,5 @@
 nxas_lib = static_library('nxas_lib', sources : [
+    'command_line.cpp',
 	'context.cpp',
     'parse.cpp',
     'error.cpp',
