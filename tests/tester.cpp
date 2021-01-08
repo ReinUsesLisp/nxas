@@ -5,9 +5,7 @@
 #include <cinttypes>
 #include <string>
 
-#include "context.h"
-#include "parse.h"
-#include "opcode.h"
+#include "nxas.h"
 
 int main(int argc, char** argv)
 {
@@ -18,9 +16,7 @@ int main(int argc, char** argv)
     const std::string expression = std::string(argv[1]) + ';';
     const char* const expected = argc > 2 ? argv[2] : nullptr;
 
-    context ctx("file", expression.c_str());
-    opcode result;
-    parse_instruction(ctx, result);
+    std::vector<uint64_t> result = assemble(expression);
     if (!expected) {
         return 0;
     }
@@ -39,9 +35,9 @@ int main(int argc, char** argv)
         std::fprintf(stderr, "Expected opcode is not valid hex\n");
         return 1;
     }
-    if (result.value != expected_opcode) {
+    if (result[1] != expected_opcode) {
         std::fprintf(stderr, "Incorrect opcode: 0x%" PRIX64 " vs 0x%" PRIX64 "\n",
-                     result.value, expected_opcode);
+                     result[1], expected_opcode);
         return 1;
     }
     return 0;

@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_library(nxas_lib STATIC
+    include/nxas.h
     src/context.cpp
     src/context.h
     src/dksh.cpp
@@ -15,7 +16,6 @@ add_library(nxas_lib STATIC
     src/helper.cpp
     src/helper.h
     src/nxas.cpp
-    src/nxas.h
     src/opcode.h
     src/operand.h
     src/options.cpp
@@ -27,7 +27,7 @@ add_library(nxas_lib STATIC
     src/write.cpp
 )
 set_target_properties(nxas_lib PROPERTIES
-    INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR}/src"
+    INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR}/include"
 )
 
 if (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
