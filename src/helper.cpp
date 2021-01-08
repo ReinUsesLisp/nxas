@@ -122,10 +122,11 @@ error assemble_source_gpr(context& ctx, token& token, opcode& op, int address)
 
 error assemble_signed_20bit_immediate(context& ctx, token& token, opcode& op)
 {
-    int64_t value;
+    int64_t value = 0;
     CHECK(convert_integer(token, -(1 << 19), max_bits(19), reinterpret_cast<uint64_t*>(&value)));
 
-    uint64_t raw, negative;
+    uint64_t raw = 0;
+    uint64_t negative = 0;
     if (value < 0) {
         raw = (value - (1 << 19)) & max_bits(19);
         negative = 1;
