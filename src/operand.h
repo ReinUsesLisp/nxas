@@ -320,6 +320,13 @@ DEFINE_FLAG(sh, ".SH", address);
 template <int address>
 DEFINE_FLAG(inv, ".INV", address);
 
+template <int address>
+DEFINE_OPERAND(default_rz)
+{
+    op.add_bits(0xFFULL << address);
+    return {};
+}
+
 namespace memory
 {
     DEFINE_DOT_TABLE(size, 4, 48, "U8", "S8", "U16", "S16", "32", "64", "128");
@@ -389,6 +396,89 @@ DEFINE_DOT_TABLE(load_cache, 0, address, "", "CG", "CI", "CV");
 namespace amem
 {
     DEFINE_DOT_TABLE(size, 0, 47, "32", "64", "96", "128");
+}
+
+namespace ald
+{
+    DEFINE_FLAG(o, ".O", 32);
+
+    DEFINE_OPERAND(p)
+    {
+        if (!equal(token, ".P")) {
+            return fail(token, "expected .P");
+        }
+        op.add_bits(1ULL << 31);
+        token = ctx.tokenize();
+        return {};
+    }
+
+    DEFINE_OPERAND(phys)
+    {
+        if (!equal(token, ".PHYS")) {
+            return fail(token, "expected .PHYS");
+        }
+        token = ctx.tokenize();
+        return {};
+    }
+
+    DEFINE_DOT_TABLE(size, 0, 47, "32", "64", "96", "128");
+
+    DEFINE_OPERAND(imm_attr)
+    {
+        if (!equal(token, "a")) {
+            return fail(token, "expected 'a'");
+        }
+        token = ctx.tokenize();
+
+        CHECK(confirm_type(token, token_type::bracket_left));
+        token = ctx.tokenize();
+
+        CHECK((uinteger<10, 20>(ctx, token, op)));
+        op.add_bits(0xFFULL << 8);
+
+        CHECK(confirm_type(token, token_type::bracket_right));
+        token = ctx.tokenize();
+        return {};
+    }
+
+    DEFINE_OPERAND(patch_attr)
+    {
+        if (!equal(token, "a")) {
+            return fail(token, "expected 'a'");
+        }
+        token = ctx.tokenize();
+
+        CHECK(confirm_type(token, token_type::bracket_left));
+        token = ctx.tokenize();
+
+        CHECK((sgpr<8>(ctx, token, op)));
+
+        if (token.type == token_type::plus) {
+            token = ctx.tokenize();
+        }
+        CHECK((sinteger<11, 20>(ctx, token, op)));
+
+        CHECK(confirm_type(token, token_type::bracket_right));
+        token = ctx.tokenize();
+        return {};
+    }
+
+    DEFINE_OPERAND(phys_attr)
+    {
+        if (!equal(token, "a")) {
+            return fail(token, "expected 'a'");
+        }
+        token = ctx.tokenize();
+
+        CHECK(confirm_type(token, token_type::bracket_left));
+        token = ctx.tokenize();
+
+        CHECK((sgpr<8>(ctx, token, op)));
+
+        CHECK(confirm_type(token, token_type::bracket_right));
+        token = ctx.tokenize();
+        return {};
+    }
 }
 
 namespace al2p
