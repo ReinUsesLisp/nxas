@@ -16,7 +16,7 @@ int main(int argc, char** argv)
     const std::string expression = std::string(argv[1]) + ';';
     const char* const expected = argc > 2 ? argv[2] : nullptr;
 
-    std::vector<uint64_t> result = assemble(expression);
+    std::vector<uint64_t> result = nxas::assemble(expression);
     if (!expected) {
         return 0;
     }

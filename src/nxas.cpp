@@ -10,6 +10,8 @@
 #include "parse.h"
 #include "token.h"
 
+namespace nxas {
+
 static uint64_t generate_sched(std::span<const opcode> opcodes, size_t index,
                                size_t num_instructions, size_t address)
 {
@@ -55,3 +57,5 @@ std::vector<uint64_t> assemble(const std::string& code, const char* filename)
     }
     return ctx.binary(blob);
 }
+
+} // namespace nxas

@@ -51,7 +51,7 @@ int main(int argc, char** argv)
         fatal_error("no output file");
     }
     const std::string input_text = read_file(input_file);
-    const std::vector<uint64_t> binary = assemble(input_text.c_str(), input_file);
+    const std::vector<uint64_t> binary = nxas::assemble(input_text.c_str(), input_file);
     try {
         std::ofstream outfp(output_file, std::ios::binary);
         if (!outfp.is_open()) {
