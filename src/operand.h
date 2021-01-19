@@ -486,6 +486,31 @@ namespace al2p
     DEFINE_FLAG(o, ".O", 32);
 }
 
+namespace b2r
+{
+    DEFINE_OPERAND(warp)
+    {
+        if (!equal(token, ".WARP")) {
+            return fail(token, "expected .WARP");
+        }
+        token = ctx.tokenize();
+        op.add_bits(0xEULL << 32);
+        op.add_bits(0xFFULL << 8);
+        return {};
+    }
+
+    DEFINE_OPERAND(result)
+    {
+        if (!equal(token, ".RESULT")) {
+            return fail(token, "expected .RESULT");
+        }
+        token = ctx.tokenize();
+        op.add_bits(0xDULL << 32);
+        op.add_bits(0xFFULL << 8);
+        return {};
+    }
+}
+
 namespace nop
 {
     DEFINE_FLAG(trig, ".TRIG", 13);
