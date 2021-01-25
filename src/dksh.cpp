@@ -82,7 +82,10 @@ void context::write_dksh(size_t code_size, std::vector<uint64_t>& output) const
     }
     const std::optional entrypoint_code_offset = find_label(entrypoint.value_or("main"));
     if (!entrypoint_code_offset) {
-        fatal_error("entrypoint \"%s\" not found", entrypoint->c_str());
+        fatal_error("entrypoint \"%s\" not found", entrypoint.value_or("main").c_str());
+    }
+    if (*entrypoint_code_offset % 32 != 8) {
+        fatal_error("entrypoint is not aligned");
     }
 
     const int local_pos_sz = (local_mem_size + 7) & ~7;
@@ -92,7 +95,7 @@ void context::write_dksh(size_t code_size, std::vector<uint64_t>& output) const
     dksh_program_header program_header;
     std::memset(&program_header, 0, sizeof(program_header));
     program_header.type = static_cast<uint32_t>(*type);
-    program_header.entrypoint = *entrypoint_code_offset;
+    program_header.entrypoint = *entrypoint_code_offset - 8;
     program_header.num_gprs = num_gprs;
     program_header.constbuf1_off = 0; // TODO
     program_header.constbuf1_sz = 0;
@@ -128,7 +131,7 @@ void context::write_dksh(size_t code_size, std::vector<uint64_t>& output) const
     header.programs_off = sizeof(dksh_header);
     header.num_programs = 1;
 
-    std::array<uint64_t, align256(dksh_size)> result{};
+    std::array<uint64_t, align256(dksh_size) / sizeof(uint64_t)> result{};
     char* const result_bytes = reinterpret_cast<char*>(result.data());
     std::memcpy(result_bytes, &header, sizeof(header));
     std::memcpy(result_bytes + sizeof(header), &program_header, sizeof(program_header));

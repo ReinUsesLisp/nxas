@@ -21,6 +21,9 @@ std::vector<uint64_t> context::binary(std::span<const uint64_t> code) const
         write_gfx_header(result);
     }
     result.insert(result.end(), code.begin(), code.end());
+    if (is_dksh) {
+        result.resize(result.size() + 32 - code.size() % 32);
+    }
     return result;
 }
 

@@ -61,7 +61,7 @@ class context
 
     // generic dksh
     std::optional<std::string> entrypoint;
-    int num_gprs = 0;
+    int num_gprs = 8;
     int local_mem_size = 0;
 
     // vertex shader
