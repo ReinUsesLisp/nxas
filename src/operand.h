@@ -231,9 +231,9 @@ template <int address>
 DEFINE_DOT_TABLE(fp_rounding, 0, address, "RN", "RM", "RP", "RZ");
 
 template <int address>
-DEFINE_OPERAND(pred_combine)
+DEFINE_OPERAND(bop)
 {
-    static const char* table[] = {"AND", "OR", "XOR", nullptr};
+    static const char* table[] = {"AND", "OR", "XOR", "INVALIDBOP3", nullptr};
     const std::optional<int64_t> value = find_in_table(token, table, ".");
     if (!value) {
         return fail(token, "expected .AND, .OR or .XOR");
@@ -702,6 +702,9 @@ template <int address>
 DEFINE_DOT_TABLE(float_compare, -1, address, "F", "LT", "EQ", "LE", "GT", "NE", "GE", "NUM", "NAN",
                  "LTU", "EQU", "LEU", "GTU", "NEU", "GEU", "T");
 
+template <int address>
+DEFINE_DOT_TABLE(integer_compare, -1, address, "F", "LT", "EQ", "LE", "GT", "NE", "GE", "T");
+
 namespace image
 {
     DEFINE_OPERAND(p)
@@ -886,10 +889,7 @@ namespace shfl
     DEFINE_DOT_TABLE(mode, -1, 30, "IDX", "UP", "DOWN", "BFLY");
 }
 
-namespace flo
-{
-    DEFINE_DOT_TABLE(sign, 1, 48, "U32", "S32");
-}
+DEFINE_DOT_TABLE(int_sign, 1, 48, "U32", "S32");
 
 namespace ldg
 {
