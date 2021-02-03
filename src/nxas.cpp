@@ -19,7 +19,7 @@ static uint64_t generate_sched(std::span<const opcode> opcodes, size_t index,
         return 0x7E0ULL << (address * 21);
     }
     const opcode& op = opcodes[index + address];
-    return (op.raw_sched | (static_cast<uint64_t>(op.reuse) << 17)) << (address * 21);
+    return (op.sched.raw | (static_cast<uint64_t>(op.reuse) << 17)) << (address * 21);
 }
 
 std::vector<uint64_t> assemble(const std::string& code, const char* filename)

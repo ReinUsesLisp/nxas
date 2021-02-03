@@ -92,11 +92,14 @@ static error assemble_sched(context& ctx, token& token, opcode& op)
             return fail(token, "expected @WAIT, @WB, @RB, @DEP, or @YIELD/@Y");
         }
     }
-    op.stall = stall.value_or(0);
-    op.write_barrier = write_barrier.value_or(7);
-    op.read_barrier = read_barrier.value_or(7);
-    op.wait_barrier = wait_barrier;
-    op.yield = yield ? 1 : 0;
+    op.sched.values = {
+        .stall = stall.value_or(0),
+        .yield = yield ? 1U : 0U,
+        .write_barrier = write_barrier.value_or(7),
+        .read_barrier = read_barrier.value_or(7),
+        .wait_barrier = wait_barrier,
+        .padding = 0,
+    };
     return {};
 }
 
