@@ -173,6 +173,12 @@ set(tests
     "0x5be7ffffffffffff @!PT LOP3.LUT.X.NZ RZ.CC, RZ, RZ, RZ, 0xff"
     "0x3cffffffffffffff @!PT LOP3.LUT RZ.CC, RZ, 0x7ffff, RZ, 0xff"
     "0x02ffffffffffffff @!PT LOP3.LUT RZ.CC, RZ, c[0x1f][-0x4], RZ, 0xff"
+    "0x5c488080001700ff SHL.W RZ.CC, R0, R1"
+    "0x5c488800001700ff SHL.X RZ.CC, R0, R1"
+    "0x5c480000001700ff SHL RZ, R0, R1"
+    "0x4c48000c000700ff SHL RZ, R0, c[0x3][0x0]"
+    "0x3948007fffb702ff SHL RZ, R2, -0x5"
+    "0x38480000005703ff SHL RZ, R3, 0x5"
     "0xe2400fffff87000f foo: BRA foo"
     "0xe2400fffff87000f Foo: BRA Foo"
 )
