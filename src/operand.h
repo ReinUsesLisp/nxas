@@ -89,7 +89,7 @@ inline error assemble_uint(context& ctx, opcode& op, token& token, int64_t max_s
 inline error assemble_int(context& ctx, opcode& op, token& token, int bits, int address)
 {
     const int raw_bits = bits - 1;
-    const int64_t min = -1LL << raw_bits;
+    const int64_t min = -(1LL << raw_bits);
     const int64_t max = (1LL << raw_bits) - 1;
     uint64_t value;
     CHECK(convert_integer(token, min, max, &value));
@@ -167,11 +167,14 @@ DEFINE_OPERAND(fimm)
     return assemble_float_20bit_immediate(ctx, token, op);
 }
 
-DEFINE_UINT(imm32, UINT32_MAX, 20);
+DEFINE_UINT(uimm32, UINT32_MAX, 20);
 
-DEFINE_UINT(imm16, UINT16_MAX, 20);
+DEFINE_INT(simm32, 32, 20);
 
-DEFINE_FLAG(cc, ".CC", 47);
+DEFINE_UINT(uimm16, UINT16_MAX, 20);
+
+template <int address = 47>
+DEFINE_FLAG(cc, ".CC", address);
 
 template <int bits, int address>
 DEFINE_UINT(uinteger, max_bits(bits), address);
