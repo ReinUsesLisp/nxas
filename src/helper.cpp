@@ -142,7 +142,7 @@ error assemble_signed_20bit_immediate(context& ctx, token& token, opcode& op)
     return {};
 }
 
-error assemble_float_20bit_immediate(context& ctx, token& token, opcode& op)
+error assemble_float_immediate(context& ctx, token& token, opcode& op, int bits)
 {
     static constexpr char MESSAGE[] = "expected floating-point literal, QNAN, or INF";
 
@@ -182,11 +182,17 @@ error assemble_float_20bit_immediate(context& ctx, token& token, opcode& op)
     }
     uint32_t raw;
     std::memcpy(&raw, &value, sizeof(raw));
-    // TODO: add a setting to warn/error precision losses
-    // if ((raw >> 12) << 12 != raw) ...
-    op.add_bits(static_cast<uint64_t>((raw << 1) >> 13) << 20);
-    if (raw >> 31 != 0) {
-        op.add_bits(1ULL << 56);
+    if (bits == 20) {
+        // TODO: add a setting to warn/error precision losses
+        // if ((raw >> 12) << 12 != raw) ...
+        op.add_bits(static_cast<uint64_t>((raw << 1) >> 13) << 20);
+        if (raw >> 31 != 0) {
+            op.add_bits(1ULL << 56);
+        }
+    } else if (bits == 32) {
+        op.add_bits(static_cast<uint64_t>(raw) << 20);
+    } else {
+        assert(false && "invalid bits");
     }
     token = ctx.tokenize();
     return {};

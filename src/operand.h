@@ -164,7 +164,12 @@ DEFINE_OPERAND(imm)
 
 DEFINE_OPERAND(fimm)
 {
-    return assemble_float_20bit_immediate(ctx, token, op);
+    return assemble_float_immediate(ctx, token, op, 20);
+}
+
+DEFINE_OPERAND(fimm32)
+{
+    return assemble_float_immediate(ctx, token, op, 32);
 }
 
 DEFINE_UINT(uimm32, UINT32_MAX, 20);
@@ -638,6 +643,14 @@ namespace f2f
         op.add_bits(result.value_or(0) << 39);
         return {};
     }
+}
+
+namespace fmul
+{
+    template <int address>
+    DEFINE_DOT_TABLE(fmz, 0, address, "", "FTZ", "FMZ", "INVALIDFMZ3");
+
+    DEFINE_DOT_TABLE(scale, 0, 41, "", "D2", "D4", "D8", "M8", "M4", "M2", "INVALIDSCALE37");
 }
 
 namespace f2i
