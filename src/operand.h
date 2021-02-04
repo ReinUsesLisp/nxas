@@ -152,6 +152,21 @@ DEFINE_OPERAND(sgpr)
     return assemble_source_gpr(ctx, token, op, address);
 }
 
+template <int address>
+DEFINE_OPERAND(mirror_dgpr)
+{
+    // Hack mirror detecting by restoring the bits and then comparing
+    const uint64_t old_op_value = op.value;
+    op.value &= ~(uint64_t{0xff} << address);
+    if (auto err = dgpr<address>(ctx, token, op)) {
+        return err;
+    }
+    if (op.value != old_op_value) {
+        return fail(token, "source register is not mirrored to destination register");
+    }
+    return {};
+}
+
 DEFINE_OPERAND(cbuf)
 {
     return assemble_constant_buffer(ctx, token, op);
