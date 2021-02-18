@@ -53,6 +53,10 @@ const insn table[]{
     INSN(0xF0B8000000000000ULL, 0, "B2R",              dgpr<0>, comma, uinteger<8, 8>),
     INSN(0xF0B8000000000000ULL, 0, "B2R", b2r::warp,   dgpr<0>),
     INSN(0xF0B8000000000000ULL, 0, "B2R", b2r::result, dgpr<0>, comma, pred<45, true>),
+    // TODO: BAR
+    INSN(0x5C00000000000000ULL, 0, "BFE", bfe::format, brev<40>, dgpr<0>, cc, comma, sgpr<8>, comma, sgpr<20>),
+    INSN(0x4C00000000000000ULL, 0, "BFE", bfe::format, brev<40>, dgpr<0>, cc, comma, sgpr<8>, comma, cbuf),
+    INSN(0x3800000000000000ULL, 0, "BFE", bfe::format, brev<40>, dgpr<0>, cc, comma, sgpr<8>, comma, imm),
     INSN(0x50B0000000000000ULL, 0, "NOP", nop::trig, nop::tests),
     INSN(0x50B0000000000000ULL, 0, "NOP", nop::trig, nop::mask),
     INSN(0x50B0000000000000ULL, 0, "NOP", nop::trig, nop::tests, comma, nop::mask),
@@ -123,9 +127,6 @@ const insn table[]{
     INSN(0x7E80000000000000ULL, 0, "HSETP2", float_compare<49>, h_and<53>, ftz<6>, bop<45>, pred<3>, comma, pred<0>, comma, neg<43>, abs<44, sgpr<8>>, fp16::swizzle<47>, comma, neg<56>, abs<54, cbuf>, comma, pred<39, true>),
     // TODO: HSETP2 immediate
     INSN(0x3A04000000000000ULL, 0, "VMNMX", video::dest_sign, video::src_format<37, 48>, video::src_format<29, 49>, video::mx<56>, sat<55>, video::vmnmx_op<51>, dgpr<0>, cc, comma, sgpr<8>, video::selector<36, 37>, comma, sgpr<20>, video::selector<28, 29>, comma, sgpr<39>),
-    INSN(0x5C00000000000000ULL, 0, "BFE", bfe::format, brev<40>, dgpr<0>, cc, comma, sgpr<8>, comma, sgpr<20>),
-    INSN(0x4C00000000000000ULL, 0, "BFE", bfe::format, brev<40>, dgpr<0>, cc, comma, sgpr<8>, comma, cbuf),
-    INSN(0x3800000000000000ULL, 0, "BFE", bfe::format, brev<40>, dgpr<0>, cc, comma, sgpr<8>, comma, imm),
     INSN(0x5090000000000000ULL, 0, "PSETP", bop<24>, bop<45>, pred<3>, comma, pred<0>, comma, pred<12, true>, comma, pred<29, true>, comma, pred<39, true>),
     INSN(0x5CE8000000000000ULL, 0, "P2R", byte_selector<41>, dgpr<0>, comma, p2r::mode<40>, comma, sgpr<8>, comma, sgpr<20>),
     INSN(0x4CE8000000000000ULL, 0, "P2R", byte_selector<41>, dgpr<0>, comma, p2r::mode<40>, comma, sgpr<8>, comma, cbuf),
