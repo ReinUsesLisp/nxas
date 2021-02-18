@@ -61,6 +61,8 @@ const insn table[]{
     INSN(0x53F0000000000000ULL, 0, "BFI", dgpr<0>, cc, comma, sgpr<8>, comma, sgpr<39>, comma, cbuf),
     INSN(0x4BF0000000000000ULL, 0, "BFI", dgpr<0>, cc, comma, sgpr<8>, comma, cbuf,     comma, sgpr<39>),
     INSN(0x36F0000000000000ULL, 0, "BFI", dgpr<0>, cc, comma, sgpr<8>, comma, imm,      comma, sgpr<39>),
+    INSN(0xE3A0000000000000ULL, 0, "BPT", bpt::mode, uinteger<20, 20>),
+    INSN(0xE3A0000000000000ULL, 0, "BPT", bpt::mode),
     INSN(0x50B0000000000000ULL, 0, "NOP", nop::trig, nop::tests),
     INSN(0x50B0000000000000ULL, 0, "NOP", nop::trig, nop::mask),
     INSN(0x50B0000000000000ULL, 0, "NOP", nop::trig, nop::tests, comma, nop::mask),

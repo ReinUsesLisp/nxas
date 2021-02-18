@@ -606,6 +606,11 @@ namespace bfe
     DEFINE_DOT_TABLE(format, 1, 48, "U32", "S32");
 }
 
+namespace bpt
+{
+    DEFINE_DOT_TABLE(mode, -1, 6, "DRAIN_ILLEGAL", "CAL", "PAUSE", "TRAP", "INT", "DRAIN");
+}
+
 namespace stg
 {
     DEFINE_FLAG(e, ".E", 45)
