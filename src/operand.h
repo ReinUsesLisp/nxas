@@ -86,6 +86,19 @@ inline error assemble_uint(context& ctx, opcode& op, token& token, int64_t max_s
     return {};
 }
 
+DEFINE_OPERAND(uimm_extended)
+{
+    uint64_t value;
+    CHECK(convert_integer(token, 0, 1ULL << 20, &value));
+    if (value >= 0x80000) {
+        value -= 0x80000;
+        op.add_bits(1ULL << 56);
+    }
+    op.add_bits(value << 20);
+    token = ctx.tokenize();
+    return {};
+}
+
 inline error assemble_int(context& ctx, opcode& op, token& token, int bits, int address)
 {
     const int raw_bits = bits - 1;
@@ -671,6 +684,14 @@ namespace fmul
     DEFINE_DOT_TABLE(fmz, 0, address, "", "FTZ", "FMZ", "INVALIDFMZ3");
 
     DEFINE_DOT_TABLE(scale, 0, 41, "", "D2", "D4", "D8", "M8", "M4", "M2", "INVALIDSCALE37");
+}
+
+namespace iadd3
+{
+    DEFINE_DOT_TABLE(shift, 0, 37, "", "LS", "RS");
+
+    template <int address>
+    DEFINE_DOT_TABLE(half, 0, address, "", "H0", "H1");
 }
 
 namespace f2i
