@@ -775,12 +775,39 @@ DEFINE_DOT_TABLE(integer_compare, -1, address, "F", "LT", "EQ", "LE", "GT", "NE"
 
 namespace mufu
 {
-    DEFINE_DOT_TABLE(operation, -1, 20, "COS", "SIN", "EX2", "LG2", "RCP", "RSQ", "RCP64H", "RSQ64H", "SQRT");
+    DEFINE_DOT_TABLE(operation, -1, 20, "COS", "SIN", "EX2", "LG2", "RCP", "RSQ", "RCP64H",
+                     "RSQ64H", "SQRT");
 }
 
 namespace imnmx
 {
     DEFINE_DOT_TABLE(mode, 0, 43, "", "XLO", "XMED", "XHI");
+}
+
+namespace ldc
+{
+    DEFINE_DOT_TABLE(mode, 0, 44, "", "IL", "IS", "ISL");
+    DEFINE_DOT_TABLE(size, -1, 48, "U8", "S8", "U16", "S16", "32", "64");
+
+    DEFINE_OPERAND(address)
+    {
+        if (!equal(token, "c")) {
+            return fail(token, "expected constant buffer");
+        }
+        token = ctx.tokenize();
+        CHECK(confirm_type(token, token_type::bracket_left));
+
+        token = ctx.tokenize();
+        uint64_t value;
+        CHECK(convert_integer(token, 0, max_bits(5), &value));
+        op.add_bits(static_cast<uint64_t>(value) << 36);
+
+        token = ctx.tokenize();
+        CHECK(confirm_type(token, token_type::bracket_right));
+
+        token = ctx.tokenize();
+        return memory::address<true, 20, 16, 0>(ctx, token, op);
+    }
 }
 
 namespace image

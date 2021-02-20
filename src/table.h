@@ -175,6 +175,7 @@ const insn table[]{
     INSN(0x5C08000000000000ULL, 0, "POPC", dgpr<0>, comma, tilde<40>, sgpr<20>),
     INSN(0x4C08000000000000ULL, 0, "POPC", dgpr<0>, comma, tilde<40>, cbuf),
     INSN(0x3808000000000000ULL, 0, "POPC", dgpr<0>, comma, imm, inv<40>),
+    INSN(0xEF90000000000000ULL, 0, "LDC", ldc::size, ldc::mode, dgpr<0>, comma, ldc::address),
     INSN(0x5BDF000000000000ULL, 0, "LEA", lea::hi, x<38>,                  dgpr<0>, cc, comma, neg<37>, sgpr<8>, comma, sgpr<20>, comma, sgpr<39>),
     INSN(0x5BDF000000000000ULL, 0, "LEA", lea::hi, x<38>,                  dgpr<0>, cc, comma, neg<37>, sgpr<8>, comma, sgpr<20>, comma, sgpr<39>, comma, uinteger<5, 28>),
     INSN(0x5BD8000000000000ULL, 0, "LEA", lea::hi, x<38>, pred<48>, comma, dgpr<0>, cc, comma, neg<37>, sgpr<8>, comma, sgpr<20>, comma, sgpr<39>),
