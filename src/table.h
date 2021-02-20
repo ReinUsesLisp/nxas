@@ -78,6 +78,7 @@ const insn table[]{
     INSN(0x5C58000000000000ULL, 0, "FADD", ftz<44>, fp_rounding<39>, sat<50>, dgpr<0>, cc, comma, neg<48>, abs<46, sgpr<8>>, comma, neg<45>, abs<49, sgpr<20>>),
     INSN(0x4C58000000000000ULL, 0, "FADD", ftz<44>, fp_rounding<39>, sat<50>, dgpr<0>, cc, comma, neg<48>, abs<46, sgpr<8>>, comma, neg<45>, abs<49, cbuf>),
     INSN(0x3858000000000000ULL, 0, "FADD", ftz<44>, fp_rounding<39>, sat<50>, dgpr<0>, cc, comma, neg<48>, abs<46, sgpr<8>>, comma, fimm, post_neg<45>, post_abs<49>),
+    INSN(0x0800000000000000ULL, 0, "FADD32I", ftz<55>, dgpr<0>, cc<52>, comma, neg<56>, abs<54, sgpr<8>>, comma, fimm32, post_neg<53>, post_abs<57>),
     INSN(0x5980000000000000ULL, 0, "FFMA", fmul::fmz<53>, fp_rounding<51>, sat<50>, dgpr<0>, cc, comma, sgpr<8>, comma, neg<48>, sgpr<20>, comma, neg<49>, sgpr<39>),
     INSN(0x5180000000000000ULL, 0, "FFMA", fmul::fmz<53>, fp_rounding<51>, sat<50>, dgpr<0>, cc, comma, sgpr<8>, comma, neg<48>, sgpr<39>, comma, neg<49>, cbuf),
     INSN(0x4980000000000000ULL, 0, "FFMA", fmul::fmz<53>, fp_rounding<51>, sat<50>, dgpr<0>, cc, comma, sgpr<8>, comma, neg<48>, cbuf,     comma, neg<49>, sgpr<39>),
