@@ -74,6 +74,7 @@ const insn table[]{
     INSN(0x3898000000000000ULL, 0, "MOV", dgpr<0>, comma, imm, comma, mask4<39>),
     INSN(0x010000000000F000ULL, 0, "MOV32I", dgpr<0>, comma, uimm32),
     INSN(0x0100000000000000ULL, 0, "MOV32I", dgpr<0>, comma, uimm32, comma, mask4<12>),
+    INSN(0x5080000000000000ULL, 0, "MUFU", mufu::operation, sat<50>, dgpr<0>, comma, neg<48>, abs<46, sgpr<8>>),
     INSN(0xF0C8000000000000ULL, 0, "S2R", dgpr<0>, comma, s2r),
     INSN(0x5C58000000000000ULL, 0, "FADD", ftz<44>, fp_rounding<39>, sat<50>, dgpr<0>, cc, comma, neg<48>, abs<46, sgpr<8>>, comma, neg<45>, abs<49, sgpr<20>>),
     INSN(0x4C58000000000000ULL, 0, "FADD", ftz<44>, fp_rounding<39>, sat<50>, dgpr<0>, cc, comma, neg<48>, abs<46, sgpr<8>>, comma, neg<45>, abs<49, cbuf>),

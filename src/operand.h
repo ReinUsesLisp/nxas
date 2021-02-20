@@ -773,6 +773,11 @@ DEFINE_DOT_TABLE(float_compare, -1, address, "F", "LT", "EQ", "LE", "GT", "NE", 
 template <int address>
 DEFINE_DOT_TABLE(integer_compare, -1, address, "F", "LT", "EQ", "LE", "GT", "NE", "GE", "T");
 
+namespace mufu
+{
+    DEFINE_DOT_TABLE(operation, -1, 20, "COS", "SIN", "EX2", "LG2", "RCP", "RSQ", "RCP64H", "RSQ64H", "SQRT");
+}
+
 namespace image
 {
     DEFINE_OPERAND(p)
