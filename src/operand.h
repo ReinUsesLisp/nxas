@@ -426,6 +426,11 @@ DEFINE_OPERAND(store_cache)
     return {};
 }
 
+namespace rro
+{
+    DEFINE_DOT_TABLE(mode, -1, 39, "SINCOS", "EX2");
+}
+
 template <int address>
 DEFINE_DOT_TABLE(load_cache, 0, address, "", "CG", "CI", "CV");
 

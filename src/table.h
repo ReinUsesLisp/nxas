@@ -191,11 +191,9 @@ const insn table[]{
     INSN(0x53A0000000000000ULL, 0, "FCMP", float_compare<48>, ftz<47>, dgpr<0>, comma, sgpr<8>, comma, sgpr<39>, comma,     cbuf),
     INSN(0x4BA0000000000000ULL, 0, "FCMP", float_compare<48>, ftz<47>, dgpr<0>, comma, sgpr<8>, comma,     cbuf, comma, sgpr<39>),
     INSN(0x36A0000000000000ULL, 0, "FCMP", float_compare<48>, ftz<47>, dgpr<0>, comma, sgpr<8>, comma,     fimm, comma, sgpr<39>),
-
     INSN(0x5CA0000000000000ULL, 0, "SEL", dgpr<0>, comma, sgpr<8>, comma, sgpr<20>, comma, pred<39, true>),
     INSN(0x4CA0000000000000ULL, 0, "SEL", dgpr<0>, comma, sgpr<8>, comma, cbuf,     comma, pred<39, true>),
     INSN(0x38A0000000000000ULL, 0, "SEL", dgpr<0>, comma, sgpr<8>, comma, imm ,     comma, pred<39, true>),
-
     INSN(0xEF10000000000000ULL, 0, "SHFL", shfl::mode, pred<48>, comma, dgpr<0>, comma, sgpr<8>, comma,        sgpr<20>, comma, sgpr<39>),
     INSN(0xEF10000010000000ULL, 0, "SHFL", shfl::mode, pred<48>, comma, dgpr<0>, comma, sgpr<8>, comma, uinteger<5, 20>, comma, sgpr<39>),
     INSN(0xEF10000020000000ULL, 0, "SHFL", shfl::mode, pred<48>, comma, dgpr<0>, comma, sgpr<8>, comma,        sgpr<20>, comma, uinteger<13, 34>),
@@ -210,6 +208,9 @@ const insn table[]{
     INSN(0xE320000000000000ULL, 0, "RET", flow_tests),
     INSN(0xE310000000000000ULL, 0, "LONGJMP", flow_tests),
     INSN(0xE300000000000000ULL, 0, "EXIT", keeprefcount, flow_tests),
+    INSN(0x5C90000000000000ULL, 0, "RRO", rro::mode, dgpr<0>, comma, neg<45>, abs<49, sgpr<20>>),
+    INSN(0x4C90000000000000ULL, 0, "RRO", rro::mode, dgpr<0>, comma, neg<45>, abs<49, cbuf>),
+    INSN(0x3890000000000000ULL, 0, "RRO", rro::mode, dgpr<0>, comma, fimm, post_neg<45>, post_abs<49>),
     INSN(0xEB20000000000000ULL, 0, "SUST", image::p, image::type, store_cache<24>, image::rgba, image::clamp, memory::address<false>, comma, sgpr<0>, comma, sgpr<39>),
     INSN(0xEB28000000000000ULL, 0, "SUST", image::p, image::type, store_cache<24>, image::rgba, image::clamp, memory::address<false>, comma, sgpr<0>, comma, uinteger<13, 36>),
     INSN(0xEB20000000000000ULL, 0, "SUST", image::d, image::ba<52>, image::type, store_cache<24>, image::size, image::clamp, memory::address<false>, comma, sgpr<0>, comma, sgpr<39>),
