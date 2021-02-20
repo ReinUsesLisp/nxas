@@ -139,6 +139,7 @@ const insn table[]{
     // TODO: HSETP2 immediate
     INSN(0x3A04000000000000ULL, 0, "VMNMX", video::dest_sign, video::src_format<37, 48>, video::src_format<29, 49>, video::mx<56>, sat<55>, video::vmnmx_op<51>, dgpr<0>, cc, comma, sgpr<8>, video::selector<36, 37>, comma, sgpr<20>, video::selector<28, 29>, comma, sgpr<39>),
     INSN(0x5090000000000000ULL, 0, "PSETP", bop<24>, bop<45>, pred<3>, comma, pred<0>, comma, pred<12, true>, comma, pred<29, true>, comma, pred<39, true>),
+    INSN(0x5088000000000000ULL, 0, "PSET", bf<44>, bop<24>, bop<45>, dgpr<0>, cc, comma, pred<12, true>, comma, pred<29, true>, comma, pred<39, true>),
     INSN(0x5CE8000000000000ULL, 0, "P2R", byte_selector<41>, dgpr<0>, comma, p2r::mode<40>, comma, sgpr<8>, comma, sgpr<20>),
     INSN(0x4CE8000000000000ULL, 0, "P2R", byte_selector<41>, dgpr<0>, comma, p2r::mode<40>, comma, sgpr<8>, comma, cbuf),
     INSN(0x38E8000000000000ULL, 0, "P2R", byte_selector<41>, dgpr<0>, comma, p2r::mode<40>, comma, sgpr<8>, comma, imm),

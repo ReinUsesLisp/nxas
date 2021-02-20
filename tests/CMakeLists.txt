@@ -252,6 +252,7 @@ set(tests
     "0x5be7ffffffffffff @!PT LOP3.LUT.X.NZ RZ.CC, RZ, RZ, RZ, 0xff"
     "0x3cffffffffffffff @!PT LOP3.LUT RZ.CC, RZ, 0x7ffff, RZ, 0xff"
     "0x02ffffffffffffff @!PT LOP3.LUT RZ.CC, RZ, c[0x1f][-0x4], RZ, 0xff"
+    "0x5088d6016007a004 PSET.BF.AND.XOR R4.CC, !P2, !P3, !P4"
     "0x5c90000000270004 RRO.SINCOS R4, R2"
     "0x5c92208000170005 RRO.EX2 R5, -|R1|"
     "0x4c92008000170005 RRO.EX2 R5, |c[0x0][0x4]|"
