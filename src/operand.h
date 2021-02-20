@@ -778,6 +778,11 @@ namespace mufu
     DEFINE_DOT_TABLE(operation, -1, 20, "COS", "SIN", "EX2", "LG2", "RCP", "RSQ", "RCP64H", "RSQ64H", "SQRT");
 }
 
+namespace imnmx
+{
+    DEFINE_DOT_TABLE(mode, 0, 43, "", "XLO", "XMED", "XHI");
+}
+
 namespace image
 {
     DEFINE_OPERAND(p)
