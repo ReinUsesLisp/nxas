@@ -250,5 +250,6 @@ const insn table[]{
     // TODO: SSY constant buffer
     INSN(0xE260000000000000ULL, NO_PRED, "CAL", noinc, label),
     // TODO: CAL constant buffer
+    INSN(0xE2B0000000000000ULL, NO_PRED, "PCNT", label),
 };
 // clang-format on
