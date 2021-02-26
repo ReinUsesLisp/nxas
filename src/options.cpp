@@ -42,6 +42,19 @@ void context::parse_option(token& token)
         parse_type();
     } else if (equal(token, ".num_gprs")) {
         token = tokenize();
+        if (token.type == token_type::immediate) {
+            fatal_error(token, "expected number of general purpose registers");
+        }
+        num_gprs = static_cast<int>(token.data.immediate);
+        check_option_line();
+    } else if (equal(token, ".workgroup_size")) {
+        for (int i = 0; i < 3; ++i) {
+            token = tokenize();
+            if (token.type != token_type::immediate) {
+                fatal_error(token, "expected workgroup sizes");
+            }
+            block_dimensions[i] = static_cast<int>(token.data.immediate);
+        }
         check_option_line();
     }
     token = tokenize();
