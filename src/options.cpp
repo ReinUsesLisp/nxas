@@ -56,6 +56,18 @@ void context::parse_option(token& token)
             block_dimensions[i] = static_cast<int>(token.data.immediate);
         }
         check_option_line();
+    } else if (equal(token, ".shared_memory")) {
+        token = tokenize();
+        if (token.type != token_type::immediate) {
+            fatal_error(token, "expected shared memory size");
+        }
+        shared_mem_size = static_cast<int>(token.data.immediate);
+    } else if (equal(token, ".local_memory")) {
+        token = tokenize();
+        if (token.type != token_type::immediate) {
+            fatal_error(token, "expected local memory size");
+        }
+        local_mem_size = static_cast<int>(token.data.immediate);
     }
     token = tokenize();
     if (option_line == token.line) {

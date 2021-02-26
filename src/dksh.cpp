@@ -73,6 +73,11 @@ static constexpr size_t align256(size_t value)
     return (value + 0xff) & ~0xff;
 }
 
+static constexpr size_t align8(size_t value)
+{
+    return (value + 0xf) & ~0xf;
+}
+
 void context::write_dksh(size_t code_size, std::vector<uint64_t>& output) const
 {
     if (!type) {
@@ -88,7 +93,7 @@ void context::write_dksh(size_t code_size, std::vector<uint64_t>& output) const
         fatal_error("entrypoint is not aligned");
     }
 
-    const int local_pos_sz = (local_mem_size + 7) & ~7;
+    const int local_pos_sz = align8(local_mem_size);
     const int local_neg_sz = 0;
     const int crs_sz = 0x800;
 
