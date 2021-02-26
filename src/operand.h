@@ -296,6 +296,18 @@ DEFINE_OPERAND(pred)
 }
 
 template <int address>
+DEFINE_OPERAND(inverted_pred)
+{
+    CHECK(confirm_type(token, token_type::predicate));
+    op.add_bits(static_cast<uint64_t>(7 - token.data.predicate.index) << address);
+    if (token.data.predicate.negated) {
+        return fail(token, "predicate can't be negated");
+    }
+    token = ctx.tokenize();
+    return {};
+}
+
+template <int address>
 DEFINE_OPERAND(neg)
 {
     if (token.type == token_type::minus) {

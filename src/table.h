@@ -239,6 +239,7 @@ const insn table[]{
     INSN(0xEF58000000000000ULL, RD, "STS", memory::size, memory::address, comma, sgpr<0>),
     INSN(0xEF50000000000000ULL, RD, "STL", stl::cache, memory::size, memory::address, comma, sgpr<0>),
     INSN(0xEED0000000000000ULL, RD|WR, "LDG", stg::e, ldg::cache, ldg::size, dgpr<0>, comma, memory::address),
+    INSN(0xEEC8000000000000ULL, RD|WR, "LDG", stg::e, ldg::cache, ldg::size, inverted_pred<41>, comma, dgpr<0>, comma, memory::address<true, 20, 20>),
     INSN(0xEF48000000000000ULL, RD|WR, "LDS", lds::u, memory::size, dgpr<0>, comma, memory::address),
     INSN(0xEF40000000000000ULL, RD|WR, "LDL", ldl::cache, memory::size, dgpr<0>, comma, memory::address),
     INSN(0xEBF8000000000000ULL, RD|WR, "RED", red::e, red::operation, atomic_size<20>, memory::address<true, 28, 20, 0>, comma, sgpr<0>),
