@@ -1144,6 +1144,11 @@ DEFINE_OPERAND(atomic_size)
     return {};
 }
 
+namespace vote
+{
+    DEFINE_DOT_TABLE(operation, -1, 48, "ALL", "ANY", "EQ");
+}
+
 namespace atom
 {
     DEFINE_FLAG(e, ".E", 48);

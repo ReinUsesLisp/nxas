@@ -235,6 +235,7 @@ const insn table[]{
     INSN(0xEB08000000000000ULL, 0, "SULD", image::p, image::type, load_cache<24>, image::rgba, image::clamp, dgpr<0>, comma, memory::address<false>, comma, uinteger<13, 36>),
     INSN(0xEB00000000000000ULL, 0, "SULD", image::d, image::ba<23>, image::type, load_cache<24>, image::size, image::clamp, dgpr<0>, comma, memory::address<false>, comma, sgpr<39>),
     INSN(0xEB08000000000000ULL, 0, "SULD", image::d, image::ba<23>, image::type, load_cache<24>, image::size, image::clamp, dgpr<0>, comma, memory::address<false>, comma, uinteger<13, 36>),
+    INSN(0x50D8000000000000ULL, 0, "VOTE", vote::operation, dgpr<0>, comma, pred<45, false>, comma, pred<39, true>),
     INSN(0xEED8000000000000ULL, RD, "STG", stg::e, store_cache<46>, memory::size, memory::address, comma, sgpr<0>),
     INSN(0xEF58000000000000ULL, RD, "STS", memory::size, memory::address, comma, sgpr<0>),
     INSN(0xEF50000000000000ULL, RD, "STL", stl::cache, memory::size, memory::address, comma, sgpr<0>),
