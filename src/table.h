@@ -125,8 +125,9 @@ const insn table[]{
     INSN(0x7000000000000000ULL, 0, "HFMA2", fp16::merge<49>, fp16::control<57>, sat<52>, dgpr<0>, comma, sgpr<8>, fp16::swizzle<47>, comma, fimm16_high<56>, comma, fimm16_low<29>, comma, neg<51>, sgpr<39>, fp16::swizzle<53>),
     INSN(0x6080000000000000ULL, 0, "HFMA2", fp16::merge<49>, fp16::control<57>, sat<52>, dgpr<0>, comma, sgpr<8>, fp16::swizzle<47>, comma, neg<56>, sgpr<39>, fp16::swizzle<53>, comma, neg<51>, cbuf),
     INSN(0x5D00000000000000ULL, 0, "HFMA2", fp16::merge<49>, fp16::control<37>, sat<32>, dgpr<0>, comma, sgpr<8>, fp16::swizzle<47>, comma, neg<31>, sgpr<20>, fp16::swizzle<28>, comma, neg<30>, sgpr<39>, fp16::swizzle<35>),
-    INSN(0x5D08000000000000ULL, 0, "HMUL2", fp16::merge<49>, fp16::control<39>, sat<32>, dgpr<0>, comma, abs<44, sgpr<8>>, fp16::swizzle<47>, comma, neg<31>, abs<30, sgpr<20>>, fp16::swizzle<28>),
-    INSN(0x7880000000000000ULL, 0, "HMUL2", fp16::merge<49>, fp16::control<39>, sat<52>, dgpr<0>, comma, neg<43>, abs<44, sgpr<8>>, fp16::swizzle<47>, comma, abs<54, cbuf>),
+    INSN(0x5D08000000000000ULL, 0, "HMUL2", fp16::merge<49>, fp16::control<39>, sat<32>, dgpr<0>, comma,          abs<44, sgpr<8>>, fp16::swizzle<47>, comma, neg<31>, abs<30, sgpr<20>>, fp16::swizzle<28>),
+    INSN(0x7880000000000000ULL, 0, "HMUL2", fp16::merge<49>, fp16::control<39>, sat<52>, dgpr<0>, comma,          abs<44, sgpr<8>>, fp16::swizzle<47>, comma, neg<43>, abs<54, cbuf>),
+    INSN(0x7800000000000000ULL, 0, "HMUL2", fp16::merge<49>, fp16::control<39>, sat<52>, dgpr<0>, comma, neg<43>, abs<44, sgpr<8>>, fp16::swizzle<47>, comma, fimm16_high<56>, comma, fimm16_low<29>),
     // TODO: HMUL2 immediate
     INSN(0x5D10000000000000ULL, 0, "HADD2", fp16::merge<49>, ftz<39>, sat<32>, dgpr<0>, comma, neg<43>, abs<44, sgpr<8>>, fp16::swizzle<47>, comma, neg<31>, abs<30, sgpr<20>>, fp16::swizzle<28>),
     INSN(0x7A80000000000000ULL, 0, "HADD2", fp16::merge<49>, ftz<39>, sat<52>, dgpr<0>, comma, neg<43>, abs<44, sgpr<8>>, fp16::swizzle<47>, comma, neg<56>, abs<54, cbuf>),
