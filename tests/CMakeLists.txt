@@ -3,7 +3,7 @@ target_link_libraries(nxas_tester nxas_lib)
 target_include_directories(nxas_tester PRIVATE nxas_lib)
 
 # Regex search and replace format:
-# ^( *)([a-zA-Z _\.0-9-\[\]\,\|!]*); *\/\* (0x[0-9a-f]*) \*\/
+# ^( *)([a-zA-Z _\.0-9-+\[\]\,\|!]*); *\/\* (0x[0-9a-f]*) \*\/
 # $1"$3 $2"
 
 set(tests
@@ -383,6 +383,15 @@ set(tests
     "0x710001cb93270100 HFMA2 R0, R1, -15, 18, R3"
     "0x710801cb93270100 HFMA2 R0, R1, -15, 18, -R3"
     "0x5d08000000270100 HMUL2 R0, R1, R2"
+    "0x28045007fff70100 HFMA2_32I R0, R1, 5, +QNAN , R0"
+    "0x28845007fff70100 HFMA2_32I.FTZ R0, R1, 5, +QNAN , R0"
+    "0x29045007fff70100 HFMA2_32I.FMZ R0, R1, 5, +QNAN , R0"
+    "0x28645007fff70100 HFMA2_32I R0, R1.H1_H1, 5, +QNAN , R0"
+    "0x28445007fff70100 HFMA2_32I R0, R1.H0_H0, 5, +QNAN , R0"
+    "0x28245007fff70100 HFMA2_32I R0, R1.F32, 5, +QNAN , R0"
+    "0x280c5007fff70100 HFMA2_32I R0, R1, -5, +QNAN , R0"
+    "0x2804500ffff70100 HFMA2_32I R0, R1, 5, -QNAN , R0"
+    "0x28145007fff70100 HFMA2_32I R0, R1, 5, +QNAN , -R0"
     "0x5d0a000000270100 HMUL2.F32 R0, R1, R2"
     "0x5d0c000000270100 HMUL2.MRG_H0 R0, R1, R2"
     "0x5d0e000000270100 HMUL2.MRG_H1 R0, R1, R2"
