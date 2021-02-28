@@ -201,15 +201,25 @@ DEFINE_OPERAND(fimm32)
 }
 
 template <int neg_bit>
-DEFINE_OPERAND(fimm16_low)
+DEFINE_OPERAND(fimm9_low)
 {
     return assemble_half_float_immediate(ctx, token, op, 9, 20, neg_bit);
 }
 
 template <int neg_bit>
-DEFINE_OPERAND(fimm16_high)
+DEFINE_OPERAND(fimm9_high)
 {
     return assemble_half_float_immediate(ctx, token, op, 9, 30, neg_bit);
+}
+
+DEFINE_OPERAND(fimm16_low)
+{
+    return assemble_half_float_immediate(ctx, token, op, 16, 20, -1);
+}
+
+DEFINE_OPERAND(fimm16_high)
+{
+    return assemble_half_float_immediate(ctx, token, op, 16, 36, -1);
 }
 
 DEFINE_UINT(uimm32, UINT32_MAX, 20);

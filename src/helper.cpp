@@ -208,22 +208,20 @@ error assemble_half_float_immediate(context& ctx, token& token, opcode& op, int 
     switch (token.type) {
     case token_type::float_immediate:
         value = fp32_to_fp16(token.data.float_immediate);
-        if (token.data.float_immediate < 0) {
+        if (token.data.float_immediate < 0 && neg_bit >= 0) {
             op.add_bits(1ULL << neg_bit);
         }
         break;
     case token_type::immediate:
         value = fp32_to_fp16(static_cast<float>(token.data.immediate));
-        if (token.data.immediate < 0) {
+        if (token.data.immediate < 0 && neg_bit >= 0) {
             op.add_bits(1ULL << neg_bit);
         }
         break;
     case token_type::plus:
     case token_type::minus:
     case token_type::identifier: {
-        if (token.type == token_type::minus) {
-            op.add_bits(1ULL << neg_bit);
-        }
+        const bool negate = token.type == token_type::minus;
         if (token.type != token_type::identifier) {
             token = ctx.tokenize();
         }
@@ -233,6 +231,13 @@ error assemble_half_float_immediate(context& ctx, token& token, opcode& op, int 
             value = 0x7c00;
         } else {
             return fail(token, MESSAGE);
+        }
+        if (negate) {
+            if (neg_bit >= 0) {
+                op.add_bits(1ULL << neg_bit);
+            } else {
+                value |= 0x8000;
+            }
         }
         break;
     }
