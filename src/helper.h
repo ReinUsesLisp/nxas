@@ -38,4 +38,7 @@ error assemble_signed_20bit_immediate(context& ctx, token& token, opcode& op);
 
 error assemble_float_immediate(context& ctx, token& token, opcode& op, int bits);
 
+error assemble_half_float_immediate(context& ctx, token& token, opcode& op, int bits, int offset,
+                                    int neg_bit);
+
 error assemble_constant_buffer(context& ctx, token& token, opcode& op);

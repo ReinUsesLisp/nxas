@@ -200,6 +200,18 @@ DEFINE_OPERAND(fimm32)
     return assemble_float_immediate(ctx, token, op, 32);
 }
 
+template <int neg_bit>
+DEFINE_OPERAND(fimm16_low)
+{
+    return assemble_half_float_immediate(ctx, token, op, 9, 20, neg_bit);
+}
+
+template <int neg_bit>
+DEFINE_OPERAND(fimm16_high)
+{
+    return assemble_half_float_immediate(ctx, token, op, 9, 30, neg_bit);
+}
+
 DEFINE_UINT(uimm32, UINT32_MAX, 20);
 
 DEFINE_INT(simm32, 32, 20);

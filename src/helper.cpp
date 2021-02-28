@@ -5,6 +5,7 @@
 #include <limits>
 
 #include "context.h"
+#include "fp16.h"
 #include "helper.h"
 #include "operand.h"
 #include "token.h"
@@ -191,6 +192,58 @@ error assemble_float_immediate(context& ctx, token& token, opcode& op, int bits)
         }
     } else if (bits == 32) {
         op.add_bits(static_cast<uint64_t>(raw) << 20);
+    } else {
+        assert(false && "invalid bits");
+    }
+    token = ctx.tokenize();
+    return {};
+}
+
+error assemble_half_float_immediate(context& ctx, token& token, opcode& op, int bits, int offset,
+                                    int neg_bit)
+{
+    static constexpr char MESSAGE[] = "expected floating-point literal, QNAN, or INF";
+
+    uint16_t value;
+    switch (token.type) {
+    case token_type::float_immediate:
+        value = fp32_to_fp16(token.data.float_immediate);
+        if (token.data.float_immediate < 0) {
+            op.add_bits(1ULL << neg_bit);
+        }
+        break;
+    case token_type::immediate:
+        value = fp32_to_fp16(static_cast<float>(token.data.immediate));
+        if (token.data.immediate < 0) {
+            op.add_bits(1ULL << neg_bit);
+        }
+        break;
+    case token_type::plus:
+    case token_type::minus:
+    case token_type::identifier: {
+        if (token.type == token_type::minus) {
+            op.add_bits(1ULL << neg_bit);
+        }
+        if (token.type != token_type::identifier) {
+            token = ctx.tokenize();
+        }
+        if (equal(token, "QNAN")) {
+            value = 0x7fff;
+        } else if (equal(token, "INF")) {
+            value = 0x7c00;
+        } else {
+            return fail(token, MESSAGE);
+        }
+        break;
+    }
+    default:
+        return fail(token, MESSAGE);
+    }
+    if (bits == 9) {
+        // TODO: add a setting to warn/error precision losses
+        op.add_bits(static_cast<uint64_t>(static_cast<uint16_t>(value << 1) >> 7) << offset);
+    } else if (bits == 16) {
+        op.add_bits(static_cast<uint64_t>(value) << offset);
     } else {
         assert(false && "invalid bits");
     }
