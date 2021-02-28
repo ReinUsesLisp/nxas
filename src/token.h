@@ -33,7 +33,7 @@ union token_data
     token_predicate predicate;
     std::string_view string{};
     int64_t immediate;
-    float float_immediate;
+    double float_immediate;
     uint8_t regster;
 };
 

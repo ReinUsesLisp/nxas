@@ -200,6 +200,11 @@ DEFINE_OPERAND(fimm32)
     return assemble_float_immediate(ctx, token, op, 32);
 }
 
+DEFINE_OPERAND(dimm20)
+{
+    return assemble_double_immediate(ctx, token, op);
+}
+
 template <int neg_bit>
 DEFINE_OPERAND(fimm9_low)
 {

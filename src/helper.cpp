@@ -199,6 +199,53 @@ error assemble_float_immediate(context& ctx, token& token, opcode& op, int bits)
     return {};
 }
 
+error assemble_double_immediate(context& ctx, token& token, opcode& op)
+{
+    static constexpr char MESSAGE[] = "expected floating-point literal, QNAN, or INF";
+
+    double value;
+    switch (token.type) {
+    case token_type::float_immediate:
+        value = token.data.float_immediate;
+        if (value < 0) {
+            op.add_bits(1ULL << 56);
+        }
+        break;
+    case token_type::immediate:
+        value = static_cast<double>(token.data.immediate);
+        if (value < 0) {
+            op.add_bits(1ULL << 56);
+        }
+        break;
+    case token_type::plus:
+    case token_type::minus:
+    case token_type::identifier: {
+        if (token.type == token_type::minus) {
+            op.add_bits(1ULL << 56);
+        }
+        if (token.type != token_type::identifier) {
+            token = ctx.tokenize();
+        }
+        if (equal(token, "QNAN")) {
+            value = std::numeric_limits<double>::quiet_NaN();
+        } else if (equal(token, "INF")) {
+            value = std::numeric_limits<double>::infinity();
+        } else {
+            return fail(token, MESSAGE);
+        }
+        break;
+    }
+    default:
+        return fail(token, MESSAGE);
+    }
+    uint64_t raw;
+    std::memcpy(&raw, &value, sizeof(raw));
+    op.add_bits((static_cast<uint64_t>(raw << 1) >> 45) << 20);
+
+    token = ctx.tokenize();
+    return {};
+}
+
 error assemble_half_float_immediate(context& ctx, token& token, opcode& op, int bits, int offset,
                                     int neg_bit)
 {
