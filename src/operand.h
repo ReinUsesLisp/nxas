@@ -1045,7 +1045,7 @@ namespace i2f
             if (!result) {
                 return fail(token, "expected .U8, .U16, .U32, .U64, .S8, .S16, .S32 or .S64");
             }
-            op.add_bits(1ULL << 14);
+            op.add_bits(1ULL << 13);
         }
         op.add_bits(*result << 10);
         token = ctx.tokenize();
