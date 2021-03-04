@@ -131,7 +131,8 @@ token context::tokenize()
             // if it's not a separator, we might have an identifier (e.g. P2R)
         }
     }
-    if (is_decimal(character) || is_contained("+-", character)) {
+    // special case for 1D, 2D... to not be considered an immediate number
+    if ((is_decimal(character) || is_contained("+-", character)) && text[1] != 'D') {
         token.type = token_type::immediate;
         bool has_hex = false;
         bool is_floating_point = false;

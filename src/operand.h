@@ -1286,3 +1286,56 @@ namespace red
 
     DEFINE_DOT_TABLE(operation, 0, 23, "ADD", "MIN", "MAX", "INC", "DEC", "AND", "OR", "XOR")
 }
+
+template <int address>
+DEFINE_FLAG(ndv, ".NDV", address);
+
+template <int address>
+DEFINE_FLAG(nodep, ".NODEP", address);
+
+template <int address>
+DEFINE_FLAG(dc, ".DC", address);
+
+template <int address>
+DEFINE_FLAG(aoffi, ".AOFFI", address);
+
+template <int address>
+DEFINE_FLAG(lc, ".LC", address);
+
+template <int address>
+DEFINE_DOT_TABLE(blod, 0, address, "", "LZ", "LB", "LL", "INVALIDBLOD4", "INVALIDBLOD5", "LBA",
+                 "LLA");
+
+template <int address>
+DEFINE_OPERAND(tex_type)
+{
+    static const char* types[]{
+        "1D", "ARRAY_1D", "2D", "ARRAY_2D", "3D", "ARRAY_3D", "CUBE", "ARRAY_CUBE",
+    };
+    const std::optional<uint64_t> result = find_in_table(token, types, "");
+    if (!result) {
+        return fail(token,
+                    "expected 1D, ARRAY_1D, 2D, ARRAY_2D, 3D, ARRAY_3D, CUBE, or ARRAY_CUBE");
+    }
+    token = ctx.tokenize();
+    op.add_bits(*result << address);
+    return {};
+}
+
+DEFINE_OPERAND(b_text)
+{
+    if (!equal(token, ".B")) {
+        return fail(token, "expected .B");
+    }
+    token = ctx.tokenize();
+    return {};
+}
+
+DEFINE_OPERAND(zero)
+{
+    if (token.type != token_type::immediate || token.data.immediate != 0) {
+        return fail(token, "expected 0");
+    }
+    token = ctx.tokenize();
+    return {};
+}
