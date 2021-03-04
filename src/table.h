@@ -64,6 +64,7 @@ const insn table[]{
     INSN(0xE3A0000000000000ULL, 0, "BPT", bpt::mode, uinteger<20, 20>),
     INSN(0xE3A0000000000000ULL, 0, "BPT", bpt::mode),
     INSN(0x5098000000000000ULL, 0, "CSET", bf<44>, cc_tests, bop<45>, dgpr<0>, cc, comma, cc_text, comma, pred<39, true>),
+    INSN(0x50A0000000000000ULL, 0, "CSETP", cc_tests, bop<45>, pred<3>, comma, pred<0>, comma, cc_text, comma, pred<39, true>),
     INSN(0x5C70000000000000ULL, 0, "DADD", fp_rounding<39>, dgpr<0>, cc, comma, neg<48>, abs<46, sgpr<8>>, comma, neg<45>, abs<49, sgpr<20>>),
     INSN(0x4C70000000000000ULL, 0, "DADD", fp_rounding<39>, dgpr<0>, cc, comma, neg<48>, abs<46, sgpr<8>>, comma, neg<45>, abs<49, cbuf>),
     INSN(0x3870000000000000ULL, 0, "DADD", fp_rounding<39>, dgpr<0>, cc, comma, neg<48>, abs<46, sgpr<8>>, comma, dimm20, post_neg<45>, post_abs<49>),
