@@ -600,19 +600,22 @@ namespace b2r
 namespace nop
 {
     DEFINE_FLAG(trig, ".TRIG", 13);
-
-    DEFINE_OPERAND(tests)
-    {
-        static const char* tests[] = {
-            "F",       "LT",      "EQ",      "LE",  "GT",  "NE",   "GE",     "NUM",    "NAN",
-            "LTU",     "EQU",     "LEU",     "GTU", "NEU", "GEU",  "T",      "OFF",    "LO",
-            "SFF",     "LS",      "HI",      "SFT", "HS",  "OFT",  "CSM_TA", "CSM_TR", "CSM_MX",
-            "FCSM_TA", "FCSM_TR", "FCSM_MX", "RLE", "RGT", nullptr};
-        return assemble_cc_tests(ctx, op, token, tests, 8);
-    }
-
     DEFINE_UINT(mask, UINT16_MAX, 20);
 }
+
+DEFINE_OPERAND(cc_text)
+{
+    if (!equal(token, "CC")) {
+        return fail(token, "expected CC");
+    }
+    token = ctx.tokenize();
+    return {};
+}
+
+DEFINE_DOT_TABLE(cc_tests, 15, 8, "F", "LT", "EQ", "LE", "GT", "NE", "GE", "NUM", "NAN", "LTU",
+                 "EQU", "LEU", "GTU", "NEU", "GEU", "T", "OFF", "LO", "SFF", "LS", "HI", "SFT",
+                 "HS", "OFT", "CSM_TA", "CSM_TR", "CSM_MX", "FCSM_TA", "FCSM_TR", "FCSM_MX", "RLE",
+                 "RGT");
 
 namespace xmad
 {
