@@ -1339,3 +1339,178 @@ DEFINE_OPERAND(zero)
     token = ctx.tokenize();
     return {};
 }
+
+template <int address>
+DEFINE_DOT_TABLE(sample_size, 1, address, "F16", "");
+
+enum class Lod
+{
+    None,
+    LL,
+    LZ,
+};
+
+template <int address>
+DEFINE_OPERAND(texs_mode)
+{
+    Lod lod = Lod::None;
+    bool dc = false;
+
+    if (equal(token, ".LZ")) {
+        lod = Lod::LZ;
+        token = ctx.tokenize();
+    } else if (equal(token, ".LL")) {
+        lod = Lod::LL;
+        token = ctx.tokenize();
+    }
+    if (equal(token, ".DC")) {
+        dc = true;
+        token = ctx.tokenize();
+    }
+    // Write in the opcode as a payload, these values don't match the actual ISA
+    op.add_bits(((dc ? 0b100ULL : 0ULL) | static_cast<uint64_t>(lod)) << address);
+    return {};
+}
+
+template <int address>
+DEFINE_OPERAND(texs_type)
+{
+    static constexpr const char* table[]{
+        "1D", "2D", "", "", "", "", "", "ARRAY_2D", "", "", "3D", "", "CUBE", "", nullptr,
+    };
+    const std::optional<uint64_t> type = find_in_table(token, table, "");
+    if (!type) {
+        return fail(token, "expected 1D, 2D, ARRAY_2D, 3D, or CUBE");
+    }
+    const Lod lod = static_cast<Lod>((op.value >> address) & 0b011);
+    const bool dc = ((op.value >> address) & 0b100) != 0;
+    op.value &= ~(uint64_t{0b111} << address);
+
+    switch (*type) {
+    case 0: // 1D
+        if (lod != Lod::LZ || dc) {
+            return fail(token, "1D is only valid with LZ and no-DC");
+        }
+        op.add_bits(0x0000000000000000ULL);
+        break;
+    case 1: // 2D
+        if (dc) {
+            switch (lod) {
+            case Lod::None:
+                op.add_bits(0x0080000000000000ULL);
+                break;
+            case Lod::LZ:
+                op.add_bits(0x00C0000000000000ULL);
+                break;
+            case Lod::LL:
+                op.add_bits(0x00A0000000000000ULL);
+                break;
+            }
+        } else {
+            switch (lod) {
+            case Lod::None:
+                op.add_bits(0x0020000000000000ULL);
+                break;
+            case Lod::LZ:
+                op.add_bits(0x0040000000000000ULL);
+                break;
+            case Lod::LL:
+                op.add_bits(0x0060000000000000ULL);
+                break;
+            }
+        }
+        break;
+    case 7: // ARRAY_2D
+        if (dc) {
+            if (lod != Lod::LZ) {
+                return fail(token, "DC ARRAY_2D is only valid with LZ");
+            }
+            op.add_bits(0x0120000000000000ULL);
+        } else {
+            switch (lod) {
+            case Lod::None:
+                op.add_bits(0x00E0000000000000ULL);
+                break;
+            case Lod::LZ:
+                op.add_bits(0x0100000000000000ULL);
+                break;
+            default:
+                return fail(token, "LL ARRAY_2D is illegal");
+            }
+        }
+        break;
+    case 10: // 3D
+        if (dc) {
+            return fail(token, "3D cannot be DC");
+        }
+        switch (lod) {
+        case Lod::None:
+            op.add_bits(0x0140000000000000ULL);
+            break;
+        case Lod::LZ:
+            op.add_bits(0x0160000000000000ULL);
+            break;
+        default:
+            return fail(token, "3D can only have the default lod or LZ");
+        }
+        break;
+    case 12: // CUBE
+        if (dc) {
+            return fail(token, "CUBE cannot be DC");
+        }
+        switch (lod) {
+        case Lod::None:
+            op.add_bits(0x0180000000000000ULL);
+            break;
+        case Lod::LL:
+            op.add_bits(0x01A0000000000000ULL);
+            break;
+        default:
+            return fail(token, "CUBE can only have the default lod or LL");
+        }
+        break;
+    }
+    token = ctx.tokenize();
+    return {};
+}
+
+DEFINE_OPERAND(texs_swizzle)
+{
+    if (((op.value >> 28) & 0xFF) == 0xFF) {
+        if (equal(token, "R")) {
+            op.add_bits(0x0000000000000000ULL);
+        } else if (equal(token, "G")) {
+            op.add_bits(0x0004000000000000ULL);
+        } else if (equal(token, "B")) {
+            op.add_bits(0x0008000000000000ULL);
+        } else if (equal(token, "A")) {
+            op.add_bits(0x000C000000000000ULL);
+        } else if (equal(token, "RG")) {
+            op.add_bits(0x0010000000000000ULL);
+        } else if (equal(token, "RA")) {
+            op.add_bits(0x0014000000000000ULL);
+        } else if (equal(token, "GA")) {
+            op.add_bits(0x0018000000000000ULL);
+        } else if (equal(token, "BA")) {
+            op.add_bits(0x001C000000000000ULL);
+        } else {
+            return fail(token, "invalid RGBA swizzle");
+        }
+    } else {
+        if (equal(token, "RGB")) {
+            op.add_bits(0x0000000000000000ULL);
+        } else if (equal(token, "RGA")) {
+            op.add_bits(0x0004000000000000ULL);
+        } else if (equal(token, "RBA")) {
+            op.add_bits(0x0008000000000000ULL);
+        } else if (equal(token, "GBA")) {
+            op.add_bits(0x000C000000000000ULL);
+        } else if (equal(token, "RGBA")) {
+            op.add_bits(0x0010000000000000ULL);
+        } else {
+            return fail(token, "invalid RGBA swizzle");
+        }
+    }
+    token = ctx.tokenize();
+    return {};
+}
