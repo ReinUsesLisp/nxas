@@ -475,7 +475,9 @@ DEFINE_DOT_TABLE(load_cache, 0, address, "", "CG", "CI", "CV");
 
 namespace lop
 {
-    DEFINE_DOT_TABLE(bit_op, -1, 41, "AND", "OR", "XOR", "PASS_B");
+    template <int address>
+    DEFINE_DOT_TABLE(bit_op, -1, address, "AND", "OR", "XOR", "PASS_B");
+
     DEFINE_DOT_TABLE(pred_op, 0, 44, "", "T", "Z", "NZ");
 }
 

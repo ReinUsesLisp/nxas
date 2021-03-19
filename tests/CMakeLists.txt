@@ -3,7 +3,7 @@ target_link_libraries(nxas_tester nxas_lib)
 target_include_directories(nxas_tester PRIVATE nxas_lib)
 
 # Regex search and replace format:
-# ^( *)([a-zA-Z _\.0-9-+\[\]\,\|!]*); *\/\* (0x[0-9a-f]*) \*\/
+# ^( *)([a-zA-Z _\.0-9-+\[\]\,\|!\~]*); *\/\* (0x[0-9a-f]*) \*\/
 # $1"$3 $2"
 
 set(tests
@@ -445,6 +445,10 @@ set(tests
     "0x5c44af0000570206 LOP.PASS_B.X.Z P4, R6.CC, R2, ~R5"
     "0x4c44840800070206 LOP.XOR P4, R6.CC, R2, c[0x2][0x0]"
     "0x38450000062702ff LOP.AND P5, RZ, R2, 0x62"
+    "0x071deadbeef70703 LOP32I.AND.X R3.CC, R7, 0xdeadbeef .INV"
+    "0x073deadbeef70703 LOP32I.OR.X R3.CC, R7, 0xdeadbeef .INV"
+    "0x04caaaa000270703 LOP32I.XOR R3, ~R7, 0xaaaa0002"
+    "0x04eaaaa000270703 LOP32I.PASS_B R3, ~R7, 0xaaaa0002"
     "0x5be7ffffffffffff @!PT LOP3.LUT.X.NZ RZ.CC, RZ, RZ, RZ, 0xff"
     "0x3cffffffffffffff @!PT LOP3.LUT RZ.CC, RZ, 0x7ffff, RZ, 0xff"
     "0x02ffffffffffffff @!PT LOP3.LUT RZ.CC, RZ, c[0x1f][-0x4], RZ, 0xff"
