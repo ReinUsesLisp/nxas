@@ -1516,3 +1516,12 @@ DEFINE_OPERAND(texs_swizzle)
     token = ctx.tokenize();
     return {};
 }
+
+namespace tld4
+{
+    template <int address>
+    DEFINE_DOT_TABLE(component, -1, address, "R", "G", "B", "A");
+
+    template <int address>
+    DEFINE_DOT_TABLE(offset, 0, address, "", "AOFFI", "PTP");
+}
