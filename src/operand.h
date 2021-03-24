@@ -1618,3 +1618,21 @@ DEFINE_FLAG(ms, ".MS", address);
 
 template <int address>
 DEFINE_FLAG(cl, ".CL", address);
+
+namespace txq
+{
+    DEFINE_OPERAND(mode)
+    {
+        static const char* modes[]{
+            "", "TEX_HEADER_DIMENSION", "TEX_HEADER_TEXTURE_TYPE", "", "", "TEX_HEADER_SAMPLER_POS", nullptr
+        };
+        const std::optional<uint64_t> result = find_in_table(token, modes, "");
+        if (!result) {
+            return fail(token, "invalid mode");
+        }
+        op.add_bits(*result << 22);
+
+        token = ctx.tokenize();
+        return {};
+    }
+}

@@ -276,6 +276,8 @@ const insn table[]{
     INSN(0xD200000000000000ULL, 0, "TLDS", sample_size<59>, tld::lod<53>, aoffi<54>, ms<55>, nodep<49>, dgpr<28>, comma, dgpr<0>, comma, sgpr<8>, comma, sgpr<20>, comma, uinteger<13, 36>, comma, tlds_type<53>, comma, texs_swizzle),
     INSN(0xDF58000000000000ULL, 0, "TMML",         lod_text, ndv<35>, nodep<49>, dgpr<0>, comma, sgpr<8>, comma,      uinteger<13, 36>, comma, tex_type<28>, comma, uinteger<4, 31>),
     INSN(0xDF60000000000000ULL, 0, "TMML", b_text, lod_text, ndv<35>, nodep<49>, dgpr<0>, comma, sgpr<8>, comma, sgpr<20>, comma, zero, comma, tex_type<28>, comma, uinteger<4, 31>),
+    INSN(0xDF48000000000000ULL, 0, "TXQ",         nodep<49>, dgpr<0>, comma, sgpr<8>, comma, txq::mode, comma, uinteger<13, 36>, comma, uinteger<4, 31>),
+    INSN(0xDF50000000000000ULL, 0, "TXQ", b_text, nodep<49>, dgpr<0>, comma, sgpr<8>, comma, txq::mode, comma,             zero, comma, uinteger<4, 31>),
     INSN(0xEED0000000000000ULL, RD|WR, "LDG", stg::e, ldg::cache, ldg::size, dgpr<0>, comma, memory::address),
     INSN(0xEEC8000000000000ULL, RD|WR, "LDG", stg::e, ldg::cache, ldg::size, inverted_pred<41>, comma, dgpr<0>, comma, memory::address<true, 20, 20>),
     INSN(0xEF48000000000000ULL, RD|WR, "LDS", lds::u, memory::size, dgpr<0>, comma, memory::address),
