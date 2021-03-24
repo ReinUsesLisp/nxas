@@ -1333,6 +1333,15 @@ DEFINE_OPERAND(b_text)
     return {};
 }
 
+DEFINE_OPERAND(lod_text)
+{
+    if (!equal(token, ".LOD")) {
+        return fail(token, "expected .LOD");
+    }
+    token = ctx.tokenize();
+    return {};
+}
+
 DEFINE_OPERAND(zero)
 {
     if (token.type != token_type::immediate || token.data.immediate != 0) {
