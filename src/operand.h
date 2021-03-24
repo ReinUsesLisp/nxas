@@ -1378,6 +1378,75 @@ DEFINE_OPERAND(texs_mode)
 }
 
 template <int address>
+DEFINE_OPERAND(tlds_type)
+{
+    static constexpr const char* table[]{
+        "1D", "2D", "3D", "ARRAY_2D", nullptr,
+    };
+    const bool ll = ((op.value >> address) & 1) != 0;
+    const bool aoffi = ((op.value >> (address + 1)) & 1) != 0;
+    const bool ms = ((op.value >> (address + 2)) & 1) != 0;
+    op.value &= ~(uint64_t(0b111) << address);
+
+    const std::optional<uint64_t> type = find_in_table(token, table, "");
+    if (!type) {
+        return fail(token, "expected 1D, 2D, ARRAY_2D, or 3D");
+    }
+    uint64_t mode = 0;
+    switch (*type) {
+    case 0: // 1D
+        if (aoffi) {
+            return fail(token, "1D has no AOFFI");
+        }
+        if (ms) {
+            return fail(token, "1D has no MS");
+        }
+        mode = ll ? 1 : 0;
+        break;
+    case 1: // 2D
+        if (aoffi && ms) {
+            return fail(token, "AOFFI and MS can't be used at the same time");
+        }
+        if (ll) {
+            if (ms) {
+                return fail(token, "LL can't be used with MS in 2D");
+            }
+            mode = aoffi ? 12 : 5;
+        } else {
+            if (aoffi) {
+                mode = 4;
+            } else if (ms) {
+                mode = 6;
+            } else {
+                mode = 2;
+            }
+        }
+        break;
+    case 2: // 3D
+        if (aoffi) {
+            return fail(token, "AOFFI can't be used in 3D");
+        }
+        if (ms) {
+            return fail(token, "MS can't be used in 3D");
+        }
+        mode = 7;
+        break;
+    case 3: // ARRAY_2D
+        if (aoffi) {
+            return fail(token, "AOFFI can't be used in ARRAY_2D");
+        }
+        if (ms) {
+            return fail(token, "MS can't be used in ARRAY_2D");
+        }
+        mode = 8;
+        break;
+    }
+    op.add_bits(mode << address);
+    token = ctx.tokenize();
+    return {};
+}
+
+template <int address>
 DEFINE_OPERAND(texs_type)
 {
     static constexpr const char* table[]{
