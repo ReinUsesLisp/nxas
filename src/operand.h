@@ -1345,6 +1345,9 @@ DEFINE_OPERAND(zero)
 template <int address>
 DEFINE_DOT_TABLE(sample_size, 1, address, "F16", "");
 
+template <int address>
+DEFINE_DOT_TABLE(sample_size_inv, 0, address, "", "F16");
+
 enum class Lod
 {
     None,
