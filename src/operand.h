@@ -1528,3 +1528,15 @@ namespace tld4
     template <int address>
     DEFINE_DOT_TABLE(offset, 0, address, "", "AOFFI", "PTP");
 }
+
+namespace tld
+{
+    template <int address>
+    DEFINE_DOT_TABLE(lod, -1, address, "LZ", "LL");
+}
+
+template <int address>
+DEFINE_FLAG(ms, ".MS", address);
+
+template <int address>
+DEFINE_FLAG(cl, ".CL", address);
