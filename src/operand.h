@@ -1250,11 +1250,15 @@ namespace video
         if (!result) {
             is_signed = false;
             result = find_in_table(token, unsigned_table, ".");
+            if (!result) {
+                is_signed = true;
+            }
         }
-        op.add_bits(result.value_or(2) << address); // .U32
+        if (result) {
+            token = ctx.tokenize();
+        }
+        op.add_bits(result.value_or(3) << address); // .U32
         op.add_bits((is_signed ? 1ULL : 0ULL) << sign_address);
-
-        token = ctx.tokenize();
         return {};
     }
 
@@ -1278,6 +1282,23 @@ namespace video
             token = ctx.tokenize();
         }
         op.add_bits(result.value_or(0) << address);
+        return {};
+    }
+}
+
+namespace vmad
+{
+    DEFINE_DOT_TABLE(scale, 0, 51, "", "SHR_7", "SHR_15", "INVALIDVMADSCALE3");
+
+    template <int address, int sign_address>
+    DEFINE_OPERAND(imm_format)
+    {
+        static const char* table[] = {"U16", "S16", nullptr};
+        std::optional<int64_t> result = find_in_table(token, table, ".");
+        if (result) {
+            token = ctx.tokenize();
+        }
+        op.add_bits(result.value_or(1) << sign_address);
         return {};
     }
 }
@@ -1624,7 +1645,13 @@ namespace txq
     DEFINE_OPERAND(mode)
     {
         static const char* modes[]{
-            "", "TEX_HEADER_DIMENSION", "TEX_HEADER_TEXTURE_TYPE", "", "", "TEX_HEADER_SAMPLER_POS", nullptr
+            "",
+            "TEX_HEADER_DIMENSION",
+            "TEX_HEADER_TEXTURE_TYPE",
+            "",
+            "",
+            "TEX_HEADER_SAMPLER_POS",
+            nullptr,
         };
         const std::optional<uint64_t> result = find_in_table(token, modes, "");
         if (!result) {
