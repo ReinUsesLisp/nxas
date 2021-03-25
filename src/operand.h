@@ -817,6 +817,13 @@ DEFINE_DOT_TABLE(float_compare, -1, address, "F", "LT", "EQ", "LE", "GT", "NE", 
 template <int address>
 DEFINE_DOT_TABLE(integer_compare, -1, address, "F", "LT", "EQ", "LE", "GT", "NE", "GE", "T");
 
+namespace vsetp
+{
+    template <int address>
+    DEFINE_DOT_TABLE(integer_compare, -1, address, "F", "LT", "EQ", "LE", "", "", "", "", "", "",
+                     "", "", "", "", "", "", "GT", "NE", "GE", "T");
+}
+
 namespace mufu
 {
     DEFINE_DOT_TABLE(operation, -1, 20, "COS", "SIN", "EX2", "LG2", "RCP", "RSQ", "RCP64H",
@@ -1284,11 +1291,6 @@ namespace video
         op.add_bits(result.value_or(0) << address);
         return {};
     }
-}
-
-namespace vmad
-{
-    DEFINE_DOT_TABLE(scale, 0, 51, "", "SHR_7", "SHR_15", "INVALIDVMADSCALE3");
 
     template <int address, int sign_address>
     DEFINE_OPERAND(imm_format)
@@ -1301,6 +1303,11 @@ namespace vmad
         op.add_bits(result.value_or(1) << sign_address);
         return {};
     }
+}
+
+namespace vmad
+{
+    DEFINE_DOT_TABLE(scale, 0, 51, "", "SHR_7", "SHR_15", "INVALIDVMADSCALE3");
 }
 
 namespace red
