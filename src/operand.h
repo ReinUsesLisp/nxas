@@ -743,7 +743,7 @@ namespace fmul
 
 namespace iadd3
 {
-    DEFINE_DOT_TABLE(shift, 0, 37, "", "LS", "RS");
+    DEFINE_DOT_TABLE(shift, 0, 37, "", "RS", "LS");
 
     template <int address>
     DEFINE_DOT_TABLE(half, 0, address, "", "H0", "H1");
